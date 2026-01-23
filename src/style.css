@@ -55,7 +55,7 @@ body {
 }
 
 .envelope-body {
-  @apply absolute inset-0 rounded-2xl border border-boda-gold/60 bg-boda-cream;
+  @apply absolute inset-0 flex items-center justify-center rounded-2xl border border-boda-gold/60 bg-boda-cream;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   z-index: 2;
 }
@@ -104,6 +104,7 @@ body {
 .letter-amp {
   @apply text-3xl font-display text-boda-terracotta;
 }
+
 
 .envelope-shadow {
   position: absolute;

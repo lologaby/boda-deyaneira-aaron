@@ -257,6 +257,7 @@ export default function App() {
   const [introState, setIntroState] = useState<'closed' | 'opening' | 'revealed'>('closed')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const introCompleted = useRef(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const prefersReducedMotion = useReducedMotion()
 
   const content = copy[lang]
@@ -305,11 +306,23 @@ export default function App() {
   const handleIntroOpen = () => {
     if (introState !== 'closed') return
     setIntroState('opening')
+    handleStartMusic()
     window.setTimeout(handleIntroComplete, prefersReducedMotion ? 0 : 3200)
   }
 
   const toggleLanguage = () => {
     setLang(prev => (prev === 'es' ? 'en' : 'es'))
+  }
+
+  const handleStartMusic = async () => {
+    const audio = audioRef.current
+    if (!audio) return
+    audio.volume = 0.5
+    try {
+      await audio.play()
+    } catch {
+      // ignore autoplay restrictions
+    }
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -342,6 +355,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-boda-cream text-boda-text">
       <Toaster position="top-center" />
+      <audio ref={audioRef} src="/audio/tqm.mp3" loop preload="none" />
       <AnimatePresence>
         {showIntro ? (
           <motion.div className="intro-overlay" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -358,7 +372,11 @@ export default function App() {
               transition={{ duration: prefersReducedMotion ? 0 : 0.6, ease: easeCurve }}
             >
               <div className="envelope-shell">
-                <div className="envelope-body" />
+                <div className="envelope-body">
+                  <span className="envelope-title">
+                    D <span className="envelope-amp">&amp;</span> A
+                  </span>
+                </div>
                 <motion.div
                   className="envelope-flap"
                   animate={introState === 'opening' ? { rotateX: 180 } : { rotateX: 0 }}
