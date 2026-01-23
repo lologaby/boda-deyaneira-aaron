@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { scroll-behavior: smooth; }
+
+body {
+  @apply bg-boda-sand text-boda-dark font-sans;
+  /* Simulación de textura de papel granulado sobre toda la web */
+  background-image: radial-gradient(#4A5D44 0.5px, transparent 0.5px), radial-gradient(#4A5D44 0.5px, #EFEBE0 0.5px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  background-blend-mode: multiply;
+}
+
+/* Títulos Elegantes */
+h1, h2, h3, h4 { @apply font-serif; }
+
+/* Botón Personalizado (Estilo Vino) */
+.btn-primary {
+  @apply bg-boda-wine text-boda-sand px-10 py-4 rounded-sm hover:bg-boda-olive transition-all duration-500 uppercase tracking-[0.2em] text-xs font-bold shadow-lg hover:shadow-xl;
+}
+
+/* Inputs minimalistas */
+.input-field {
+  @apply w-full bg-transparent border-b border-boda-olive/30 py-3 text-boda-dark focus:outline-none focus:border-boda-wine transition-colors placeholder-boda-olive/50;
+}
+
+/* --- ANIMACIÓN REVEAL (El Telón Tropical) --- */
+/* --- ANIMACIÓN REVEAL (El Telón Orgánico) --- */
+@keyframes curtainLeft {
+  0% { transform: translateX(0) scale(1); }
+  /* Añadimos un ligero scale y rotación al salir para más realismo orgánico */
+  100% { transform: translateX(-110%) scale(1.1) rotate(-2deg); opacity: 0; }
+}
+@keyframes curtainRight {
+  0% { transform: translateX(0) scale(1); }
+  100% { transform: translateX(110%) scale(1.1) rotate(2deg); opacity: 0; }
+}
+
+/* Clase base para ambos paneles */
+.reveal-panel {
+  @apply fixed inset-y-0 w-1/2 transition-transform duration-[2500ms] ease-in-out;
+  /* Asegura que la imagen cubra todo el alto y se centre */
+  background-size: cover;
+  background-repeat: no-repeat;
+  /* Un color de fondo de respaldo por si la imagen tarda en cargar */
+  background-color: #4A5D44; 
+}
+
+/* Panel Izquierdo */
+.reveal-left {
+  left: 0;
+  /* Alinea la imagen a la derecha para que el borde "cortado" quede al centro */
+  background-position: center right;
+  /* ¡AQUÍ VA TU IMAGEN IZQUIERDA! */
+  background-image: url('/images/curtain-left.png');
+  /* Sombra para dar profundidad entre las dos mitades */
+  box-shadow: 5px 0 20px -5px rgba(0,0,0,0.5);
+  z-index: 102; /* Un poco por encima para solapar la sombra */
+}
+
+/* Panel Derecho */
+.reveal-right {
+  right: 0;
+  /* Alinea la imagen a la izquierda para que se una al centro */
+  background-position: center left;
+  /* ¡AQUÍ VA TU IMAGEN DERECHA! */
+  background-image: url('/images/curtain-right.png');
+}
+
+/* Activadores de animación (El JS añade la clase .reveal-active al padre) */
+.reveal-active .reveal-left { animation: curtainLeft 3s cubic-bezier(0.7, 0, 0.2, 1) forwards; }
+.reveal-active .reveal-right { animation: curtainRight 3s cubic-bezier(0.7, 0, 0.2, 1) forwards; }
+
+/* --- MAPA MOODY (Filtro CSS avanzado) --- */
+/* Esto hace que el mapa de Google se vea verde oliva/sepia en lugar de los colores chillones */
+.map-moody {
+  filter: grayscale(100%) sepia(20%) brightness(95%) contrast(90%);
+  transition: filter 0.5s;
+}
+.map-moody:hover { filter: grayscale(0%); }
+
+/* --- COUNTDOWN --- */
+.countdown-item {
+  @apply flex flex-col items-center justify-center border-r last:border-r-0 border-boda-olive/20 px-4 md:px-8;
+}
+.countdown-num { @apply text-3xl md:text-5xl font-serif text-boda-wine; }
+.countdown-label { @apply text-[10px] uppercase tracking-widest text-boda-olive mt-1; }
