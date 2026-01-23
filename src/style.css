@@ -1,88 +1,530 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
 body {
-  @apply bg-boda-sand text-boda-dark font-sans;
-  /* Simulación de textura de papel granulado sobre toda la web */
-  background-image: radial-gradient(#4A5D44 0.5px, transparent 0.5px), radial-gradient(#4A5D44 0.5px, #EFEBE0 0.5px);
-  background-size: 20px 20px;
-  background-position: 0 0, 10px 10px;
-  background-blend-mode: multiply;
+  @apply bg-boda-cream text-boda-text font-sans;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* Títulos Elegantes */
-h1, h2, h3, h4 { @apply font-serif; }
-
-/* Botón Personalizado (Estilo Vino) */
-.btn-primary {
-  @apply bg-boda-wine text-boda-sand px-10 py-4 rounded-sm hover:bg-boda-olive transition-all duration-500 uppercase tracking-[0.2em] text-xs font-bold shadow-lg hover:shadow-xl;
+.intro-overlay {
+  @apply fixed inset-0 z-50 flex flex-col items-center justify-center text-center;
 }
 
-/* Inputs minimalistas */
-.input-field {
-  @apply w-full bg-transparent border-b border-boda-olive/30 py-3 text-boda-dark focus:outline-none focus:border-boda-wine transition-colors placeholder-boda-olive/50;
+.intro-bg {
+  @apply absolute inset-0;
+  background: radial-gradient(circle at 40% 20%, #f6d4c3, #e89c7c 40%, #d47e66 100%);
 }
 
-/* --- ANIMACIÓN REVEAL (El Telón Tropical) --- */
-/* --- ANIMACIÓN REVEAL (El Telón Orgánico) --- */
-@keyframes curtainLeft {
-  0% { transform: translateX(0) scale(1); }
-  /* Añadimos un ligero scale y rotación al salir para más realismo orgánico */
-  100% { transform: translateX(-110%) scale(1.1) rotate(-2deg); opacity: 0; }
-}
-@keyframes curtainRight {
-  0% { transform: translateX(0) scale(1); }
-  100% { transform: translateX(110%) scale(1.1) rotate(2deg); opacity: 0; }
+.intro-leaf {
+  position: absolute;
+  right: -40px;
+  bottom: -50px;
+  width: 260px;
+  height: 180px;
+  background: url('/images/Palm_leaves.png') no-repeat center / contain;
+  opacity: 0.18;
 }
 
-/* Clase base para ambos paneles */
-.reveal-panel {
-  @apply fixed inset-y-0 w-1/2 transition-transform duration-[2500ms] ease-in-out;
-  /* Asegura que la imagen cubra todo el alto y se centre */
-  background-size: cover;
-  background-repeat: no-repeat;
-  /* Un color de fondo de respaldo por si la imagen tarda en cargar */
-  background-color: #4A5D44; 
+.intro-envelope {
+  position: relative;
+  width: min(85vw, 360px);
+  height: 240px;
+  z-index: 2;
+  perspective: 1000px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
-/* Panel Izquierdo */
-.reveal-left {
+.envelope-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  perspective: 1200px;
+  perspective-origin: center;
+}
+
+.envelope-body {
+  @apply absolute inset-0 rounded-2xl border border-boda-gold/60 bg-boda-cream;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+.envelope-title {
+  @apply text-3xl font-display tracking-[0.2em] text-boda-burgundy;
+}
+
+.envelope-amp {
+  @apply text-boda-terracotta;
+}
+
+.envelope-flap {
+  position: absolute;
+  top: 0;
   left: 0;
-  background-position: center right;
-  /* CAMBIO IMPORTANTE: Usamos rutas absolutas desde la raíz */
-  background-image: url('/images/curtain-left.png'); 
-  box-shadow: 5px 0 20px -5px rgba(0,0,0,0.5);
-  z-index: 102;
-}
-
-/* Panel Derecho */
-.reveal-right {
   right: 0;
-  background-position: center left;
-  /* CAMBIO IMPORTANTE: Usamos rutas absolutas desde la raíz */
-  background-image: url('/images/curtain-right.png');
+  margin: 0 auto;
+  width: 0;
+  height: 0;
+  border-left: 180px solid transparent;
+  border-right: 180px solid transparent;
+  border-bottom: 130px solid #f5efe7;
+  transform-origin: bottom center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.1));
+  z-index: 4;
 }
 
-/* Activadores de animación (El JS añade la clase .reveal-active al padre) */
-.reveal-active .reveal-left { animation: curtainLeft 3s cubic-bezier(0.7, 0, 0.2, 1) forwards; }
-.reveal-active .reveal-right { animation: curtainRight 3s cubic-bezier(0.7, 0, 0.2, 1) forwards; }
-
-/* --- MAPA MOODY (Filtro CSS avanzado) --- */
-/* Esto hace que el mapa de Google se vea verde oliva/sepia en lugar de los colores chillones */
-.map-moody {
-  filter: grayscale(100%) sepia(20%) brightness(95%) contrast(90%);
-  transition: filter 0.5s;
+.envelope-letter {
+  @apply absolute left-1/2 top-10 flex w-[88%] -translate-x-1/2 items-center justify-center rounded-xl border border-boda-gold/40 bg-white;
+  height: 180px;
+  z-index: 1;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
-.map-moody:hover { filter: grayscale(0%); }
 
-/* --- COUNTDOWN --- */
-.countdown-item {
-  @apply flex flex-col items-center justify-center border-r last:border-r-0 border-boda-olive/20 px-4 md:px-8;
+.letter-preview {
+  @apply flex items-center gap-4 text-boda-burgundy;
 }
-.countdown-num { @apply text-3xl md:text-5xl font-serif text-boda-wine; }
-.countdown-label { @apply text-[10px] uppercase tracking-widest text-boda-olive mt-1; }
+
+.letter-char {
+  @apply text-5xl font-display;
+}
+
+.letter-amp {
+  @apply text-3xl font-display text-boda-terracotta;
+}
+
+.envelope-shadow {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  width: 260px;
+  height: 26px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.2), transparent 70%);
+}
+
+.intro-dots {
+  @apply mt-8 flex items-center gap-3;
+  z-index: 2;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.intro-dots.hidden {
+  display: none;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(139, 75, 92, 0.4);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+.dot-2 {
+  animation-delay: 0.2s;
+}
+
+.dot-3 {
+  animation-delay: 0.4s;
+}
+
+.intro-envelope:hover + .intro-dots .dot,
+.intro-dots:hover .dot {
+  background: rgba(139, 75, 92, 0.8);
+  animation-duration: 1.2s;
+}
+
+@keyframes dotPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+#root {
+  position: relative;
+  z-index: 2;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  @apply font-display;
+}
+
+.hero-section {
+  @apply relative overflow-hidden px-6 pb-24 pt-28 sm:pt-32 bg-boda-cream;
+  background: linear-gradient(180deg, #F5EFE7 0%, #F9E0D2 45%, #F5EFE7 100%);
+}
+
+.hero-inner {
+  @apply relative mx-auto max-w-5xl;
+}
+
+.hero-content {
+  @apply relative z-10 flex min-h-[70vh] flex-col items-center justify-center text-center;
+}
+
+.hero-kicker {
+  @apply mt-6 mb-2 text-xs uppercase tracking-[0.4em] text-boda-forest/70 font-heading;
+}
+
+.hero-names {
+  @apply text-4xl sm:text-6xl md:text-7xl text-boda-text tracking-[0.14em];
+}
+
+.hero-amp {
+  @apply text-boda-terracotta;
+}
+
+.hero-tagline {
+  @apply mt-4 text-sm sm:text-lg text-boda-text/75 max-w-2xl font-heading tracking-[0.18em] uppercase;
+}
+
+.hero-details {
+  @apply mt-6 space-y-1 text-[10px] sm:text-sm uppercase tracking-[0.28em] text-boda-forest/80 font-heading;
+}
+
+.hero-countdown {
+  @apply mt-10 grid grid-cols-2 gap-4 border-y border-boda-forest/10 py-6 sm:flex sm:flex-wrap sm:justify-center;
+}
+
+.hero-flower,
+.hero-leaf {
+  @apply pointer-events-none absolute;
+}
+
+.hero-leaf-left {
+  @apply -left-8 -top-10 w-40 opacity-35 sm:-left-12 sm:-top-12 sm:w-72 sm:opacity-70;
+}
+
+.hero-flower-left {
+  @apply -left-6 -bottom-4 w-28 opacity-40 sm:-left-6 sm:bottom-0 sm:w-56 sm:opacity-75;
+}
+
+.hero-flower-right {
+  @apply -right-6 -bottom-6 w-28 opacity-40 sm:-right-6 sm:-bottom-12 sm:w-64 sm:opacity-75;
+}
+
+.section {
+  @apply px-6;
+}
+
+.section-inner {
+  @apply mx-auto max-w-5xl;
+}
+
+.section-heading {
+  @apply mb-10 text-center;
+}
+
+.section-title {
+  @apply text-3xl sm:text-4xl text-boda-light tracking-[0.24em] font-heading uppercase;
+}
+
+.section-subtitle {
+  @apply mt-3 text-sm sm:text-base text-boda-light/70;
+}
+
+.details-banner {
+  @apply relative mb-10 flex items-center justify-center;
+}
+
+.details-leaf {
+  @apply w-48 opacity-70 sm:w-80 sm:opacity-90;
+}
+
+.details-text {
+  @apply text-white text-2xl sm:text-3xl tracking-[0.45em] font-heading uppercase;
+}
+
+.faq-section {
+  @apply relative py-20 px-6 bg-boda-forest;
+  box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.4);
+  overflow: hidden;
+}
+
+.faq-section::before {
+  content: '';
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 28px;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .hero-content {
+    @apply pt-4 min-h-[60vh];
+  }
+
+  .hero-flower-left,
+  .hero-flower-right,
+  .hero-leaf-left,
+  .faq-flower-left,
+  .faq-flower-right {
+    @apply blur-[1px];
+  }
+
+  .hero-flower-left,
+  .hero-flower-right,
+  .faq-flower-left,
+  .faq-flower-right {
+    @apply scale-75;
+  }
+
+  .hero-leaf-left,
+  .hero-flower-left,
+  .hero-flower-right,
+  .faq-flower-left,
+  .faq-flower-right {
+    @apply block;
+  }
+
+  .hero-leaf-left {
+    @apply -left-6 -top-6 w-28 opacity-20;
+  }
+
+  .hero-flower-left {
+    @apply -left-4 -bottom-4 w-24 opacity-25;
+  }
+
+  .hero-flower-right {
+    @apply -right-4 -bottom-6 w-24 opacity-25;
+  }
+
+  .faq-flower-left {
+    @apply -left-6 -bottom-6 w-24 opacity-25;
+  }
+
+  .faq-flower-right {
+    @apply -right-6 top-0 w-24 opacity-25;
+  }
+
+  .hero-names {
+    @apply text-3xl tracking-[0.1em];
+  }
+
+  .hero-tagline {
+    @apply text-xs tracking-[0.14em];
+  }
+
+  .hero-details {
+    @apply text-[9px] tracking-[0.22em];
+  }
+
+  .hero-countdown {
+    @apply mt-8 gap-3;
+  }
+
+  .countdown-card {
+    @apply min-w-[80px] px-2 py-2;
+  }
+
+  .section {
+    @apply px-4;
+  }
+
+  .section-heading {
+    @apply mb-6;
+  }
+
+  .section-title {
+    @apply text-2xl tracking-[0.18em];
+  }
+
+  .section-subtitle {
+    @apply text-xs;
+  }
+
+  .faq-section {
+    @apply py-12;
+  }
+
+  .faq-card {
+    @apply p-4;
+  }
+
+  .map-wrapper {
+    @apply h-[300px] mt-6 rounded-2xl;
+  }
+
+  .rsvp-section {
+    @apply py-16;
+  }
+
+  .rsvp-form {
+    @apply p-5 rounded-2xl;
+  }
+
+  .input-field {
+    @apply text-sm;
+  }
+
+  .btn-primary {
+    @apply text-[10px] tracking-[0.2em];
+  }
+
+  .stamp-link {
+    @apply text-[9px] tracking-[0.24em];
+  }
+  .intro-envelope {
+    width: min(85vw, 320px);
+    height: 200px;
+  }
+
+  .envelope-flap {
+    border-left-width: 140px;
+    border-right-width: 140px;
+    border-bottom-width: 100px;
+  }
+
+  .envelope-letter {
+    height: 140px;
+  }
+}
+
+.faq-flower {
+  @apply pointer-events-none absolute opacity-70;
+}
+
+.faq-flower-left {
+  @apply -left-24 -bottom-6 w-32 opacity-25 sm:-left-10 sm:w-72 sm:opacity-70;
+}
+
+.faq-flower-right {
+  @apply -right-24 top-0 w-32 opacity-25 sm:-right-10 sm:w-72 sm:opacity-70;
+}
+
+.nav-link {
+  @apply text-xs uppercase tracking-[0.2em] text-boda-forest/70 hover:text-boda-forest transition-colors;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-boda-terracotta px-8 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-boda-light transition hover:bg-boda-orange focus:outline-none focus:ring-2 focus:ring-boda-terracotta/50;
+  min-height: 44px;
+}
+
+.btn-outline {
+  @apply rounded-full border border-boda-forest/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-boda-forest transition hover:bg-boda-forest hover:text-boda-light focus:outline-none focus:ring-2 focus:ring-boda-terracotta/50;
+  min-height: 44px;
+}
+
+.countdown-card {
+  @apply flex min-w-[90px] flex-col items-center gap-2 px-4 py-3 text-center;
+}
+
+.countdown-number {
+  @apply text-3xl font-display text-boda-forest;
+}
+
+.countdown-label {
+  @apply text-[10px] uppercase tracking-[0.3em] text-boda-forest/70;
+}
+
+.faq-card {
+  @apply rounded-3xl border border-boda-gold/25 bg-boda-forest/80 p-6 shadow-sm;
+  box-shadow: inset 0 0 0 1px rgba(244, 239, 231, 0.08);
+}
+
+.faq-title-row {
+  @apply flex items-start gap-3;
+}
+
+.faq-icon {
+  @apply flex h-9 w-9 items-center justify-center rounded-full border border-boda-gold/40 text-sm text-boda-light/90;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+}
+
+.faq-title {
+  @apply text-base font-semibold text-boda-light tracking-[0.12em] uppercase;
+}
+
+.faq-content {
+  @apply mt-3 text-sm text-boda-light/85 leading-relaxed;
+}
+
+.map-wrapper {
+  @apply relative mx-auto mt-10 h-[380px] sm:h-[420px] max-w-5xl overflow-hidden rounded-3xl border border-boda-terracotta/30;
+}
+
+.map-frame {
+  @apply h-full w-full;
+  filter: grayscale(70%) sepia(20%);
+}
+
+.map-wrapper:hover .map-frame {
+  filter: grayscale(0%);
+}
+
+.map-overlay {
+  @apply absolute bottom-6 left-1/2 -translate-x-1/2;
+}
+
+.map-overlay .btn-primary {
+  @apply rounded-xl tracking-[0.22em] whitespace-nowrap;
+}
+
+.location-title {
+  @apply text-3xl sm:text-4xl text-boda-text tracking-[0.2em] font-heading uppercase;
+}
+
+.location-subtitle {
+  @apply mt-3 text-sm sm:text-base text-boda-text/70;
+}
+
+.rsvp-section {
+  @apply relative px-6 py-24;
+  background: linear-gradient(180deg, #1A4D2E 0%, #24553A 40%, #2C7873 100%);
+  overflow: hidden;
+}
+
+.rsvp-title {
+  @apply text-3xl sm:text-4xl text-boda-light tracking-[0.2em] font-heading uppercase;
+}
+
+.rsvp-subtitle {
+  @apply mt-3 text-sm sm:text-base text-boda-light/70;
+}
+
+.rsvp-form {
+  @apply mx-auto mt-10 flex max-w-xl flex-col gap-5 rounded-3xl border border-boda-terracotta/30 bg-boda-cream/95 p-8 shadow-sm;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+  background-image: url('/images/paper-noise.png');
+  background-size: cover;
+}
+
+.input-group {
+  @apply flex flex-col gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-boda-text/70;
+}
+
+.stamp-link {
+  @apply mt-6 inline-flex items-center justify-center rounded-xl border border-dashed border-boda-forest/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-boda-forest/80 transition hover:text-boda-forest;
+  box-shadow: 0 0 0 1px rgba(244, 239, 231, 0.25);
+}
+
+.input-field {
+  @apply w-full rounded-2xl border border-boda-burgundy/10 bg-white/90 px-4 py-3 text-base text-boda-text placeholder:text-boda-text/50 focus:outline-none focus:ring-2 focus:ring-boda-terracotta/40;
+  min-height: 44px;
+}
