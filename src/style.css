@@ -54,8 +54,8 @@ h1, h2, h3, h4 { @apply font-serif; }
 .reveal-left {
   left: 0;
   background-position: center right;
-  /* CAMBIO IMPORTANTE: Usamos dos puntos al inicio '..' */
-  background-image: url('../images/curtain-left.png'); 
+  /* CAMBIO IMPORTANTE: Usamos rutas absolutas desde la raíz */
+  background-image: url('/images/curtain-left.png'); 
   box-shadow: 5px 0 20px -5px rgba(0,0,0,0.5);
   z-index: 102;
 }
@@ -64,8 +64,8 @@ h1, h2, h3, h4 { @apply font-serif; }
 .reveal-right {
   right: 0;
   background-position: center left;
-  /* CAMBIO IMPORTANTE: Usamos dos puntos al inicio '..' */
-  background-image: url('../images/curtain-right.png');
+  /* CAMBIO IMPORTANTE: Usamos rutas absolutas desde la raíz */
+  background-image: url('/images/curtain-right.png');
 }
 
 /* Activadores de animación (El JS añade la clase .reveal-active al padre) */
