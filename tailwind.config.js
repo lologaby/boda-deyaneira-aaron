@@ -3,7 +3,6 @@ module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "src/**/*.{js,ts,jsx,tsx}" // Ruta redundante por seguridad
   ],
   theme: {
     extend: {
@@ -22,7 +21,6 @@ module.exports = {
         }
       },
       backgroundImage: {
-        // SIN BARRA INICIAL
         'paper-texture': "url('images/paper-noise.png')",
       }
     },
