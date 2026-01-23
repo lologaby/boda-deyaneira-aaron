@@ -23,7 +23,7 @@ module.exports = {
         }
       },
       backgroundImage: {
-        'paper-texture': "url('/images/paper-noise.png')",
+        'paper-texture': "url('images/paper-noise.png')",
       }
     },
   },
