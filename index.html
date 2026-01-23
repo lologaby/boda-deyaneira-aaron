@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Deyaneira & Aaron - 07.18.26</title>
     <link rel="icon" type="image/svg+xml" href="vite.svg" />
-    <script type="module" crossorigin src="/assets/index-C1ZG1GZ2.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BzjI_Es0.css">
+    <script type="module" crossorigin src="/assets/index-BDNes4cH.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Bj6epxxl.css">
   </head>
   <body class="antialiased overflow-x-hidden selection:bg-boda-wine selection:text-white">
 
-   <div id="reveal-curtain" class="fixed inset-0 z-[100] flex pointer-events-none">
-        <div class="reveal-panel reveal-left overflow-hidden flex items-center justify-end">
-            <span class="text-boda-sand text-8xl font-serif -mr-8">D</span>
+   <div id="reveal-curtain">
+        <div class="reveal-panel reveal-left">
+            <span class="initial-logo">D</span>
         </div>
-        <div class="reveal-panel reveal-right overflow-hidden flex items-center justify-start">
-            <span class="text-boda-sand text-8xl font-serif -ml-8">&A</span>
+        <div class="reveal-panel reveal-right">
+            <span class="initial-logo">&A</span>
         </div>
     </div>
 
@@ -23,14 +23,14 @@
         <source src="audio/musica-fondo.mp3" type="audio/mpeg">
     </audio>
 
-    <nav class="fixed top-6 right-6 z-40 flex items-center gap-3 mix-blend-multiply">
-      <button id="music-btn" class="w-10 h-10 rounded-full border border-boda-jungle text-boda-jungle flex items-center justify-center hover:bg-boda-jungle hover:text-boda-sand transition-all duration-300">
+    <nav class="fixed top-6 right-6 z-40 flex items-center gap-3 font-display mix-blend-multiply">
+      <button id="music-btn" class="w-10 h-10 rounded-full border border-boda-terracotta text-boda-terracotta flex items-center justify-center hover:bg-boda-terracotta hover:text-boda-sand transition-all duration-300">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.59c.978.281 1.762.915 2.192 1.488r-7.602-3.804-2.205 1.42a2.803 1.803 0 01-.99-3.59c.978.281 1.762.915 2.192 1.488l1.32.377a2.25 2.25 0 011.632 2.163v3.75m0-6.553V3.536a2.25 2.25 0 01.659-1.591l6.364-6.364a2.25 2.25 0 013.182 3.182l-6.364 6.364a2.25 2.25 0 01-1.591.659h-3.75a2.25 2.25 0 01-2.163-1.632l-.377-1.32A1.803 1.803 0 014 9.065V9z" />
         </svg>
       </button>
       
-      <button id="lang-toggle" class="px-4 py-2 rounded-full border border-boda-jungle text-[10px] font-bold tracking-[0.2em] text-boda-jungle hover:bg-boda-jungle hover:text-boda-sand transition-all">
+      <button id="lang-toggle" class="px-4 py-2 rounded-full border border-boda-terracotta text-[10px] font-bold tracking-[0.2em] text-boda-terracotta hover:bg-boda-terracotta hover:text-boda-sand transition-all">
         EN / ES
       </button>
     </nav>
@@ -72,10 +72,11 @@
         </div>
     </header>
 
-    <section class="py-24 px-6 bg-white/50 backdrop-blur-sm">
+    <section class="py-24 px-6 bg-white/50 backdrop-blur-sm relative overflow-hidden">
+        <img src="/images/leaf.svg" class="absolute -top-24 -left-24 w-96 text-boda-jungle opacity-5 pointer-events-none" />
         <div class="max-w-4xl mx-auto space-y-12">
             <div class="text-center">
-                <h2 class="text-4xl text-boda-jungle font-serif italic" data-i18n="faq_title">Preguntas Frecuentes</h2>
+                <h2 class="text-4xl text-boda-jungle font-display italic" data-i18n="faq_title">Preguntas Frecuentes</h2>
                 <img src="images/leaf-divider.png" class="w-12 mx-auto opacity-60 mix-blend-multiply mt-4">
             </div>
 
@@ -144,9 +145,10 @@
         </div>
     </section>
 
-    <section id="rsvp" class="py-24 px-6 bg-boda-sand text-boda-dark relative">
+    <section id="rsvp" class="py-24 px-6 bg-boda-sand text-boda-dark relative overflow-hidden">
+        <img src="/images/leaf.svg" class="absolute -bottom-24 -right-24 w-96 text-boda-jungle opacity-5 rotate-180 scale-x-[-1] pointer-events-none" />
         <div class="max-w-lg mx-auto relative z-10 text-center">
-            <h2 class="text-5xl font-serif mb-2 text-boda-jungle" data-i18n="rsvp_title">RSVP</h2>
+            <h2 class="text-5xl font-display mb-2 text-boda-jungle" data-i18n="rsvp_title">RSVP</h2>
             <p class="text-boda-terracotta text-sm tracking-widest uppercase mb-12" data-i18n="rsvp_subtitle">Confirmar asistencia</p>
 
             <form id="rsvp-form" class="space-y-6 text-left">
