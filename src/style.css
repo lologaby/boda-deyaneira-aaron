@@ -56,7 +56,7 @@ h1, h2, h3, h4 { @apply font-serif; }
   /* Alinea la imagen a la derecha para que el borde "cortado" quede al centro */
   background-position: center right;
   /* ¡AQUÍ VA TU IMAGEN IZQUIERDA! */
-  background-image: url('/images/curtain-left.png');
+  background-image: url('/boda-deyaneira-aaron/images/curtain-left.png');
   /* Sombra para dar profundidad entre las dos mitades */
   box-shadow: 5px 0 20px -5px rgba(0,0,0,0.5);
   z-index: 102; /* Un poco por encima para solapar la sombra */
