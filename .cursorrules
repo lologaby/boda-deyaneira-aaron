@@ -1,0 +1,351 @@
+# Wedding Website - Cursor Rules
+
+## Project Overview
+This is a wedding invitation website for Deyaneira & Aaron's destination wedding in Puerto Rico on July 18, 2026. The site embodies tropical sophistication with a Bad Bunny "Debí Tirar Más Fotos" aesthetic - warm, nostalgic, and celebratory.
+
+## Tech Stack
+- **Framework:** Vite + React + TypeScript
+- **Styling:** Tailwind CSS (custom palette)
+- **Animations:** Framer Motion
+- **Forms:** Google Sheets integration (NOT localStorage/sessionStorage)
+- **Fonts:** Playfair Display (names), Montserrat (headings), Inter (body)
+
+## Color Palette (from Canva flyer)
+```css
+/* Primary Colors */
+--cream-bg: #F5EFE7;           /* Main background */
+--terracotta: #E89C7C;         /* Warm accents */
+--coral: #FF6B6B;              /* Hibiscus flowers */
+--orange: #FF8C42;             /* Bird of paradise */
+
+/* Secondary Colors */
+--forest-green: #1A4D2E;       /* Dark green elegance */
+--sage-green: #5A756E;         /* Soft green */
+--lime-green: #C1D82F;         /* Bright green accent */
+--burgundy: #8B4B5C;           /* Deep accent */
+
+/* Support Colors */
+--gold: #D4AF37;               /* Borders and details */
+--teal: #2C7873;               /* Turquoise accent */
+--deep-purple: #4A1A4A;        /* Purple accent */
+--beige: #C9A687;              /* Warm neutral */
+
+/* Text Colors */
+--text-dark: #2C2C2C;          /* Main text */
+--text-light: #FFFFFF;         /* Text on dark backgrounds */
+```
+
+## Design Principles
+
+### Aesthetic Guidelines
+- **Style:** Classy tropical elegance (NOT beach party vibes)
+- **Mood:** Sophisticated and modern but warm
+- **Inspiration:** Bad Bunny's music video aesthetic - warm sunset tones, emotional depth, Puerto Rican pride
+- **Typography:** Modern sans-serif with serif accents for elegance
+- **Visual Elements:** Watercolor tropical flowers (hibiscus, bird of paradise, heliconia) and leaves (banana, palm)
+
+### Typography Rules
+- **Names (Hero):** Playfair Display, serif elegant and thin
+- **Headings:** Montserrat Light/Regular, letter-spaced for elegance
+- **Body:** Inter or Open Sans, readable
+- **Letter-spacing:** Use generous spacing for headers (tracking)
+
+### Layout Principles
+- **White space:** Generous breathing room, not cramped
+- **Mobile-first:** Always design for mobile, enhance for desktop
+- **Minimal lists:** Use prose paragraphs instead of bullet points unless explicitly needed
+- **Visual hierarchy:** Clear distinction between sections
+
+## Critical Technical Rules
+
+### NEVER Use Browser Storage
+```typescript
+// ❌ NEVER DO THIS
+localStorage.setItem('key', 'value');
+sessionStorage.setItem('key', 'value');
+
+// ✅ DO THIS INSTEAD
+const [state, setState] = useState('value');
+// Or use Google Sheets for persistent data
+```
+
+### Form Submissions
+- All RSVP data goes to Google Sheets via Google Apps Script
+- NO localStorage for form data
+- Show loading states and success/error messages
+- Validate inputs client-side before submission
+
+### Scroll Behavior
+```typescript
+// When envelope animation is active, BLOCK scroll completely
+useEffect(() => {
+  if (animationState !== 'revealed') {
+    document.body.style.overflow = 'hidden';
+    document.body.style.height = '100vh';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  } else {
+    document.body.style.overflow = '';
+    document.body.style.height = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+  }
+}, [animationState]);
+```
+
+### Animation Guidelines
+- Use Framer Motion for all animations
+- Smooth, cinematic transitions (60fps target)
+- Durations: 0.8s-1.5s for most transitions
+- Easing: Use custom bezier curves for natural motion
+- Always provide `transition` objects with proper easing
+
+### Responsive Design
+```typescript
+// Breakpoints
+const breakpoints = {
+  mobile: '320px - 768px',
+  tablet: '768px - 1024px',
+  desktop: '1024px+'
+};
+
+// Touch targets: minimum 44px height/width
+// Font sizes: minimum 16px for body text
+// No horizontal scrolling ever
+```
+
+## Component Structure
+
+### Opening Animation (Envelope Reveal)
+```typescript
+// States: 'closed' | 'opening' | 'revealed'
+// Must prevent scroll when not 'revealed'
+// No information should leak before reveal
+// Letters "D & A" must be clearly visible when carta emerges
+// No "flipeo raro" - smooth 3D rotation with proper perspective
+```
+
+### Hero Section
+- Cream textured background
+- Tropical flowers in corners (watercolor style)
+- Names in Playfair Display (large, serif)
+- Live countdown timer (accurate, real-time)
+- Event details clearly visible
+
+### FAQ Section
+- Dark forest green background (#1A4D2E)
+- Gold border (art deco style)
+- Tropical flowers as accents (hibiscus, bird of paradise)
+- White text on dark background
+- Dress code color palette displayed as circles
+- Clean, readable format (NOT bullet points)
+
+### Location Section
+- Embedded Google Maps iframe
+- "CÓMO LLEGAR" button (burgundy)
+- Coordinates clearly displayed
+- Clean integration
+
+### RSVP Section
+- Form fields:
+  - Nombre Completo (required)
+  - ¿Asistirás? (dropdown)
+  - Invitados Totales (number, default 1)
+  - Canción para bailar (optional)
+- Submit to Google Sheets
+- Loading states and confirmation
+- Error handling
+
+## Code Style
+
+### React/TypeScript
+```typescript
+// Use functional components with hooks
+const Component = () => {
+  const [state, setState] = useState<Type>(initialValue);
+  
+  useEffect(() => {
+    // Side effects
+    return () => {
+      // Cleanup
+    };
+  }, [dependencies]);
+  
+  return <div>...</div>;
+};
+
+// Type all props
+interface Props {
+  name: string;
+  optional?: boolean;
+}
+
+// Use descriptive variable names
+const isEnvelopeOpen = true; // ✅
+const x = true; // ❌
+```
+
+### Tailwind CSS
+```typescript
+// Use only core utility classes (no custom classes beyond config)
+// Organize classes logically: layout → spacing → colors → typography
+<div className="flex items-center justify-center px-4 py-8 bg-cream text-burgundy font-playfair text-4xl">
+
+// Use custom colors from palette
+<div className="bg-[#F5EFE7] text-[#8B4B5C]">
+```
+
+### Framer Motion
+```typescript
+// Always specify transitions
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
+>
+
+// Use variants for complex sequences
+const variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.5 } }
+};
+```
+
+## What to Avoid
+
+### Design Anti-Patterns
+- ❌ Generic wedding templates
+- ❌ Overly playful or casual design
+- ❌ Beach party aesthetics (this is elegant tropical)
+- ❌ Cluttered layouts
+- ❌ Too many animations (keep it sophisticated)
+- ❌ Bullet points in prose content
+- ❌ Tiny text or poor contrast
+
+### Code Anti-Patterns
+- ❌ localStorage/sessionStorage usage
+- ❌ Slow or janky animations
+- ❌ Missing loading states
+- ❌ No error handling
+- ❌ Hardcoded values that should be constants
+- ❌ Missing TypeScript types
+- ❌ Broken mobile layouts
+- ❌ Allowing scroll during envelope animation
+
+## Testing Checklist
+
+Before considering any feature complete:
+- [ ] Works on iOS Safari (mobile)
+- [ ] Works on Android Chrome (mobile)
+- [ ] Works on desktop browsers (Chrome, Firefox, Safari)
+- [ ] No horizontal scrolling on any device
+- [ ] Text is readable (minimum 16px)
+- [ ] Touch targets are 44px+ on mobile
+- [ ] Animations are smooth (60fps)
+- [ ] Loading states are shown
+- [ ] Error states are handled
+- [ ] Forms validate and submit correctly
+- [ ] No console errors or warnings
+- [ ] Meets WCAG AA accessibility standards
+
+## File Organization
+```
+src/
+├── components/
+│   ├── OpeningAnimation.tsx
+│   ├── HeroSection.tsx
+│   ├── FAQSection.tsx
+│   ├── LocationSection.tsx
+│   └── RSVPSection.tsx
+├── hooks/
+│   └── useAnimationState.ts
+├── utils/
+│   └── googleSheets.ts
+├── types/
+│   └── index.ts
+├── App.tsx
+├── style.css
+└── main.tsx
+
+public/
+├── assets/
+│   ├── hibiscus-coral.png
+│   ├── bird-of-paradise.png
+│   ├── heliconia.png
+│   ├── banana-leaf-large.png
+│   └── palm-leaf.png
+└── ...
+
+docs/
+├── GOOGLE_FORMS_SETUP.md
+└── DEPLOYMENT.md
+```
+
+## Deployment
+- Platform: Vercel (recommended) or GitHub Pages
+- Build command: `npm run build`
+- Environment variables for Google Sheets API endpoint
+- Custom domain support (if provided)
+- SSL certificate (automatic)
+
+## Accessibility Requirements
+- Semantic HTML elements
+- ARIA labels where needed
+- Keyboard navigation support
+- Color contrast meets WCAG AA
+- Alt text for all images
+- Focus indicators visible
+- Reduced motion support (`prefers-reduced-motion`)
+
+## Performance Targets
+- First Contentful Paint: < 1.5s
+- Time to Interactive: < 3.0s
+- Lighthouse Performance Score: > 90
+- Lighthouse Accessibility Score: > 95
+- Images optimized (WebP format, lazy loading)
+
+## Content Guidelines
+
+### Spanish Language
+- All content is in Spanish
+- Formal but warm tone
+- Use "ustedes" form (Puerto Rican standard)
+- Dates in format: MM.DD.YY or spelled out
+
+### Event Details
+- Date: 07.18.26 (July 18, 2026)
+- Time: 5:00 PM
+- Venue: Officers Club, Punta Borinquen Resort
+- Location: Aguadilla, PR 00603
+- Coordinates: 18°29'19.2"N 67°09'41.8"W
+
+## Special Considerations
+
+### Envelope Animation
+- Must feel like opening a real wedding invitation envelope
+- Smooth, elegant, cinematic
+- No information leaks before opening
+- Letters "D & A" must be clearly visible when revealed
+- Scroll must be completely blocked until revealed
+- localStorage check to skip animation for returning visitors
+
+### Mobile Experience Priority
+- Most guests will view on mobile phones
+- Touch interactions must feel natural
+- No pinch-to-zoom needed (viewport meta tag)
+- Fast loading on cellular connections
+
+### Cultural Context
+- Puerto Rican destination wedding
+- Tropical sophistication (not touristy)
+- Bad Bunny aesthetic (nostalgic, emotional, proud)
+- Sunset/atardecer theme
+- Family-oriented but adults-only event
+
+## When in Doubt
+- Prioritize elegance over complexity
+- Choose subtle over flashy
+- Favor white space over density
+- Keep interactions smooth and natural
+- Make it work perfectly on mobile first
+- Remember: this is for a special moment in people's lives
