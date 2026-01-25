@@ -211,6 +211,10 @@ const variants = {
 };
 ```
 
+### Buttons and Links
+- Use only: `btn-primary`, `btn-secondary`, `btn-outline`, `btn-ghost`, `stamp-link`. Min height 44px.
+- For new UI ideas: adapt from [UIverse](https://uiverse.io) or similar using boda palette, `rounded-full`/`rounded-xl`, and subtle `translateY` or `box-shadow` on hover. See `docs/MAKING_IT_PERFECT.md`.
+
 ## What to Avoid
 
 ### Design Anti-Patterns
@@ -278,6 +282,7 @@ public/
 
 docs/
 ├── GOOGLE_FORMS_SETUP.md
+├── MAKING_IT_PERFECT.md
 └── DEPLOYMENT.md
 ```
 

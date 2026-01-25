@@ -13,12 +13,13 @@ module.exports = {
       },
       colors: {
         boda: {
-          cream: '#F5EFE7',
+          cream: '#E8E0D6',
           terracotta: '#E89C7C',
           coral: '#FF6B6B',
           orange: '#FF8C42',
           forest: '#1A4D2E',
           sage: '#5A756E',
+          sageDark: '#455a54',
           lime: '#C1D82F',
           burgundy: '#8B4B5C',
           gold: '#D4AF37',

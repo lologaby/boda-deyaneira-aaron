@@ -20,7 +20,7 @@ body {
 
 .intro-bg {
   @apply absolute inset-0;
-  background: radial-gradient(circle at 40% 20%, #f6d4c3, #e89c7c 40%, #d47e66 100%);
+  background: radial-gradient(circle at 40% 20%, #E8D4C8, #C97A5E 40%, #A8644D 100%);
 }
 
 .intro-leaf {
@@ -49,23 +49,24 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: hidden;
   perspective: 1200px;
   perspective-origin: center;
 }
 
 .envelope-body {
-  @apply absolute inset-0 flex items-center justify-center rounded-2xl border border-boda-gold/60 bg-boda-cream;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  z-index: 2;
+  @apply absolute inset-0 flex items-center justify-center rounded-2xl border border-[rgba(168,125,45,0.6)];
+  background: #DDD4CA;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.22);
+  z-index: 1;
 }
 
 .envelope-title {
-  @apply text-3xl font-display tracking-[0.2em] text-boda-burgundy;
+  @apply text-3xl font-display tracking-[0.2em];
+  color: #6B3847;
 }
 
 .envelope-amp {
-  @apply text-boda-terracotta;
+  color: #B8735E;
 }
 
 .envelope-flap {
@@ -73,36 +74,42 @@ body {
   top: 0;
   left: 0;
   right: 0;
+  height: 54%;
+  min-height: 100px;
   margin: 0 auto;
-  width: 0;
-  height: 0;
-  border-left: 180px solid transparent;
-  border-right: 180px solid transparent;
-  border-bottom: 130px solid #f5efe7;
-  transform-origin: bottom center;
+  background: #D8D0C6;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  transform-origin: 50% 100%;
   transform-style: preserve-3d;
   backface-visibility: hidden;
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.12));
   z-index: 4;
 }
 
 .envelope-letter {
-  @apply absolute left-1/2 top-10 flex w-[88%] -translate-x-1/2 items-center justify-center rounded-xl border border-boda-gold/40 bg-white;
-  height: 180px;
-  z-index: 1;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  @apply absolute left-1/2 top-10 w-[88%] -translate-x-1/2;
 }
 
-.letter-preview {
-  @apply flex items-center gap-4 text-boda-burgundy;
+.envelope-letter-card {
+  @apply flex h-[180px] w-full items-center justify-center rounded-xl border border-[rgba(168,125,45,0.5)];
+  background: #F0EBE4;
+  z-index: 3;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
 }
 
-.letter-char {
-  @apply text-5xl font-display;
+.letter-content {
+  @apply flex flex-col items-center justify-center gap-1.5 text-center;
 }
 
-.letter-amp {
-  @apply text-3xl font-display text-boda-terracotta;
+.letter-names {
+  @apply font-display text-2xl tracking-[0.16em];
+  color: #6B3847;
+}
+
+.letter-date {
+  @apply text-[10px] font-heading uppercase tracking-[0.35em];
+  color: #6B3847;
+  opacity: 0.85;
 }
 
 
@@ -132,7 +139,7 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: rgba(139, 75, 92, 0.4);
+  background: rgba(107, 56, 71, 0.5);
   animation: dotPulse 2s ease-in-out infinite;
 }
 
@@ -146,7 +153,7 @@ body {
 
 .intro-envelope:hover + .intro-dots .dot,
 .intro-dots:hover .dot {
-  background: rgba(139, 75, 92, 0.8);
+  background: rgba(107, 56, 71, 0.9);
   animation-duration: 1.2s;
 }
 
@@ -176,7 +183,7 @@ h4 {
 
 .hero-section {
   @apply relative overflow-hidden px-6 pb-24 pt-28 sm:pt-32 bg-boda-cream;
-  background: linear-gradient(180deg, #F5EFE7 0%, #F9E0D2 45%, #F5EFE7 100%);
+  background: linear-gradient(180deg, #E8E0D6 0%, #E8D4C8 40%, #E2D4CA 100%);
 }
 
 .hero-inner {
@@ -188,7 +195,7 @@ h4 {
 }
 
 .hero-kicker {
-  @apply mt-6 mb-2 text-xs uppercase tracking-[0.4em] text-boda-forest/70 font-heading;
+  @apply mt-6 mb-2 text-xs uppercase tracking-[0.4em] text-boda-sage/80 font-heading;
 }
 
 .hero-names {
@@ -204,11 +211,11 @@ h4 {
 }
 
 .hero-details {
-  @apply mt-6 space-y-1 text-[10px] sm:text-sm uppercase tracking-[0.28em] text-boda-forest/80 font-heading;
+  @apply mt-6 space-y-1 text-[10px] sm:text-sm uppercase tracking-[0.28em] text-boda-sage/80 font-heading;
 }
 
 .hero-countdown {
-  @apply mt-10 grid grid-cols-2 gap-4 border-y border-boda-forest/10 py-6 sm:flex sm:flex-wrap sm:justify-center;
+  @apply mt-10 grid grid-cols-2 gap-4 border-y border-boda-sage/20 py-6 sm:flex sm:flex-wrap sm:justify-center;
 }
 
 .hero-flower,
@@ -260,17 +267,22 @@ h4 {
   @apply text-white text-2xl sm:text-3xl tracking-[0.45em] font-heading uppercase;
 }
 
+.faq-section .section-heading .section-title {
+  @apply font-display;
+}
+
 .faq-section {
-  @apply relative py-20 px-6 bg-boda-forest;
-  box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.4);
-  overflow: hidden;
+  @apply relative py-20 px-6 overflow-hidden;
+  /* sage (boda-sage) y tonos: paleta tropical sutil, acentos en gold/cream */
+  background: linear-gradient(165deg, #3d524c 0%, #455a54 35%, #5A756E 65%, #4f6a64 100%);
+  box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.2);
 }
 
 .faq-section::before {
   content: '';
   position: absolute;
   inset: 16px;
-  border: 1px solid rgba(212, 175, 55, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.24);
   border-radius: 28px;
   pointer-events: none;
 }
@@ -324,15 +336,26 @@ h4 {
   }
 
   .hero-names {
-    @apply text-3xl tracking-[0.1em];
+    @apply text-4xl tracking-[0.1em];
+    color: #1a1a1a;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   }
 
   .hero-tagline {
-    @apply text-xs tracking-[0.14em];
+    @apply text-sm font-medium tracking-[0.12em];
+    color: #2C2C2C;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
   }
 
   .hero-details {
-    @apply text-[9px] tracking-[0.22em];
+    @apply text-sm font-medium tracking-[0.2em];
+    color: #455a54;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
+  }
+
+  .hero-kicker {
+    @apply text-xs font-semibold;
+    color: rgba(69, 90, 84, 0.9);
   }
 
   .hero-countdown {
@@ -363,12 +386,36 @@ h4 {
     @apply py-12;
   }
 
-  .faq-card {
-    @apply p-4;
+  .faq-summary {
+    @apply p-3;
+  }
+
+  .faq-content {
+    @apply px-3 pb-3;
   }
 
   .map-wrapper {
     @apply h-[300px] mt-6 rounded-2xl;
+  }
+
+  .travel-section {
+    @apply py-12;
+  }
+
+  .travel-title {
+    @apply text-xl tracking-[0.16em];
+  }
+
+  .travel-buttons {
+    @apply gap-3 mt-8;
+  }
+
+  .travel-btn {
+    @apply px-5 py-2.5 text-[11px];
+  }
+
+  .travel-subsection {
+    @apply text-xs tracking-[0.24em];
   }
 
   .rsvp-section {
@@ -396,13 +443,20 @@ h4 {
   }
 
   .envelope-flap {
-    border-left-width: 140px;
-    border-right-width: 140px;
-    border-bottom-width: 100px;
+    height: 50%;
+    min-height: 90px;
   }
 
-  .envelope-letter {
+  .envelope-letter-card {
     height: 140px;
+  }
+
+  .letter-names {
+    @apply text-2xl tracking-[0.14em];
+  }
+
+  .letter-date {
+    @apply text-xs tracking-[0.3em];
   }
 }
 
@@ -418,18 +472,193 @@ h4 {
   @apply -right-24 top-0 w-32 opacity-25 sm:-right-10 sm:w-72 sm:opacity-70;
 }
 
-.nav-link {
-  @apply text-xs uppercase tracking-[0.2em] text-boda-forest/70 hover:text-boda-forest transition-colors;
+.music-toggle {
+  @apply fixed bottom-6 left-6 z-40 flex items-center justify-center rounded-full border border-boda-sage/25 bg-boda-cream/85 backdrop-blur-sm text-boda-sage/70 transition-colors focus:outline-none focus:ring-2 focus:ring-boda-terracotta/40;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
 }
 
-.btn-primary {
-  @apply inline-flex items-center justify-center rounded-full bg-boda-terracotta px-8 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-boda-light transition hover:bg-boda-orange focus:outline-none focus:ring-2 focus:ring-boda-terracotta/50;
+.music-toggle:hover {
+  @apply text-boda-sage/90 bg-boda-cream;
+}
+
+/* ---- Nav: darker pill, RSVP CTA, language; mobile: hamburger + lang bar ---- */
+.nav-bar {
+  @apply fixed z-40;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+@media (min-width: 640px) {
+  .nav-bar {
+    top: 1rem;
+    right: 1rem;
+    left: auto;
+  }
+}
+
+.nav-inner {
+  @apply flex items-center gap-2 flex-wrap border border-boda-gold/30 bg-boda-sageDark/95 backdrop-blur-md shadow-lg;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+}
+@media (max-width: 639px) {
+  .nav-inner {
+    @apply w-full justify-between rounded-b-2xl border-0 border-b border-boda-gold/30 px-4 py-3;
+  }
+}
+@media (min-width: 640px) {
+  .nav-inner {
+    @apply rounded-2xl px-3 py-2;
+  }
+}
+
+.nav-hamburger {
+  @apply flex items-center justify-center p-2 text-boda-cream/95 hover:text-boda-light transition-colors focus:outline-none focus:ring-2 focus:ring-boda-gold/50 focus:ring-offset-2 focus:ring-offset-boda-sageDark;
+  background: transparent;
+  border: none;
   min-height: 44px;
+  min-width: 44px;
+}
+
+.nav-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 68px;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 35;
+}
+
+.nav-mobile-menu {
+  @apply fixed left-0 right-0 flex flex-col border-boda-gold/20 bg-boda-sageDark/95 backdrop-blur-md;
+  top: 68px;
+  z-index: 36;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.nav-mobile-link {
+  @apply block py-4 px-5 text-sm font-heading font-semibold uppercase tracking-[0.2em] text-boda-cream/95 transition-colors;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.nav-mobile-link:hover {
+  @apply text-boda-light bg-white/5;
+}
+.nav-mobile-link-rsvp {
+  @apply font-semibold;
+  color: #F5EFE7;
+  background: rgba(232, 156, 124, 0.15);
+}
+.nav-mobile-link-rsvp:hover {
+  background: rgba(232, 156, 124, 0.25);
+  color: #fff;
+}
+
+.nav-link {
+  @apply text-[11px] uppercase tracking-[0.2em] text-boda-cream/90 hover:text-boda-light transition-colors;
+}
+
+.nav-sep {
+  @apply text-boda-gold/50 text-[10px];
+}
+
+.nav-rsvp-btn {
+  @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.25em] transition focus:outline-none focus:ring-2 focus:ring-boda-gold/50 focus:ring-offset-2 focus:ring-offset-boda-sageDark;
+  min-height: 36px;
+  background: #E89C7C;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(232, 156, 124, 0.4);
+}
+.nav-rsvp-btn:hover {
+  background: #f0a67a;
+  box-shadow: 0 3px 14px rgba(232, 156, 124, 0.5);
+  transform: translateY(-1px);
+}
+
+.nav-lang-btn {
+  @apply rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] transition focus:outline-none focus:ring-2 focus:ring-boda-gold/50 focus:ring-offset-2 focus:ring-offset-boda-sageDark;
+  min-height: 36px;
+  border-color: rgba(212, 175, 55, 0.45);
+  color: #EBE4DA;
+  background: transparent;
+}
+.nav-lang-btn:hover {
+  background: rgba(212, 175, 55, 0.12);
+  color: #F5EFE7;
+}
+
+/* ---- Button system: tropical elegance, 44px min touch targets ---- */
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-full px-8 py-3 text-xs font-semibold uppercase tracking-[0.3em] transition focus:outline-none focus:ring-2 focus:ring-boda-terracotta/50 focus:ring-offset-2;
+  min-height: 44px;
+  background: #E89C7C;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(232, 156, 124, 0.35);
+}
+.btn-primary:hover {
+  background: #f0a67a;
+  box-shadow: 0 6px 20px rgba(232, 156, 124, 0.4);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 8px rgba(232, 156, 124, 0.25);
+}
+.btn-primary:disabled:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(232, 156, 124, 0.25);
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-full px-8 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-boda-light transition focus:outline-none focus:ring-2 focus:ring-boda-gold/50 focus:ring-offset-2;
+  min-height: 44px;
+  background: #455a54;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+.btn-secondary:hover {
+  background: #5A756E;
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+.btn-secondary:active {
+  transform: translateY(0);
 }
 
 .btn-outline {
-  @apply rounded-full border border-boda-forest/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-boda-forest transition hover:bg-boda-forest hover:text-boda-light focus:outline-none focus:ring-2 focus:ring-boda-terracotta/50;
+  @apply rounded-full border px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] transition focus:outline-none focus:ring-2 focus:ring-boda-terracotta/50 focus:ring-offset-2;
   min-height: 44px;
+  border-color: rgba(90, 118, 110, 0.5);
+  color: #455a54;
+  background: transparent;
+}
+.btn-outline:hover {
+  background: rgba(90, 118, 110, 0.08);
+  border-color: rgba(90, 118, 110, 0.7);
+  color: #455a54;
+  transform: translateY(-1px);
+}
+.btn-outline:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-boda-sage/75 transition focus:outline-none focus:ring-2 focus:ring-boda-terracotta/40 focus:ring-offset-2;
+  min-height: 44px;
+  background: transparent;
+}
+.btn-ghost:hover {
+  background: rgba(90, 118, 110, 0.08);
+  color: #455a54;
 }
 
 .countdown-card {
@@ -437,33 +666,90 @@ h4 {
 }
 
 .countdown-number {
-  @apply text-3xl font-display text-boda-forest;
+  @apply text-3xl font-display text-boda-sageDark;
 }
 
 .countdown-label {
-  @apply text-[10px] uppercase tracking-[0.3em] text-boda-forest/70;
+  @apply text-[10px] uppercase tracking-[0.3em] text-boda-sage/70;
 }
 
-.faq-card {
-  @apply rounded-3xl border border-boda-gold/25 bg-boda-forest/80 p-6 shadow-sm;
-  box-shadow: inset 0 0 0 1px rgba(244, 239, 231, 0.08);
+/* ---- FAQ: collapsible details/summary ---- */
+.faq-rsvp-row {
+  @apply mb-6 text-center;
 }
 
-.faq-title-row {
-  @apply flex items-start gap-3;
+.faq-rsvp-link {
+  @apply inline-flex items-center justify-center rounded-full border px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.28em] transition focus:outline-none focus:ring-2 focus:ring-boda-gold/50 focus:ring-offset-2 focus:ring-offset-boda-sageDark;
+  border-color: rgba(212, 175, 55, 0.5);
+  color: #F5EFE7;
+}
+.faq-rsvp-link:hover {
+  background: #E89C7C;
+  border-color: #E89C7C;
+  color: #fff;
 }
 
-.faq-icon {
-  @apply flex h-9 w-9 items-center justify-center rounded-full border border-boda-gold/40 text-sm text-boda-light/90;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+.faq-details {
+  @apply rounded-2xl shadow-sm;
+  border: 1px solid rgba(212, 175, 55, 0.32);
+  background: linear-gradient(180deg, rgba(248, 244, 238, 0.08) 0%, rgba(248, 244, 238, 0.04) 100%);
+  box-shadow: inset 0 0 0 1px rgba(244, 239, 231, 0.04);
 }
 
-.faq-title {
-  @apply text-base font-semibold text-boda-light tracking-[0.12em] uppercase;
+.faq-details[open] {
+  border-color: rgba(212, 175, 55, 0.48);
+  box-shadow: inset 0 0 0 1px rgba(244, 239, 231, 0.08), 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.faq-summary {
+  @apply flex cursor-pointer list-none items-start gap-3 p-4 transition-colors;
+}
+.faq-summary::-webkit-details-marker {
+  display: none;
+}
+.faq-summary:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.faq-details[open] .faq-summary {
+  @apply rounded-t-2xl;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.faq-summary .faq-icon {
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-boda-gold;
+  border: 1px solid rgba(212, 175, 55, 0.42);
+  background: rgba(248, 244, 238, 0.06);
+}
+.faq-summary .faq-icon svg {
+  @apply shrink-0;
+  color: inherit;
+}
+
+.faq-summary .faq-title {
+  @apply flex-1 font-heading font-semibold text-boda-light tracking-[0.1em] uppercase leading-snug;
+  font-size: 14px;
+}
+@media (min-width: 640px) {
+  .faq-summary .faq-title {
+    font-size: 15px;
+  }
+}
+
+.faq-chevron {
+  @apply mt-1 h-4 w-4 shrink-0 transition-transform;
+  color: rgba(212, 175, 55, 0.82);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.faq-details[open] .faq-chevron {
+  transform: rotate(180deg);
 }
 
 .faq-content {
-  @apply mt-3 text-sm text-boda-light/85 leading-relaxed;
+  @apply px-4 pb-4 pt-2 font-sans text-boda-light/90 leading-relaxed;
+  font-size: 14px;
+}
+.faq-content p {
+  @apply mt-0;
 }
 
 .map-wrapper {
@@ -495,9 +781,152 @@ h4 {
   @apply mt-3 text-sm sm:text-base text-boda-text/70;
 }
 
+/* ---- Travel: section con botones visibles (flight, lugares) ---- */
+.travel-section {
+  @apply relative px-6 py-16;
+  border-top: 1px solid rgba(26, 77, 46, 0.12);
+  background: linear-gradient(180deg, rgba(26, 77, 46, 0.03) 0%, transparent 50%, rgba(26, 77, 46, 0.03) 100%);
+}
+
+.travel-title {
+  @apply text-2xl sm:text-3xl text-boda-text tracking-[0.2em] font-heading uppercase;
+}
+
+.travel-buttons {
+  @apply mt-8 flex flex-wrap items-center justify-center gap-4;
+}
+
+.travel-btn {
+  @apply inline-flex items-center justify-center gap-2.5 rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.22em] transition focus:outline-none focus:ring-2 focus:ring-boda-terracotta/50 focus:ring-offset-2;
+  min-height: 44px;
+}
+
+.travel-btn-flight {
+  background: #E89C7C;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(232, 156, 124, 0.4);
+}
+.travel-btn-flight:hover {
+  background: #f0a67a;
+  box-shadow: 0 6px 18px rgba(232, 156, 124, 0.5);
+  transform: translateY(-2px);
+}
+
+.travel-btn-places {
+  border: 1.5px solid rgba(90, 118, 110, 0.5);
+  color: #455a54;
+  background: transparent;
+}
+.travel-btn-places:hover {
+  background: rgba(90, 118, 110, 0.08);
+  border-color: rgba(90, 118, 110, 0.7);
+  transform: translateY(-2px);
+}
+
+.travel-details {
+  @apply block;
+}
+
+.travel-details .travel-btn-places {
+  @apply cursor-pointer list-none;
+}
+.travel-details .travel-btn-places::-webkit-details-marker {
+  display: none;
+}
+
+.travel-chevron {
+  @apply h-4 w-4 shrink-0 transition-transform;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23455a54' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.travel-details[open] .travel-chevron {
+  transform: rotate(180deg);
+}
+
+.travel-places-inner {
+  @apply mt-4 space-y-6;
+}
+
+.travel-subsection {
+  @apply font-display text-sm uppercase tracking-[0.32em] text-boda-sage/80 mb-3;
+  letter-spacing: 0.2em;
+}
+.travel-subsection::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.6);
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.travel-restaurants-list {
+  @apply flex flex-wrap justify-center gap-3 list-none pl-0;
+}
+
+.travel-restaurant-pill {
+  @apply inline-flex items-center gap-2 rounded-full border border-boda-sage/35 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-boda-sage/90 transition focus:outline-none focus:ring-2 focus:ring-boda-terracotta/40 focus:ring-offset-2;
+  background: rgba(255, 255, 255, 0.6);
+}
+.travel-restaurant-pill:hover {
+  background: rgba(90, 118, 110, 0.12);
+  border-color: rgba(90, 118, 110, 0.55);
+  color: #455a54;
+  transform: translateY(-1px);
+}
+.travel-restaurant-icon {
+  @apply shrink-0;
+}
+.travel-restaurant-icon svg {
+  width: 14px;
+  height: 14px;
+  color: rgba(180, 130, 50, 0.95);
+}
+.travel-restaurant-meal {
+  @apply shrink-0 text-boda-sage/80;
+}
+.travel-restaurant-sep {
+  @apply text-boda-sage/50 mx-0.5;
+}
+
+.travel-beaches-grid {
+  @apply flex flex-wrap justify-center gap-3 list-none pl-0;
+}
+
+.travel-place-btn {
+  @apply inline-flex items-center rounded-full border border-boda-sage/35 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-boda-sage/90 transition focus:outline-none focus:ring-2 focus:ring-boda-terracotta/40 focus:ring-offset-2;
+  background: rgba(255, 255, 255, 0.6);
+}
+.travel-place-btn:hover {
+  background: rgba(90, 118, 110, 0.12);
+  border-color: rgba(90, 118, 110, 0.55);
+  color: #455a54;
+  transform: translateY(-1px);
+}
+
+.travel-platea-wrap {
+  @apply mt-5 flex justify-center;
+}
+
+.travel-platea-btn {
+  @apply inline-flex items-center gap-2.5 rounded-full border px-5 py-2.5 text-[12px] font-semibold tracking-[0.14em] transition focus:outline-none focus:ring-2 focus:ring-boda-terracotta/50 focus:ring-offset-2;
+  border-color: rgba(232, 156, 124, 0.5);
+  background: rgba(248, 244, 238, 0.12);
+  color: #455a54;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+.travel-platea-btn:hover {
+  background: rgba(232, 156, 124, 0.2);
+  border-color: rgba(232, 156, 124, 0.7);
+  color: #455a54;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(232, 156, 124, 0.2);
+}
+
 .rsvp-section {
   @apply relative px-6 py-24;
-  background: linear-gradient(180deg, #1A4D2E 0%, #24553A 40%, #2C7873 100%);
+  background: linear-gradient(180deg, #455a54 0%, #5A756E 35%, #2C7873 100%);
   overflow: hidden;
 }
 
@@ -521,11 +950,44 @@ h4 {
 }
 
 .stamp-link {
-  @apply mt-6 inline-flex items-center justify-center rounded-xl border border-dashed border-boda-forest/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-boda-forest/80 transition hover:text-boda-forest;
+  @apply mt-6 inline-flex items-center justify-center rounded-xl border border-dashed px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.32em] transition focus:outline-none focus:ring-2 focus:ring-boda-terracotta/40 focus:ring-offset-2;
+  border-color: rgba(90, 118, 110, 0.45);
+  color: rgba(69, 90, 84, 0.85);
   box-shadow: 0 0 0 1px rgba(244, 239, 231, 0.25);
+  min-height: 44px;
+}
+.stamp-link:hover {
+  border-color: rgba(90, 118, 110, 0.65);
+  color: #455a54;
+  background: rgba(90, 118, 110, 0.06);
+}
+.stamp-link:active {
+  transform: scale(0.98);
 }
 
 .input-field {
   @apply w-full rounded-2xl border border-boda-burgundy/10 bg-white/90 px-4 py-3 text-base text-boda-text placeholder:text-boda-text/50 focus:outline-none focus:ring-2 focus:ring-boda-terracotta/40;
   min-height: 44px;
+}
+
+/* ---- Footer: credits (discreto, solo se nota al mirar con detalle) ---- */
+.site-footer {
+  @apply py-5 px-6 text-center;
+  border-top: 1px solid rgba(90, 118, 110, 0.12);
+  background: transparent;
+}
+
+.site-footer p {
+  @apply text-[10px] text-boda-sage/40 font-sans normal-case tracking-wider;
+}
+
+.site-footer-sep {
+  @apply text-boda-sage/35;
+}
+
+.site-footer-link {
+  @apply text-boda-sage/45 transition focus:outline-none focus:ring-1 focus:ring-boda-sage/30 focus:ring-offset-1 rounded;
+}
+.site-footer-link:hover {
+  @apply text-boda-sage/65;
 }
