@@ -7,7 +7,6 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  <text x="600" y="320" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="600" letter-spacing="0.12em" fill="#6B3847">D <tspan fill="#B8735E">&amp;</tspan> A</text>
-  <text x="600" y="400" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="500" letter-spacing="0.35em" fill="rgba(107,56,71,0.9)">DEYANEIRA &amp; AARON</text>
-  <text x="600" y="460" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" letter-spacing="0.25em" fill="rgba(107,56,71,0.8)">07.18.26 · OFFICERS CLUB, PUNTA BORINQUEN · AGUADILLA, PR</text>
+  <text x="600" y="320" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="56" font-weight="500" letter-spacing="0.2em" fill="rgba(107,56,71,0.85)">Algo especial te espera</text>
+  <text x="600" y="400" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" letter-spacing="0.4em" fill="rgba(107,56,71,0.6)">Toca para descubrir</text>
 </svg>
