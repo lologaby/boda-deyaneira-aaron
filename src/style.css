@@ -1054,6 +1054,38 @@ h4 {
   @apply text-center text-sm text-boda-sage/80 mt-3 italic;
 }
 
+/* RSVP Confirmed State */
+.rsvp-confirmed {
+  @apply flex flex-col items-center gap-4 py-8 text-center;
+}
+
+.rsvp-confirmed-icon {
+  @apply w-16 h-16 rounded-full bg-green-500 text-white flex items-center justify-center text-3xl font-bold;
+  animation: pop-in 0.4s ease-out;
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.rsvp-confirmed-message {
+  @apply text-xl font-heading text-boda-forest font-medium;
+}
+
+.btn-spotify-large {
+  @apply px-8 py-4 text-base;
+}
+
 /* ---- Footer: credits (discreto, solo se nota al mirar con detalle) ---- */
 .site-footer {
   @apply py-5 px-6 text-center;

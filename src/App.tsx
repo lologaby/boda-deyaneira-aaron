@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import { useEventState, type EventState } from './hooks/useEventState'
+import { useRsvpStatus } from './hooks/useRsvpStatus'
 import { DuringWedding } from './components/DuringWedding'
 import { AfterWedding } from './components/AfterWedding'
 
@@ -262,6 +263,8 @@ const copy = {
       spotifyButton: 'Playlist',
       spotifyTitle: 'Escucha las canciones de la boda',
       spotifyHint: '🎵 ¡Escucha la playlist con las canciones que todos sugirieron!',
+      alreadySubmitted: '¡Ya confirmaste tu asistencia! Gracias.',
+      alreadySubmittedMessage: '¡Ya confirmaste tu asistencia!',
     },
     footer: {
       credits: 'Creado con cariño para Deyaneira & Aaron',
@@ -437,6 +440,8 @@ const copy = {
       spotifyButton: 'Playlist',
       spotifyTitle: 'Listen to the wedding songs',
       spotifyHint: '🎵 Listen to the playlist with songs everyone suggested!',
+      alreadySubmitted: 'You already confirmed your attendance! Thank you.',
+      alreadySubmittedMessage: 'You already confirmed your attendance!',
     },
     footer: {
       credits: 'Made with care for Deyaneira & Aaron',
@@ -574,16 +579,19 @@ export default function App() {
   const [showIntro, setShowIntro] = useState(true)
   const [introState, setIntroState] = useState<'closed' | 'opening' | 'revealed'>('closed')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [rsvpSubmitted, setRsvpSubmitted] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
   const introCompleted = useRef(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const rsvpSubmitGuardRef = useRef(false)
+  const nameInputRef = useRef<HTMLInputElement | null>(null)
   const prefersReducedMotion = useReducedMotion()
 
   // Detect event state (before, during, after)
   const eventState = useEventState()
+
+  // RSVP status tracking (server-side)
+  const { hasSubmitted: rsvpSubmitted, checkRsvpStatus, registerRsvp, isChecking: isCheckingRsvp } = useRsvpStatus()
 
   const content = copy[lang]
 
@@ -735,21 +743,39 @@ export default function App() {
     try {
       const form = event.currentTarget
       const formData = new FormData(form)
+      
+      // Extract form values
+      const name = String(formData.get(googleFormConfig.name) || '').trim()
+      const attendance = String(formData.get(googleFormConfig.attendance) || 'yes')
       const guestsName = googleFormConfig.guests
       const g = Math.min(2, Math.max(1, parseInt(String(formData.get(guestsName) ?? 1), 10) || 1))
       formData.set(guestsName, String(g))
+      const song = String(formData.get(googleFormConfig.song) || '')
+
+      // Check if already submitted (server-side)
+      const alreadySubmitted = await checkRsvpStatus(name)
+      if (alreadySubmitted) {
+        toast.error(content.rsvp.alreadySubmitted)
+        rsvpSubmitGuardRef.current = false
+        setIsSubmitting(false)
+        return
+      }
+
+      // Submit to Google Forms
       await fetch(googleFormConfig.action, {
         method: 'POST',
         mode: 'no-cors',
         body: formData,
       })
+
+      // Register in our server (for duplicate prevention)
+      await registerRsvp(name, attendance, g, song)
+
       toast.success(content.rsvp.success)
-      setRsvpSubmitted(true)
       form.reset()
     } catch {
       // With no-cors, fetch can reject (e.g. redirect) even when the form was received.
       toast.success(content.rsvp.checkSheet)
-      setRsvpSubmitted(true)
     } finally {
       rsvpSubmitGuardRef.current = false
       setIsSubmitting(false)
@@ -1150,84 +1176,93 @@ export default function App() {
               <h2 className="rsvp-title">{content.rsvp.title}</h2>
               <p className="rsvp-subtitle">{content.rsvp.subtitle}</p>
             </div>
-            <form className="rsvp-form" onSubmit={handleSubmit}>
-              <label className="input-group">
-                <span>{content.rsvp.nameLabel}</span>
-                <input
-                  type="text"
-                  name={googleFormConfig?.name ?? 'entry.name'}
-                  placeholder={content.rsvp.namePlaceholder}
-                  required
-                  className="input-field"
-                />
-              </label>
 
-              <label className="input-group">
-                <span>{content.rsvp.attendanceLabel}</span>
-                <select name={googleFormConfig?.attendance ?? 'entry.attendance'} className="input-field" required>
-                  <option value="yes">{content.rsvp.attendanceYes}</option>
-                  <option value="no">{content.rsvp.attendanceNo}</option>
-                </select>
-              </label>
-
-              <label className="input-group">
-                <span>{content.rsvp.guestsLabel}</span>
-                <input
-                  type="number"
-                  name={googleFormConfig?.guests ?? 'entry.guests'}
-                  min={1}
-                  max={2}
-                  step={1}
-                  inputMode="numeric"
-                  defaultValue={1}
-                  required
-                  onKeyDown={(e) => {
-                    if (['e', 'E', '+', '-', '.', ','].includes(e.key)) e.preventDefault()
-                  }}
-                  onInput={(e) => {
-                    const n = parseInt(e.currentTarget.value, 10)
-                    if (!Number.isNaN(n) && (n < 1 || n > 2)) {
-                      e.currentTarget.value = String(Math.min(2, Math.max(1, n)))
-                    }
-                  }}
-                  className="input-field"
-                />
-              </label>
-
-              <label className="input-group">
-                <span>{content.rsvp.songLabel}</span>
-                <input
-                  type="text"
-                  name={googleFormConfig?.song ?? 'entry.song'}
-                  placeholder={content.rsvp.songPlaceholder}
-                  className="input-field"
-                />
-              </label>
-
-              <div className="rsvp-buttons">
-                <button className="btn-primary flex-1" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? content.rsvp.submitting : content.rsvp.submit}
-                </button>
-                {rsvpSubmitted && (
-                  <a
-                    href={SPOTIFY_PLAYLIST_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-spotify"
-                    title={content.rsvp.spotifyTitle}
-                  >
-                    {spotifyIcon}
-                    <span>{content.rsvp.spotifyButton}</span>
-                  </a>
-                )}
-              </div>
-              {rsvpSubmitted && (
+            {rsvpSubmitted ? (
+              /* Already submitted - show thank you message and Spotify */
+              <div className="rsvp-confirmed">
+                <div className="rsvp-confirmed-icon">✓</div>
+                <p className="rsvp-confirmed-message">{content.rsvp.alreadySubmittedMessage}</p>
+                <a
+                  href={SPOTIFY_PLAYLIST_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-spotify btn-spotify-large"
+                  title={content.rsvp.spotifyTitle}
+                >
+                  {spotifyIcon}
+                  <span>{content.rsvp.spotifyButton}</span>
+                </a>
                 <p className="rsvp-spotify-hint">{content.rsvp.spotifyHint}</p>
-              )}
-              {!googleFormConfig && (
-                <p className="text-center text-xs text-boda-sage/70">{content.rsvp.missingEndpoint}</p>
-              )}
-            </form>
+              </div>
+            ) : (
+              /* Form for new submissions */
+              <form className="rsvp-form" onSubmit={handleSubmit}>
+                <label className="input-group">
+                  <span>{content.rsvp.nameLabel}</span>
+                  <input
+                    ref={nameInputRef}
+                    type="text"
+                    name={googleFormConfig?.name ?? 'entry.name'}
+                    placeholder={content.rsvp.namePlaceholder}
+                    required
+                    className="input-field"
+                  />
+                </label>
+
+                <label className="input-group">
+                  <span>{content.rsvp.attendanceLabel}</span>
+                  <select name={googleFormConfig?.attendance ?? 'entry.attendance'} className="input-field" required>
+                    <option value="yes">{content.rsvp.attendanceYes}</option>
+                    <option value="no">{content.rsvp.attendanceNo}</option>
+                  </select>
+                </label>
+
+                <label className="input-group">
+                  <span>{content.rsvp.guestsLabel}</span>
+                  <input
+                    type="number"
+                    name={googleFormConfig?.guests ?? 'entry.guests'}
+                    min={1}
+                    max={2}
+                    step={1}
+                    inputMode="numeric"
+                    defaultValue={1}
+                    required
+                    onKeyDown={(e) => {
+                      if (['e', 'E', '+', '-', '.', ','].includes(e.key)) e.preventDefault()
+                    }}
+                    onInput={(e) => {
+                      const n = parseInt(e.currentTarget.value, 10)
+                      if (!Number.isNaN(n) && (n < 1 || n > 2)) {
+                        e.currentTarget.value = String(Math.min(2, Math.max(1, n)))
+                      }
+                    }}
+                    className="input-field"
+                  />
+                </label>
+
+                <label className="input-group">
+                  <span>{content.rsvp.songLabel}</span>
+                  <input
+                    type="text"
+                    name={googleFormConfig?.song ?? 'entry.song'}
+                    placeholder={content.rsvp.songPlaceholder}
+                    className="input-field"
+                  />
+                </label>
+
+                <button 
+                  className="btn-primary w-full" 
+                  type="submit" 
+                  disabled={isSubmitting || isCheckingRsvp}
+                >
+                  {isSubmitting || isCheckingRsvp ? content.rsvp.submitting : content.rsvp.submit}
+                </button>
+                {!googleFormConfig && (
+                  <p className="text-center text-xs text-boda-sage/70">{content.rsvp.missingEndpoint}</p>
+                )}
+              </form>
+            )}
           </motion.div>
         </section>
       </main>
