@@ -28,10 +28,12 @@ export function useGuestAuth() {
     error: null,
   })
 
-  // Validate code with server (no localStorage - using React state only)
+  // Validate code with server (sets HTTP-only cookie for one-time magic)
   const validateCode = useCallback(async (code: string): Promise<{ success: boolean; guest?: GuestData; error?: string }> => {
     try {
-      const response = await fetch(`/api/guest?code=${encodeURIComponent(code.toUpperCase().trim())}`)
+      const response = await fetch(`/api/guest?code=${encodeURIComponent(code.toUpperCase().trim())}`, {
+        credentials: 'include', // Include cookies
+      })
       const data = await response.json()
 
       if (data.success && data.guest) {
@@ -67,6 +69,7 @@ export function useGuestAuth() {
       const response = await fetch('/api/guest', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies
         body: JSON.stringify({
           code: state.guest.code,
           attendance,
@@ -102,8 +105,18 @@ export function useGuestAuth() {
     }
   }, [state.guest])
 
-  // Logout / clear auth (React state only - no browser storage)
-  const logout = useCallback(() => {
+  // Logout / clear auth (clears server cookie)
+  const logout = useCallback(async () => {
+    try {
+      // Clear cookie on server
+      await fetch('/api/guest?logout=true', {
+        method: 'GET',
+        credentials: 'include', // Include cookies
+      })
+    } catch {
+      // Ignore errors
+    }
+    
     setState({
       isAuthenticated: false,
       isLoading: false,
@@ -112,8 +125,42 @@ export function useGuestAuth() {
     })
   }, [])
 
-  // No persistent auth check on mount - users must re-enter code each session
-  // This follows the .cursorrules: "NEVER Use Browser Storage"
+  // Check for existing auth cookie on mount (one-time magic code)
+  useEffect(() => {
+    const checkAuthCookie = async () => {
+      setState(prev => ({ ...prev, isLoading: true }))
+      
+      try {
+        // Request without code - server will check cookie
+        const response = await fetch('/api/guest', {
+          credentials: 'include', // Include cookies
+        })
+        const data = await response.json()
+
+        if (data.success && data.guest) {
+          setState({
+            isAuthenticated: true,
+            isLoading: false,
+            guest: data.guest,
+            error: null,
+          })
+        } else {
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+          }))
+        }
+      } catch (error) {
+        console.error('Error checking auth cookie:', error)
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+        }))
+      }
+    }
+
+    checkAuthCookie()
+  }, [])
 
   return {
     ...state,

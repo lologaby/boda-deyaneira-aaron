@@ -152,11 +152,42 @@ export default async function handler(
   }
 
   try {
-    // GET: Validate code and get guest info
+    // GET: Validate code and get guest info (or check cookie)
     if (req.method === 'GET') {
-      const { code } = req.query
+      const { code, logout } = req.query
+      
+      // Handle logout
+      if (logout === 'true') {
+        res.setHeader('Set-Cookie', 'guest_code=; Path=/; Max-Age=0; SameSite=Lax; HttpOnly')
+        return res.status(200).json({ success: true, message: 'Logged out' })
+      }
+      
+      // First, check if there's a valid cookie
+      // In Vercel, cookies are available in req.cookies
+      const cookieCode = (req.cookies && typeof req.cookies === 'object' && 'guest_code' in req.cookies)
+        ? req.cookies.guest_code
+        : null
+      
+      if (cookieCode && !code) {
+        // User has a cookie, validate it
+        const guest = await findGuestByCode(cookieCode)
+        if (guest) {
+          return res.status(200).json({
+            success: true,
+            guest,
+            fromCookie: true,
+          })
+        }
+        // Invalid cookie, clear it
+        res.setHeader('Set-Cookie', 'guest_code=; Path=/; Max-Age=0; SameSite=Lax; HttpOnly')
+      }
 
+      // If code provided, validate it
       if (!code || typeof code !== 'string') {
+        // No code and no valid cookie
+        if (!cookieCode) {
+          return res.status(400).json({ success: false, error: 'Code is required' })
+        }
         return res.status(400).json({ success: false, error: 'Code is required' })
       }
 
@@ -165,6 +196,19 @@ export default async function handler(
       if (!guest) {
         return res.status(404).json({ success: false, error: 'Invalid code' })
       }
+
+      // Set cookie for future visits (30 days) - one time magic!
+      const cookieValue = code.toUpperCase().trim()
+      const cookieOptions = [
+        `guest_code=${cookieValue}`,
+        'Path=/',
+        'Max-Age=2592000', // 30 days
+        'SameSite=Lax',
+        process.env.NODE_ENV === 'production' ? 'Secure' : '',
+        'HttpOnly',
+      ].filter(Boolean).join('; ')
+
+      res.setHeader('Set-Cookie', cookieOptions)
 
       return res.status(200).json({
         success: true,
