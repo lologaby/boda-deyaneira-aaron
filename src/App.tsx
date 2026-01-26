@@ -259,6 +259,9 @@ const copy = {
       error: 'Hubo un problema. Inténtalo de nuevo.',
       checkSheet: '¡Gracias! Tu respuesta debería estar en la hoja. Si no la ves, inténtalo de nuevo.',
       missingEndpoint: 'Configura el enlace del Google Form para enviar.',
+      spotifyButton: 'Playlist',
+      spotifyTitle: 'Escucha las canciones de la boda',
+      spotifyHint: '🎵 ¡Escucha la playlist con las canciones que todos sugirieron!',
     },
     footer: {
       credits: 'Creado con cariño para Deyaneira & Aaron',
@@ -431,6 +434,9 @@ const copy = {
       error: 'Something went wrong. Please try again.',
       checkSheet: 'Thank you! Your response should be in the sheet. If you don’t see it, try again.',
       missingEndpoint: 'Set the Google Form link to submit.',
+      spotifyButton: 'Playlist',
+      spotifyTitle: 'Listen to the wedding songs',
+      spotifyHint: '🎵 Listen to the playlist with songs everyone suggested!',
     },
     footer: {
       credits: 'Made with care for Deyaneira & Aaron',
@@ -553,12 +559,22 @@ const calendarLink = '/calendar.ics'
 const flightSearchUrl = 'https://www.google.com/travel/flights?q=Flights%20from%20New%20York%20to%20Puerto%20Rico'
 const skyscannerFlightUrl = 'https://www.skyscanner.com/transport/flights/nyca/sjua/'
 
+// Spotify playlist URL - update this with your actual playlist
+const SPOTIFY_PLAYLIST_URL = import.meta.env.VITE_SPOTIFY_PLAYLIST_URL || 'https://open.spotify.com/playlist/YOUR_PLAYLIST_ID'
+
+const spotifyIcon = (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
+    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+  </svg>
+)
+
 export default function App() {
   const [lang, setLang] = useState<Language>('es')
   const [countdown, setCountdown] = useState(getCountdown)
   const [showIntro, setShowIntro] = useState(true)
   const [introState, setIntroState] = useState<'closed' | 'opening' | 'revealed'>('closed')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [rsvpSubmitted, setRsvpSubmitted] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
   const introCompleted = useRef(false)
@@ -728,10 +744,12 @@ export default function App() {
         body: formData,
       })
       toast.success(content.rsvp.success)
+      setRsvpSubmitted(true)
       form.reset()
     } catch {
       // With no-cors, fetch can reject (e.g. redirect) even when the form was received.
       toast.success(content.rsvp.checkSheet)
+      setRsvpSubmitted(true)
     } finally {
       rsvpSubmitGuardRef.current = false
       setIsSubmitting(false)
@@ -1186,9 +1204,26 @@ export default function App() {
                 />
               </label>
 
-              <button className="btn-primary w-full" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? content.rsvp.submitting : content.rsvp.submit}
-              </button>
+              <div className="rsvp-buttons">
+                <button className="btn-primary flex-1" type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? content.rsvp.submitting : content.rsvp.submit}
+                </button>
+                {rsvpSubmitted && (
+                  <a
+                    href={SPOTIFY_PLAYLIST_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-spotify"
+                    title={content.rsvp.spotifyTitle}
+                  >
+                    {spotifyIcon}
+                    <span>{content.rsvp.spotifyButton}</span>
+                  </a>
+                )}
+              </div>
+              {rsvpSubmitted && (
+                <p className="rsvp-spotify-hint">{content.rsvp.spotifyHint}</p>
+              )}
               {!googleFormConfig && (
                 <p className="text-center text-xs text-boda-sage/70">{content.rsvp.missingEndpoint}</p>
               )}

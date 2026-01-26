@@ -1026,6 +1026,34 @@ h4 {
   min-height: 44px;
 }
 
+/* RSVP buttons row */
+.rsvp-buttons {
+  @apply flex gap-3 items-stretch;
+}
+
+/* Spotify button */
+.btn-spotify {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full font-heading text-sm font-medium tracking-wider;
+  @apply transition-all duration-200;
+  background-color: #1DB954;
+  color: white;
+  min-height: 44px;
+}
+
+.btn-spotify:hover {
+  background-color: #1ed760;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+.btn-spotify:active {
+  transform: translateY(0);
+}
+
+.rsvp-spotify-hint {
+  @apply text-center text-sm text-boda-sage/80 mt-3 italic;
+}
+
 /* ---- Footer: credits (discreto, solo se nota al mirar con detalle) ---- */
 .site-footer {
   @apply py-5 px-6 text-center;
