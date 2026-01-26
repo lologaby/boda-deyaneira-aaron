@@ -668,6 +668,7 @@ export default function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const rsvpSubmitGuardRef = useRef(false)
   const nameInputRef = useRef<HTMLInputElement | null>(null)
+  const authCheckedRef = useRef(false)
   const prefersReducedMotion = useReducedMotion()
 
   // Detect event state (before, during, after)
@@ -687,6 +688,25 @@ export default function App() {
 
   // Guest has confirmed if they're authenticated and hasConfirmed is true
   const guestHasConfirmed = isAuthenticated && guest?.hasConfirmed
+
+  // Hide envelope if user is already authenticated via cookie (returning visitor)
+  // Only run once when initial auth check completes
+  useEffect(() => {
+    if (isAuthLoading || authCheckedRef.current) return // Wait for initial auth check
+    
+    authCheckedRef.current = true
+    
+    if (isAuthenticated) {
+      // User is already authenticated via cookie, skip envelope completely
+      setShowIntro(false)
+      setIntroState('revealed')
+      introCompleted.current = true
+    } else {
+      // User is not authenticated, show envelope with code entry
+      setShowIntro(true)
+      setIntroState('closed')
+    }
+  }, [isAuthLoading, isAuthenticated]) // Run when auth state changes
 
   const content = copy[lang]
 
