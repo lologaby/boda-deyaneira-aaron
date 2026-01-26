@@ -15,6 +15,7 @@ interface AfterWeddingProps {
     galleryTitle?: string
     galleryLoading?: string
   }
+  lang?: 'es' | 'en'
 }
 
 const heartIcon = (
@@ -182,8 +183,8 @@ const EnvelopeDecor = () => (
   </div>
 )
 
-export const AfterWedding = ({ content }: AfterWeddingProps) => {
-  const { content: notionContent, isLoading } = useNotionGallery()
+export const AfterWedding = ({ content, lang = 'es' }: AfterWeddingProps) => {
+  const { content: notionContent, isLoading } = useNotionGallery(lang)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
   const hasPhotos = notionContent?.photos && notionContent.photos.length > 0

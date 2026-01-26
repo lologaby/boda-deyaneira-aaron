@@ -931,7 +931,7 @@ export default function App() {
 
       {/* AFTER STATE: Thank you message */}
       {eventState === 'after' && (
-        <AfterWedding content={content.after} />
+        <AfterWedding content={content.after} lang={lang} />
       )}
 
       {/* BEFORE STATE: Normal invitation site */}
