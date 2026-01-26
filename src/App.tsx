@@ -605,6 +605,15 @@ export default function App() {
   }, [lang])
 
   useEffect(() => {
+    // Don't block scroll for during/after states
+    if (eventState !== 'before') {
+      document.body.style.overflow = ''
+      document.body.style.height = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+      return
+    }
+    
     if (introState !== 'revealed') {
       document.body.style.overflow = 'hidden'
       document.body.style.height = '100vh'
@@ -616,7 +625,7 @@ export default function App() {
     document.body.style.height = ''
     document.body.style.position = ''
     document.body.style.width = ''
-  }, [introState])
+  }, [introState, eventState])
 
   useEffect(() => {
     const onResize = () => {
@@ -627,6 +636,15 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    // Don't block scroll for during/after states
+    if (eventState !== 'before') {
+      document.body.style.overflow = ''
+      document.body.style.height = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+      return
+    }
+    
     if (showIntro) {
       document.body.style.overflow = 'hidden'
       document.body.style.height = '100vh'
@@ -644,7 +662,7 @@ export default function App() {
       document.body.style.position = ''
       document.body.style.width = ''
     }
-  }, [showIntro])
+  }, [showIntro, eventState])
 
   const handleIntroComplete = () => {
     if (introCompleted.current) return
