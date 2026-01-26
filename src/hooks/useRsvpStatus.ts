@@ -18,17 +18,13 @@ interface RsvpRegisterResult {
   error?: string
 }
 
-// localStorage keys
-const RSVP_NAME_KEY = 'boda_rsvp_name'
-const RSVP_SUBMITTED_KEY = 'boda_rsvp_submitted'
-
 export function useRsvpStatus() {
   const [isChecking, setIsChecking] = useState(false)
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [checkedName, setCheckedName] = useState<string | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
 
-  // Check if a name has already submitted (server-side verification)
+  // Check if a name has already submitted (server-side verification only - no localStorage)
   const checkRsvpStatus = useCallback(async (name: string): Promise<boolean> => {
     if (!name.trim()) return false
 
@@ -38,70 +34,27 @@ export function useRsvpStatus() {
       const data: RsvpCheckResult = await response.json()
 
       if (data.success) {
-        // If Redis is not configured, check localStorage
-        if (data.configured === false) {
-          const localSubmitted = localStorage.getItem(RSVP_SUBMITTED_KEY) === 'true'
-          const localName = localStorage.getItem(RSVP_NAME_KEY)
-          if (localSubmitted && localName?.toLowerCase() === name.trim().toLowerCase()) {
-            setHasSubmitted(true)
-            setCheckedName(name.trim())
-            return true
-          }
-          return false
-        }
-
         const submitted = data.hasSubmitted || false
         setHasSubmitted(submitted)
         setCheckedName(name.trim())
-        
-        // If submitted, save to localStorage for future visits
-        if (submitted) {
-          try {
-            localStorage.setItem(RSVP_NAME_KEY, name.trim())
-            localStorage.setItem(RSVP_SUBMITTED_KEY, 'true')
-          } catch {
-            // Ignore localStorage errors
-          }
-        }
-        
         return submitted
       }
       return false
     } catch (error) {
       console.error('Error checking RSVP status:', error)
-      // Fallback to localStorage
-      const localSubmitted = localStorage.getItem(RSVP_SUBMITTED_KEY) === 'true'
-      const localName = localStorage.getItem(RSVP_NAME_KEY)
-      if (localSubmitted && localName?.toLowerCase() === name.trim().toLowerCase()) {
-        setHasSubmitted(true)
-        setCheckedName(name.trim())
-        return true
-      }
       return false
     } finally {
       setIsChecking(false)
     }
   }, [])
 
-  // Register a new RSVP submission
+  // Register a new RSVP submission (server-side only - no localStorage)
   const registerRsvp = useCallback(async (
     name: string,
     attendance: string,
     guests: number,
     song: string
   ): Promise<{ success: boolean; alreadySubmitted?: boolean }> => {
-    // Always save to localStorage first (as fallback)
-    try {
-      localStorage.setItem(RSVP_NAME_KEY, name.trim())
-      localStorage.setItem(RSVP_SUBMITTED_KEY, 'true')
-    } catch {
-      // Ignore localStorage errors
-    }
-
-    // Update state immediately
-    setHasSubmitted(true)
-    setCheckedName(name.trim())
-
     try {
       const response = await fetch('/api/rsvp', {
         method: 'POST',
@@ -122,53 +75,35 @@ export function useRsvpStatus() {
         return { success: false, alreadySubmitted: true }
       }
 
-      return { success: true }
+      if (data.success) {
+        // Update React state only (no browser storage)
+        setHasSubmitted(true)
+        setCheckedName(name.trim())
+        return { success: true }
+      }
+
+      return { success: false }
     } catch (error) {
       console.error('Error registering RSVP:', error)
-      // Registration to server failed, but localStorage is saved
-      // Still return success since Google Form submission is separate
-      return { success: true }
+      return { success: false }
     }
   }, [])
 
-  // On mount, check if user has previously submitted
+  // On mount, check if user has previously submitted (server-side only - no localStorage)
   useEffect(() => {
     const checkPreviousSubmission = async () => {
       try {
-        // First check localStorage
-        const localSubmitted = localStorage.getItem(RSVP_SUBMITTED_KEY) === 'true'
-        const savedName = localStorage.getItem(RSVP_NAME_KEY)
+        // Check by IP (server-side)
+        const response = await fetch('/api/rsvp')
+        const data: RsvpCheckResult = await response.json()
         
-        if (localSubmitted && savedName) {
-          // Set immediately from localStorage
+        if (data.success && data.hasSubmitted && data.submittedName) {
+          // IP was found, user already submitted
           setHasSubmitted(true)
-          setCheckedName(savedName)
-          setIsInitialized(true)
-          return
-        }
-
-        // If no localStorage, check by IP (server-side)
-        try {
-          const response = await fetch('/api/rsvp')
-          const data: RsvpCheckResult = await response.json()
-          
-          if (data.success && data.hasSubmitted && data.submittedName) {
-            // IP was found, user already submitted
-            setHasSubmitted(true)
-            setCheckedName(data.submittedName)
-            
-            // Save to localStorage for future
-            try {
-              localStorage.setItem(RSVP_NAME_KEY, data.submittedName)
-              localStorage.setItem(RSVP_SUBMITTED_KEY, 'true')
-            } catch {
-              // Ignore
-            }
-          }
-        } catch {
-          // Server check failed, no problem
+          setCheckedName(data.submittedName)
         }
       } catch (error) {
+        // Server check failed, no problem - user can still submit
         console.error('Error checking previous submission:', error)
       } finally {
         setIsInitialized(true)
@@ -178,16 +113,10 @@ export function useRsvpStatus() {
     checkPreviousSubmission()
   }, [])
 
-  // Reset state (useful for testing)
+  // Reset state (useful for testing) - React state only
   const reset = useCallback(() => {
     setHasSubmitted(false)
     setCheckedName(null)
-    try {
-      localStorage.removeItem(RSVP_NAME_KEY)
-      localStorage.removeItem(RSVP_SUBMITTED_KEY)
-    } catch {
-      // Ignore localStorage errors
-    }
   }, [])
 
   return {

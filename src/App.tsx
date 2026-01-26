@@ -696,6 +696,7 @@ export default function App() {
     document.documentElement.lang = lang
   }, [lang])
 
+  // Consolidated scroll blocking: block scroll when envelope is not revealed
   useEffect(() => {
     // Don't block scroll for during/after states
     if (eventState !== 'before') {
@@ -706,38 +707,10 @@ export default function App() {
       return
     }
     
-    if (introState !== 'revealed') {
-      document.body.style.overflow = 'hidden'
-      document.body.style.height = '100vh'
-      document.body.style.position = 'fixed'
-      document.body.style.width = '100%'
-      return
-    }
-    document.body.style.overflow = ''
-    document.body.style.height = ''
-    document.body.style.position = ''
-    document.body.style.width = ''
-  }, [introState, eventState])
-
-  useEffect(() => {
-    const onResize = () => {
-      if (window.innerWidth >= 640) setNavOpen(false)
-    }
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-
-  useEffect(() => {
-    // Don't block scroll for during/after states
-    if (eventState !== 'before') {
-      document.body.style.overflow = ''
-      document.body.style.height = ''
-      document.body.style.position = ''
-      document.body.style.width = ''
-      return
-    }
+    // Block scroll if intro is showing AND not yet revealed
+    const shouldBlockScroll = showIntro && introState !== 'revealed'
     
-    if (showIntro) {
+    if (shouldBlockScroll) {
       document.body.style.overflow = 'hidden'
       document.body.style.height = '100vh'
       document.body.style.position = 'fixed'
@@ -748,13 +721,26 @@ export default function App() {
       document.body.style.position = ''
       document.body.style.width = ''
     }
+    
+    // Cleanup: restore scroll when component unmounts or dependencies change
     return () => {
-      document.body.style.overflow = ''
-      document.body.style.height = ''
-      document.body.style.position = ''
-      document.body.style.width = ''
+      // Only reset if we're still in 'before' state (otherwise another effect might handle it)
+      if (eventState === 'before') {
+        document.body.style.overflow = ''
+        document.body.style.height = ''
+        document.body.style.position = ''
+        document.body.style.width = ''
+      }
     }
-  }, [showIntro, eventState])
+  }, [introState, showIntro, eventState])
+
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 640) setNavOpen(false)
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   const handleIntroComplete = () => {
     if (introCompleted.current) return
