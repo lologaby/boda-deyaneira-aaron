@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/images/logo-og.png" alt="Deyaneira & Aaron" width="400" />
+  <img src="public/images/project_logo.png" alt="Deyaneira & Aaron" width="400" />
 </p>
 
 <h1 align="center">Deyaneira & Aaron</h1>
