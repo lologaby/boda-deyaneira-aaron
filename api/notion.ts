@@ -1,15 +1,10 @@
-import { Client } from '@notionhq/client'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 const DATABASE_ID = process.env.NOTION_DATABASE_ID || ''
 const PAGE_ID = process.env.NOTION_PAGE_ID || ''
+const NOTION_API_KEY = process.env.NOTION_API_KEY || ''
 
-// Initialize Notion client lazily to ensure env vars are loaded
-function getNotionClient() {
-  return new Client({
-    auth: process.env.NOTION_API_KEY,
-  })
-}
+const NOTION_VERSION = '2022-06-28'
 
 interface NotionPhoto {
   id: string
@@ -23,6 +18,26 @@ interface GalleryContent {
   lastUpdated: string
 }
 
+// Make a request to Notion API
+async function notionFetch(endpoint: string, body?: any) {
+  const response = await fetch(`https://api.notion.com/v1${endpoint}`, {
+    method: body ? 'POST' : 'GET',
+    headers: {
+      'Authorization': `Bearer ${NOTION_API_KEY}`,
+      'Notion-Version': NOTION_VERSION,
+      'Content-Type': 'application/json',
+    },
+    ...(body && { body: JSON.stringify(body) }),
+  })
+  
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Notion API error: ${response.status} - ${error}`)
+  }
+  
+  return response.json()
+}
+
 // Extract text from Notion rich text array
 function extractText(richText: any[]): string {
   if (!richText || !Array.isArray(richText)) return ''
@@ -34,26 +49,21 @@ async function getCoupleMessage(): Promise<string> {
   if (!PAGE_ID) return ''
   
   try {
-    const notion = getNotionClient()
-    const blocks = await notion.blocks.children.list({
-      block_id: PAGE_ID,
-      page_size: 50,
-    })
-
+    const data = await notionFetch(`/blocks/${PAGE_ID}/children?page_size=50`)
+    
     let message = ''
-    for (const block of blocks.results) {
-      const blockAny = block as any
-      if (blockAny.type === 'paragraph' && blockAny.paragraph?.rich_text) {
-        const text = extractText(blockAny.paragraph.rich_text)
+    for (const block of data.results || []) {
+      if (block.type === 'paragraph' && block.paragraph?.rich_text) {
+        const text = extractText(block.paragraph.rich_text)
         if (text) message += text + '\n\n'
-      } else if (blockAny.type === 'heading_1' && blockAny.heading_1?.rich_text) {
-        const text = extractText(blockAny.heading_1.rich_text)
+      } else if (block.type === 'heading_1' && block.heading_1?.rich_text) {
+        const text = extractText(block.heading_1.rich_text)
         if (text) message += `# ${text}\n\n`
-      } else if (blockAny.type === 'heading_2' && blockAny.heading_2?.rich_text) {
-        const text = extractText(blockAny.heading_2.rich_text)
+      } else if (block.type === 'heading_2' && block.heading_2?.rich_text) {
+        const text = extractText(block.heading_2.rich_text)
         if (text) message += `## ${text}\n\n`
-      } else if (blockAny.type === 'quote' && blockAny.quote?.rich_text) {
-        const text = extractText(blockAny.quote.rich_text)
+      } else if (block.type === 'quote' && block.quote?.rich_text) {
+        const text = extractText(block.quote.rich_text)
         if (text) message += `> ${text}\n\n`
       }
     }
@@ -70,9 +80,7 @@ async function getPhotos(): Promise<{ photos: NotionPhoto[], debug?: any }> {
   if (!DATABASE_ID) return { photos: [], debug: { error: 'No DATABASE_ID configured' } }
 
   try {
-    const notion = getNotionClient()
-    const response = await notion.databases.query({
-      database_id: DATABASE_ID,
+    const data = await notionFetch(`/databases/${DATABASE_ID}/query`, {
       sorts: [
         {
           property: 'Order',
@@ -84,9 +92,8 @@ async function getPhotos(): Promise<{ photos: NotionPhoto[], debug?: any }> {
     const photos: NotionPhoto[] = []
     const debugInfo: any[] = []
 
-    for (const page of response.results) {
-      const pageAny = page as any
-      const properties = pageAny.properties
+    for (const page of data.results || []) {
+      const properties = page.properties || {}
 
       // Debug: log all property names and types
       const propDebug: any = {
@@ -111,10 +118,10 @@ async function getPhotos(): Promise<{ photos: NotionPhoto[], debug?: any }> {
       // Check for file property named "Image", "Foto", or "Photo"
       const imageProperty = properties.Image || properties.Foto || properties.Photo
       propDebug.imagePropertyFound = !!imageProperty
-      propDebug.imagePropertyType = imageProperty?.type
+      propDebug.imagePropertyType = (imageProperty as any)?.type
 
-      if (imageProperty?.files?.[0]) {
-        const file = imageProperty.files[0]
+      if ((imageProperty as any)?.files?.[0]) {
+        const file = (imageProperty as any).files[0]
         imageUrl = file.file?.url || file.external?.url || ''
         propDebug.fileData = {
           hasFileUrl: !!file.file?.url,
@@ -124,17 +131,17 @@ async function getPhotos(): Promise<{ photos: NotionPhoto[], debug?: any }> {
       }
 
       // Check for cover image as fallback
-      if (!imageUrl && pageAny.cover) {
-        imageUrl = pageAny.cover.file?.url || pageAny.cover.external?.url || ''
+      if (!imageUrl && page.cover) {
+        imageUrl = (page.cover as any).file?.url || (page.cover as any).external?.url || ''
         propDebug.usedCover = true
       }
 
       // Get caption from "Caption", "Descripcion", or "Name" property
       const captionProperty = properties.Caption || properties.Descripcion || properties.Name
-      if (captionProperty?.title) {
-        caption = extractText(captionProperty.title)
-      } else if (captionProperty?.rich_text) {
-        caption = extractText(captionProperty.rich_text)
+      if ((captionProperty as any)?.title) {
+        caption = extractText((captionProperty as any).title)
+      } else if ((captionProperty as any)?.rich_text) {
+        caption = extractText((captionProperty as any).rich_text)
       }
 
       propDebug.finalImageUrl = imageUrl ? 'found' : 'not found'
@@ -153,13 +160,13 @@ async function getPhotos(): Promise<{ photos: NotionPhoto[], debug?: any }> {
       photos, 
       debug: { 
         databaseId: DATABASE_ID,
-        totalResults: response.results.length,
+        totalResults: data.results?.length || 0,
         pages: debugInfo 
       } 
     }
   } catch (error: any) {
     console.error('Error fetching photos:', error)
-    return { photos: [], debug: { error: error.message, code: error.code } }
+    return { photos: [], debug: { error: error.message } }
   }
 }
 
@@ -181,7 +188,7 @@ export default async function handler(
   }
 
   // Check if API key is configured
-  if (!process.env.NOTION_API_KEY) {
+  if (!NOTION_API_KEY) {
     return res.status(500).json({
       success: false,
       error: 'Notion API key not configured',
@@ -215,11 +222,11 @@ export default async function handler(
       data: content,
       ...(includeDebug && { debug: photosResult.debug }),
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Notion API error:', error)
     return res.status(500).json({
       success: false,
-      error: 'Failed to fetch content from Notion',
+      error: error.message || 'Failed to fetch content from Notion',
     })
   }
 }
