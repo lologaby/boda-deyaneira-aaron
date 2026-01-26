@@ -63,8 +63,8 @@ async function getCoupleMessage(): Promise<string> {
 }
 
 // Get photos from a Notion database (gallery)
-async function getPhotos(): Promise<NotionPhoto[]> {
-  if (!DATABASE_ID) return []
+async function getPhotos(): Promise<{ photos: NotionPhoto[], debug?: any }> {
+  if (!DATABASE_ID) return { photos: [], debug: { error: 'No DATABASE_ID configured' } }
 
   try {
     const response = await notion.databases.query({
@@ -78,10 +78,27 @@ async function getPhotos(): Promise<NotionPhoto[]> {
     })
 
     const photos: NotionPhoto[] = []
+    const debugInfo: any[] = []
 
     for (const page of response.results) {
       const pageAny = page as any
       const properties = pageAny.properties
+
+      // Debug: log all property names and types
+      const propDebug: any = {
+        pageId: page.id,
+        propertyNames: Object.keys(properties),
+        properties: {}
+      }
+
+      for (const [key, value] of Object.entries(properties)) {
+        const val = value as any
+        propDebug.properties[key] = {
+          type: val.type,
+          hasFiles: val.files?.length > 0,
+          filesCount: val.files?.length || 0
+        }
+      }
 
       // Try to get image from "Image" or "Foto" property (file type)
       let imageUrl = ''
@@ -89,14 +106,23 @@ async function getPhotos(): Promise<NotionPhoto[]> {
 
       // Check for file property named "Image", "Foto", or "Photo"
       const imageProperty = properties.Image || properties.Foto || properties.Photo
+      propDebug.imagePropertyFound = !!imageProperty
+      propDebug.imagePropertyType = imageProperty?.type
+
       if (imageProperty?.files?.[0]) {
         const file = imageProperty.files[0]
         imageUrl = file.file?.url || file.external?.url || ''
+        propDebug.fileData = {
+          hasFileUrl: !!file.file?.url,
+          hasExternalUrl: !!file.external?.url,
+          fileType: file.type
+        }
       }
 
       // Check for cover image as fallback
       if (!imageUrl && pageAny.cover) {
         imageUrl = pageAny.cover.file?.url || pageAny.cover.external?.url || ''
+        propDebug.usedCover = true
       }
 
       // Get caption from "Caption", "Descripcion", or "Name" property
@@ -107,6 +133,9 @@ async function getPhotos(): Promise<NotionPhoto[]> {
         caption = extractText(captionProperty.rich_text)
       }
 
+      propDebug.finalImageUrl = imageUrl ? 'found' : 'not found'
+      debugInfo.push(propDebug)
+
       if (imageUrl) {
         photos.push({
           id: page.id,
@@ -116,10 +145,17 @@ async function getPhotos(): Promise<NotionPhoto[]> {
       }
     }
 
-    return photos
-  } catch (error) {
+    return { 
+      photos, 
+      debug: { 
+        databaseId: DATABASE_ID,
+        totalResults: response.results.length,
+        pages: debugInfo 
+      } 
+    }
+  } catch (error: any) {
     console.error('Error fetching photos:', error)
-    return []
+    return { photos: [], debug: { error: error.message, code: error.code } }
   }
 }
 
@@ -149,23 +185,31 @@ export default async function handler(
   }
 
   try {
-    const [message, photos] = await Promise.all([
+    const [message, photosResult] = await Promise.all([
       getCoupleMessage(),
       getPhotos(),
     ])
 
     const content: GalleryContent = {
       message,
-      photos,
+      photos: photosResult.photos,
       lastUpdated: new Date().toISOString(),
     }
 
-    // Cache for 5 minutes
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate')
+    // Include debug info if requested
+    const includeDebug = req.query.debug === 'true'
+
+    // Cache for 5 minutes (disabled for debug)
+    if (!includeDebug) {
+      res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate')
+    } else {
+      res.setHeader('Cache-Control', 'no-cache')
+    }
 
     return res.status(200).json({
       success: true,
       data: content,
+      ...(includeDebug && { debug: photosResult.debug }),
     })
   } catch (error) {
     console.error('Notion API error:', error)
