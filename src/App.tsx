@@ -808,53 +808,63 @@ export default function App() {
         </button>
       )}
 
-      <nav className="nav-bar" aria-label="Main">
-        <div className="nav-inner">
-          <button
-            type="button"
-            className="nav-hamburger sm:hidden"
-            onClick={() => setNavOpen(v => !v)}
-            aria-expanded={navOpen}
-            aria-label={navOpen ? content.nav.menuClose : content.nav.menuOpen}
-          >
-            {navOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 12h16" /><path d="M4 6h16" /><path d="M4 18h16" /></svg>
-            )}
-          </button>
-          <div className="hidden sm:flex items-center gap-2">
-            <a className="nav-link" href="#faq">
-              {content.nav.faq}
+      {/* Only show full navbar in 'before' state */}
+      {eventState === 'before' ? (
+        <nav className="nav-bar" aria-label="Main">
+          <div className="nav-inner">
+            <button
+              type="button"
+              className="nav-hamburger sm:hidden"
+              onClick={() => setNavOpen(v => !v)}
+              aria-expanded={navOpen}
+              aria-label={navOpen ? content.nav.menuClose : content.nav.menuOpen}
+            >
+              {navOpen ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 12h16" /><path d="M4 6h16" /><path d="M4 18h16" /></svg>
+              )}
+            </button>
+            <div className="hidden sm:flex items-center gap-2">
+              <a className="nav-link" href="#faq">
+                {content.nav.faq}
+              </a>
+              <span className="nav-sep" aria-hidden="true">·</span>
+              <a className="nav-link" href="#location">
+                {content.nav.location}
+              </a>
+              <span className="nav-sep" aria-hidden="true">·</span>
+              <a className="nav-link" href="#travel">
+                {content.nav.travel}
+              </a>
+            </div>
+            <a href="#rsvp" className="nav-rsvp-btn hidden sm:inline-flex">
+              {content.nav.rsvp}
             </a>
-            <span className="nav-sep" aria-hidden="true">·</span>
-            <a className="nav-link" href="#location">
-              {content.nav.location}
-            </a>
-            <span className="nav-sep" aria-hidden="true">·</span>
-            <a className="nav-link" href="#travel">
-              {content.nav.travel}
-            </a>
+            <button type="button" className="nav-lang-btn" onClick={toggleLanguage} aria-label="Toggle language">
+              {content.nav.toggle}
+            </button>
           </div>
-          <a href="#rsvp" className="nav-rsvp-btn hidden sm:inline-flex">
-            {content.nav.rsvp}
-          </a>
+          {navOpen && (
+            <>
+              <div className="nav-overlay sm:hidden" onClick={() => setNavOpen(false)} aria-hidden />
+              <div className="nav-mobile-menu sm:hidden">
+                <a href="#faq" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.faq}</a>
+                <a href="#location" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.location}</a>
+                <a href="#travel" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.travel}</a>
+                <a href="#rsvp" className="nav-mobile-link nav-mobile-link-rsvp" onClick={() => setNavOpen(false)}>{content.nav.rsvp}</a>
+              </div>
+            </>
+          )}
+        </nav>
+      ) : (
+        /* Minimal nav for during/after - just language toggle */
+        <div className="nav-minimal">
           <button type="button" className="nav-lang-btn" onClick={toggleLanguage} aria-label="Toggle language">
             {content.nav.toggle}
           </button>
         </div>
-        {navOpen && (
-          <>
-            <div className="nav-overlay sm:hidden" onClick={() => setNavOpen(false)} aria-hidden />
-            <div className="nav-mobile-menu sm:hidden">
-              <a href="#faq" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.faq}</a>
-              <a href="#location" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.location}</a>
-              <a href="#travel" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.travel}</a>
-              <a href="#rsvp" className="nav-mobile-link nav-mobile-link-rsvp" onClick={() => setNavOpen(false)}>{content.nav.rsvp}</a>
-            </div>
-          </>
-        )}
-      </nav>
+      )}
 
       {/* DURING STATE: Live celebration message */}
       {eventState === 'during' && (

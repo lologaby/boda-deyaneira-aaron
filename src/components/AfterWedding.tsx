@@ -171,6 +171,17 @@ const Lightbox = ({
   )
 }
 
+// Mini envelope decoration component
+const EnvelopeDecor = () => (
+  <div className="envelope-decor">
+    <div className="envelope-decor-body">
+      <span className="envelope-decor-title">
+        D <span className="envelope-decor-amp">&</span> A
+      </span>
+    </div>
+  </div>
+)
+
 export const AfterWedding = ({ content }: AfterWeddingProps) => {
   const { content: notionContent, isLoading } = useNotionGallery()
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
@@ -199,6 +210,16 @@ export const AfterWedding = ({ content }: AfterWeddingProps) => {
       className="after-wedding-section"
     >
       <div className="after-wedding-inner">
+        {/* Mini envelope as keepsake decoration */}
+        <motion.div 
+          className="after-wedding-envelope-wrap"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+        >
+          <EnvelopeDecor />
+        </motion.div>
+
         {/* Header with heart */}
         <div className="after-wedding-header">
           <motion.div

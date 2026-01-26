@@ -1099,15 +1099,60 @@ h4 {
   @apply mt-12 flex justify-center gap-8 text-4xl opacity-60;
 }
 
+/* ---- MINIMAL NAV (for during/after states) ---- */
+.nav-minimal {
+  @apply fixed top-4 right-4 z-50;
+}
+
+.nav-minimal .nav-lang-btn {
+  @apply bg-white/90 shadow-md backdrop-blur-sm;
+}
+
 /* ---- AFTER WEDDING STATE ---- */
 .after-wedding-section {
-  @apply min-h-screen px-4 py-16;
+  @apply px-4 py-16 pb-24;
+  min-height: 100vh;
+  overflow-y: auto;
   background: linear-gradient(
     to bottom,
     #F5EFE7 0%,
     #FFFFFF 50%,
     #F5EFE7 100%
   );
+}
+
+/* Envelope decoration */
+.after-wedding-envelope-wrap {
+  @apply flex justify-center mb-8;
+}
+
+.envelope-decor {
+  @apply relative w-20 h-14 rounded-md shadow-md;
+  background: linear-gradient(135deg, #F5EFE7 0%, #E8E0D6 100%);
+  border: 1px solid rgba(139, 75, 92, 0.2);
+}
+
+.envelope-decor::before {
+  content: '';
+  @apply absolute top-0 left-0 right-0;
+  height: 50%;
+  background: linear-gradient(135deg, transparent 48%, #E89C7C 48%, #E89C7C 52%, transparent 52%),
+              linear-gradient(-135deg, transparent 48%, #E89C7C 48%, #E89C7C 52%, transparent 52%);
+  background-size: 100% 100%;
+  border-radius: 0.375rem 0.375rem 0 0;
+}
+
+.envelope-decor-body {
+  @apply absolute inset-0 flex items-center justify-center;
+  padding-top: 0.5rem;
+}
+
+.envelope-decor-title {
+  @apply font-display text-sm text-boda-burgundy tracking-wide;
+}
+
+.envelope-decor-amp {
+  @apply text-boda-terracotta mx-0.5;
 }
 
 .after-wedding-inner {
