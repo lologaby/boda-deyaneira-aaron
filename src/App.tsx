@@ -626,8 +626,35 @@ const appleMusicIcon = (
   </svg>
 )
 
+// Detect browser language
+function detectLanguage(): Language {
+  if (typeof window === 'undefined') return 'es'
+  
+  // Check navigator.languages first (more accurate)
+  const languages = navigator.languages || [navigator.language]
+  
+  for (const lang of languages) {
+    const langCode = lang.toLowerCase().split('-')[0]
+    if (langCode === 'en') {
+      return 'en'
+    }
+    if (langCode === 'es') {
+      return 'es'
+    }
+  }
+  
+  // Fallback to navigator.language
+  const browserLang = navigator.language?.toLowerCase().split('-')[0]
+  if (browserLang === 'en') {
+    return 'en'
+  }
+  
+  // Default to Spanish
+  return 'es'
+}
+
 export default function App() {
-  const [lang, setLang] = useState<Language>('es')
+  const [lang, setLang] = useState<Language>(() => detectLanguage())
   const [countdown, setCountdown] = useState(getCountdown)
   const [showIntro, setShowIntro] = useState(true)
   const [introState, setIntroState] = useState<'closed' | 'opening' | 'revealed'>('closed')
