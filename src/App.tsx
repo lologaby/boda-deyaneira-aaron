@@ -4,8 +4,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import { useEventState, type EventState } from './hooks/useEventState'
 import { useRsvpStatus } from './hooks/useRsvpStatus'
+import { useGuestAuth } from './hooks/useGuestAuth'
 import { DuringWedding } from './components/DuringWedding'
 import { AfterWedding } from './components/AfterWedding'
+import { CodeEntry } from './components/CodeEntry'
+import { GuestRsvpForm } from './components/GuestRsvpForm'
 
 type Language = 'es' | 'en'
 
@@ -170,6 +173,15 @@ const faqIconDress = faqIconSvg(
 
 const copy = {
   es: {
+    codeEntry: {
+      title: 'Invitación Privada',
+      subtitle: 'Ingresa tu código de invitado para acceder',
+      placeholder: 'CÓDIGO',
+      button: 'ENTRAR',
+      loading: 'VERIFICANDO...',
+      error: 'Código inválido. Verifica e intenta de nuevo.',
+      hint: 'El código está en tu invitación física',
+    },
     nav: {
       faq: 'Preguntas',
       location: 'Ubicación',
@@ -247,14 +259,14 @@ const copy = {
     rsvp: {
       title: 'Reservación',
       subtitle: 'Confirmar asistencia',
-      nameLabel: 'Nombre completo',
+      nameLabel: 'Invitado',
       namePlaceholder: 'Tu nombre y apellido',
       attendanceLabel: '¿Asistirás?',
       attendanceYes: 'Sí, celebraré con ustedes',
       attendanceNo: 'Lo siento, no podré ir',
       guestsLabel: 'Invitados totales',
-      songLabel: 'Canción para bailar',
-      songPlaceholder: 'Ej. Callaita',
+      songLabel: '¿Qué canción te gustaría bailar?',
+      songPlaceholder: 'Ej. Callaita - Bad Bunny',
       submit: 'ENVIAR',
       submitting: 'ENVIANDO...',
       success: '¡Gracias! Recibimos tu reservación.',
@@ -265,6 +277,11 @@ const copy = {
       spotifyTitle: 'Escucha las canciones de la boda',
       spotifyHint: '🎵 ¡Escucha la playlist con las canciones que todos sugirieron!',
       alreadySubmitted: '¡Ya confirmaste tu asistencia! Gracias.',
+      plusOneQuestion: '¿Traerás a tu acompañante?',
+      plusOneYes: 'Sí',
+      plusOneNo: 'No',
+      confirmButton: '¡CONFIRMO MI ASISTENCIA!',
+      declineButton: 'No podré asistir',
       alreadySubmittedMessage: '¡Ya confirmaste tu asistencia!',
     },
     footer: {
@@ -346,6 +363,15 @@ const copy = {
     },
   },
   en: {
+    codeEntry: {
+      title: 'Private Invitation',
+      subtitle: 'Enter your guest code to access',
+      placeholder: 'CODE',
+      button: 'ENTER',
+      loading: 'VERIFYING...',
+      error: 'Invalid code. Please check and try again.',
+      hint: 'The code is on your physical invitation',
+    },
     nav: {
       faq: 'FAQ',
       location: 'Location',
@@ -442,6 +468,11 @@ const copy = {
       spotifyHint: '🎵 Listen to the playlist with songs everyone suggested!',
       alreadySubmitted: 'You already confirmed your attendance! Thank you.',
       alreadySubmittedMessage: 'You already confirmed your attendance!',
+      plusOneQuestion: 'Will you bring your plus one?',
+      plusOneYes: 'Yes',
+      plusOneNo: 'No',
+      confirmButton: 'CONFIRM ATTENDANCE!',
+      declineButton: 'Cannot attend',
     },
     footer: {
       credits: 'Made with care for Deyaneira & Aaron',
@@ -605,8 +636,20 @@ export default function App() {
   // Detect event state (before, during, after)
   const eventState = useEventState()
 
-  // RSVP status tracking (server-side)
+  // Guest authentication
+  const { 
+    isAuthenticated, 
+    isLoading: isAuthLoading, 
+    guest, 
+    validateCode, 
+    submitRsvp: submitGuestRsvp 
+  } = useGuestAuth()
+
+  // RSVP status tracking (server-side) - used as fallback
   const { hasSubmitted: rsvpSubmitted, checkRsvpStatus, registerRsvp, isChecking: isCheckingRsvp } = useRsvpStatus()
+
+  // Guest has confirmed if they're authenticated and hasConfirmed is true
+  const guestHasConfirmed = isAuthenticated && guest?.hasConfirmed
 
   const content = copy[lang]
 
@@ -795,6 +838,30 @@ export default function App() {
       rsvpSubmitGuardRef.current = false
       setIsSubmitting(false)
     }
+  }
+
+  // Show loading while checking auth
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-boda-cream flex items-center justify-center">
+        <div className="loading-spinner" />
+      </div>
+    )
+  }
+
+  // Show code entry if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <AnimatePresence>
+        <CodeEntry
+          content={content.codeEntry}
+          onValidate={validateCode}
+          onSuccess={() => {
+            // Code validated, component will re-render with isAuthenticated=true
+          }}
+        />
+      </AnimatePresence>
+    )
   }
 
   return (
@@ -1200,11 +1267,14 @@ export default function App() {
               <p className="rsvp-subtitle">{content.rsvp.subtitle}</p>
             </div>
 
-            {rsvpSubmitted ? (
-              /* Already submitted - show thank you message and Spotify */
+            {(guestHasConfirmed || rsvpSubmitted) ? (
+              /* Already confirmed - show thank you message and Spotify */
               <div className="rsvp-confirmed">
                 <div className="rsvp-confirmed-icon">✓</div>
                 <p className="rsvp-confirmed-message">{content.rsvp.alreadySubmittedMessage}</p>
+                {guest && (
+                  <p className="rsvp-confirmed-name">{guest.name}</p>
+                )}
                 <a
                   href={SPOTIFY_PLAYLIST_URL}
                   target="_blank"
@@ -1217,8 +1287,44 @@ export default function App() {
                 </a>
                 <p className="rsvp-spotify-hint">{content.rsvp.spotifyHint}</p>
               </div>
+            ) : guest ? (
+              /* Dynamic RSVP form based on guest data */
+              <GuestRsvpForm
+                guest={guest}
+                content={content.rsvp}
+                googleFormConfig={googleFormConfig}
+                onSubmit={async (attendance, totalGuests, song) => {
+                  setIsSubmitting(true)
+                  try {
+                    // Submit to Notion
+                    await submitGuestRsvp(attendance, totalGuests, song)
+                    
+                    // Also submit to Google Forms
+                    if (googleFormConfig) {
+                      const formData = new FormData()
+                      formData.set(googleFormConfig.name, guest.name)
+                      formData.set(googleFormConfig.attendance, attendance)
+                      formData.set(googleFormConfig.guests, String(totalGuests))
+                      formData.set(googleFormConfig.song, song)
+                      
+                      await fetch(googleFormConfig.action, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData,
+                      })
+                    }
+                    
+                    toast.success(content.rsvp.success)
+                  } catch {
+                    toast.error(content.rsvp.error)
+                  } finally {
+                    setIsSubmitting(false)
+                  }
+                }}
+                isSubmitting={isSubmitting}
+              />
             ) : (
-              /* Form for new submissions */
+              /* Fallback form if no guest data */
               <form className="rsvp-form" onSubmit={handleSubmit}>
                 <label className="input-group">
                   <span>{content.rsvp.nameLabel}</span>
@@ -1247,19 +1353,8 @@ export default function App() {
                     name={googleFormConfig?.guests ?? 'entry.guests'}
                     min={1}
                     max={2}
-                    step={1}
-                    inputMode="numeric"
                     defaultValue={1}
                     required
-                    onKeyDown={(e) => {
-                      if (['e', 'E', '+', '-', '.', ','].includes(e.key)) e.preventDefault()
-                    }}
-                    onInput={(e) => {
-                      const n = parseInt(e.currentTarget.value, 10)
-                      if (!Number.isNaN(n) && (n < 1 || n > 2)) {
-                        e.currentTarget.value = String(Math.min(2, Math.max(1, n)))
-                      }
-                    }}
                     className="input-field"
                   />
                 </label>
@@ -1282,9 +1377,6 @@ export default function App() {
                 >
                   {isSubmitting || isCheckingRsvp ? content.rsvp.submitting : content.rsvp.submit}
                 </button>
-                {!googleFormConfig && (
-                  <p className="text-center text-xs text-boda-sage/70">{content.rsvp.missingEndpoint}</p>
-                )}
               </form>
             )}
           </motion.div>
