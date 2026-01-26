@@ -280,7 +280,6 @@ const copy = {
     },
     gifts: {
       title: 'Regalos & Luna de Miel',
-      subtitle: 'Gifts & Honeymoon Fund',
       paragraphs: [
         'Tenemos la dicha de ya contar con un hogar lleno de amor, risas y completamente amueblado.',
         'Si desean celebrar este nuevo capítulo con nosotros, hemos creado un fondo para nuestra luna de miel y así seguir creando recuerdos inolvidables juntos.',
@@ -291,7 +290,6 @@ const copy = {
         zelle: 'Zelle',
       },
       note: 'Efectivo y cheques también serán recibidos con mucho cariño 🤍',
-      noteEn: 'Cash and checks are also lovingly appreciated 🤍',
     },
     music: {
       mute: 'Silenciar música',
@@ -457,7 +455,6 @@ const copy = {
     },
     gifts: {
       title: 'Gifts & Honeymoon Fund',
-      subtitle: 'Regalos & Luna de Miel',
       paragraphs: [
         "We're lucky enough to already have a home full of love, laughter, and furniture.",
         "If you'd like to celebrate with us, we've created a honeymoon fund to help us make unforgettable memories together.",
@@ -468,7 +465,6 @@ const copy = {
         zelle: 'Zelle',
       },
       note: 'Cash and checks are also lovingly appreciated 🤍',
-      noteEn: 'Efectivo y cheques también serán recibidos con mucho cariño 🤍',
     },
     music: {
       mute: 'Mute music',
@@ -1059,7 +1055,6 @@ export default function App() {
             </div>
             <div className="gifts-heading">
               <h2>{content.gifts.title}</h2>
-              <p>{content.gifts.subtitle}</p>
             </div>
             <div className="gifts-copy">
               {content.gifts.paragraphs.map(paragraph => (
@@ -1081,7 +1076,6 @@ export default function App() {
               </div>
             </div>
             <p className="gifts-note">{content.gifts.note}</p>
-            <p className="gifts-note-alt">{content.gifts.noteEn}</p>
           </motion.div>
         </section>
 
