@@ -1,13 +1,15 @@
 import { Client } from '@notionhq/client'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-// Initialize Notion client
-const notion = new Client({
-  auth: process.env.NOTION_API_KEY,
-})
-
 const DATABASE_ID = process.env.NOTION_DATABASE_ID || ''
 const PAGE_ID = process.env.NOTION_PAGE_ID || ''
+
+// Initialize Notion client lazily to ensure env vars are loaded
+function getNotionClient() {
+  return new Client({
+    auth: process.env.NOTION_API_KEY,
+  })
+}
 
 interface NotionPhoto {
   id: string
@@ -32,6 +34,7 @@ async function getCoupleMessage(): Promise<string> {
   if (!PAGE_ID) return ''
   
   try {
+    const notion = getNotionClient()
     const blocks = await notion.blocks.children.list({
       block_id: PAGE_ID,
       page_size: 50,
@@ -67,6 +70,7 @@ async function getPhotos(): Promise<{ photos: NotionPhoto[], debug?: any }> {
   if (!DATABASE_ID) return { photos: [], debug: { error: 'No DATABASE_ID configured' } }
 
   try {
+    const notion = getNotionClient()
     const response = await notion.databases.query({
       database_id: DATABASE_ID,
       sorts: [
