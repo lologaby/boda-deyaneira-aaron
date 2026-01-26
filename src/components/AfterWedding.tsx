@@ -176,7 +176,7 @@ const EnvelopeDecor = () => (
   <div className="envelope-decor">
     <div className="envelope-decor-body">
       <span className="envelope-decor-title">
-        D <span className="envelope-decor-amp">&</span> A
+        D<span className="envelope-decor-amp">&</span>A
       </span>
     </div>
   </div>
