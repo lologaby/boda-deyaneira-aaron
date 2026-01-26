@@ -1086,6 +1086,102 @@ h4 {
   @apply px-8 py-4 text-base;
 }
 
+/* ============================= */
+/* Notion Content Styles         */
+/* ============================= */
+
+.notion-content {
+  @apply text-left;
+}
+
+.notion-content p {
+  @apply text-lg leading-relaxed mb-4 text-boda-text;
+}
+
+.notion-content p:last-child {
+  @apply mb-0;
+}
+
+.notion-content strong {
+  @apply font-semibold text-boda-forest;
+}
+
+.notion-content em {
+  @apply italic;
+}
+
+.notion-content s {
+  @apply line-through opacity-60;
+}
+
+.notion-content u {
+  @apply underline decoration-boda-terracotta/50;
+}
+
+.notion-content code {
+  @apply bg-boda-burgundy/10 text-boda-burgundy px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.notion-content a {
+  @apply text-boda-burgundy underline decoration-boda-terracotta/30 hover:decoration-boda-terracotta transition-colors;
+}
+
+.notion-content .notion-h1 {
+  @apply font-display text-2xl md:text-3xl text-boda-forest mb-4 mt-6;
+}
+
+.notion-content .notion-h2 {
+  @apply font-heading text-xl md:text-2xl text-boda-forest mb-3 mt-5;
+}
+
+.notion-content .notion-h3 {
+  @apply font-heading text-lg md:text-xl text-boda-forest mb-2 mt-4;
+}
+
+.notion-content .notion-quote {
+  @apply border-l-4 border-boda-terracotta pl-4 py-2 my-4 italic text-boda-sage bg-boda-terracotta/5 rounded-r-lg;
+}
+
+.notion-content .notion-callout {
+  @apply flex items-start gap-3 bg-boda-cream/80 border border-boda-gold/30 rounded-xl p-4 my-4;
+}
+
+.notion-content .notion-callout-icon {
+  @apply text-2xl flex-shrink-0;
+}
+
+.notion-content .notion-list {
+  @apply my-4 pl-6 space-y-2;
+}
+
+.notion-content ul.notion-list {
+  @apply list-disc;
+}
+
+.notion-content ol.notion-list {
+  @apply list-decimal;
+}
+
+.notion-content .notion-list li {
+  @apply text-lg text-boda-text;
+}
+
+.notion-content .notion-divider {
+  @apply border-0 border-t border-boda-gold/30 my-6;
+}
+
+.notion-content .notion-image {
+  @apply my-6 rounded-xl overflow-hidden shadow-lg;
+}
+
+.notion-content .notion-image img {
+  @apply w-full h-auto;
+}
+
+.notion-content .notion-image figcaption {
+  @apply text-center text-sm text-boda-sage py-2 bg-boda-cream/50 italic;
+}
+
 /* ---- Footer: credits (discreto, solo se nota al mirar con detalle) ---- */
 .site-footer {
   @apply py-5 px-6 text-center;

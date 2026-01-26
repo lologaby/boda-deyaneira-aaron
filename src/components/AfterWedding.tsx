@@ -241,14 +241,11 @@ export const AfterWedding = ({ content }: AfterWeddingProps) => {
         {/* Main thank you message - Use custom message from Notion if available */}
         <div className="after-wedding-card">
           {hasCustomMessage ? (
-            // Custom message from Notion
-            <div className="after-wedding-custom-message">
-              {notionContent!.message.split('\n\n').map((paragraph, i) => (
-                <p key={i} className="after-wedding-message-main">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
+            // Custom message from Notion (rendered as HTML for formatting support)
+            <div 
+              className="after-wedding-custom-message notion-content"
+              dangerouslySetInnerHTML={{ __html: notionContent!.message }}
+            />
           ) : (
             // Default messages
             <>

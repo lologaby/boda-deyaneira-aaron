@@ -38,37 +38,130 @@ async function notionFetch(endpoint: string, body?: any) {
   return response.json()
 }
 
-// Extract text from Notion rich text array
-function extractText(richText: any[]): string {
+// Extract text from Notion rich text array (plain text, no formatting)
+function extractPlainText(richText: any[]): string {
   if (!richText || !Array.isArray(richText)) return ''
   return richText.map((t: any) => t.plain_text || '').join('')
 }
 
-// Get the couple's message from a Notion page
+// Convert Notion rich text to HTML with formatting
+function richTextToHtml(richText: any[]): string {
+  if (!richText || !Array.isArray(richText)) return ''
+  
+  return richText.map((t: any) => {
+    let text = t.plain_text || ''
+    if (!text) return ''
+    
+    // Escape HTML entities
+    text = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+    
+    // Apply annotations
+    const annotations = t.annotations || {}
+    
+    if (annotations.code) {
+      text = `<code>${text}</code>`
+    }
+    if (annotations.bold) {
+      text = `<strong>${text}</strong>`
+    }
+    if (annotations.italic) {
+      text = `<em>${text}</em>`
+    }
+    if (annotations.strikethrough) {
+      text = `<s>${text}</s>`
+    }
+    if (annotations.underline) {
+      text = `<u>${text}</u>`
+    }
+    
+    // Handle links
+    if (t.href) {
+      text = `<a href="${t.href}" target="_blank" rel="noopener noreferrer">${text}</a>`
+    }
+    
+    return text
+  }).join('')
+}
+
+// Get the couple's message from a Notion page (returns HTML)
 async function getCoupleMessage(): Promise<string> {
   if (!PAGE_ID) return ''
   
   try {
-    const data = await notionFetch(`/blocks/${PAGE_ID}/children?page_size=50`)
+    const data = await notionFetch(`/blocks/${PAGE_ID}/children?page_size=100`)
     
-    let message = ''
+    const htmlParts: string[] = []
+    
     for (const block of data.results || []) {
-      if (block.type === 'paragraph' && block.paragraph?.rich_text) {
-        const text = extractText(block.paragraph.rich_text)
-        if (text) message += text + '\n\n'
-      } else if (block.type === 'heading_1' && block.heading_1?.rich_text) {
-        const text = extractText(block.heading_1.rich_text)
-        if (text) message += `# ${text}\n\n`
-      } else if (block.type === 'heading_2' && block.heading_2?.rich_text) {
-        const text = extractText(block.heading_2.rich_text)
-        if (text) message += `## ${text}\n\n`
-      } else if (block.type === 'quote' && block.quote?.rich_text) {
-        const text = extractText(block.quote.rich_text)
-        if (text) message += `> ${text}\n\n`
+      const type = block.type
+      
+      switch (type) {
+        case 'paragraph': {
+          const html = richTextToHtml(block.paragraph?.rich_text)
+          if (html) htmlParts.push(`<p>${html}</p>`)
+          break
+        }
+        case 'heading_1': {
+          const html = richTextToHtml(block.heading_1?.rich_text)
+          if (html) htmlParts.push(`<h2 class="notion-h1">${html}</h2>`)
+          break
+        }
+        case 'heading_2': {
+          const html = richTextToHtml(block.heading_2?.rich_text)
+          if (html) htmlParts.push(`<h3 class="notion-h2">${html}</h3>`)
+          break
+        }
+        case 'heading_3': {
+          const html = richTextToHtml(block.heading_3?.rich_text)
+          if (html) htmlParts.push(`<h4 class="notion-h3">${html}</h4>`)
+          break
+        }
+        case 'quote': {
+          const html = richTextToHtml(block.quote?.rich_text)
+          if (html) htmlParts.push(`<blockquote class="notion-quote">${html}</blockquote>`)
+          break
+        }
+        case 'callout': {
+          const icon = block.callout?.icon?.emoji || '💡'
+          const html = richTextToHtml(block.callout?.rich_text)
+          if (html) htmlParts.push(`<div class="notion-callout"><span class="notion-callout-icon">${icon}</span><span>${html}</span></div>`)
+          break
+        }
+        case 'bulleted_list_item': {
+          const html = richTextToHtml(block.bulleted_list_item?.rich_text)
+          if (html) htmlParts.push(`<li class="notion-bullet">${html}</li>`)
+          break
+        }
+        case 'numbered_list_item': {
+          const html = richTextToHtml(block.numbered_list_item?.rich_text)
+          if (html) htmlParts.push(`<li class="notion-number">${html}</li>`)
+          break
+        }
+        case 'divider': {
+          htmlParts.push('<hr class="notion-divider" />')
+          break
+        }
+        case 'image': {
+          const imageUrl = block.image?.file?.url || block.image?.external?.url
+          const caption = extractPlainText(block.image?.caption || [])
+          if (imageUrl) {
+            htmlParts.push(`<figure class="notion-image"><img src="${imageUrl}" alt="${caption || 'Image'}" loading="lazy" />${caption ? `<figcaption>${caption}</figcaption>` : ''}</figure>`)
+          }
+          break
+        }
+        // Skip unsupported blocks silently
       }
     }
 
-    return message.trim()
+    // Wrap consecutive list items in ul/ol tags
+    let html = htmlParts.join('\n')
+    html = html.replace(/(<li class="notion-bullet">.*?<\/li>\n?)+/g, '<ul class="notion-list">$&</ul>')
+    html = html.replace(/(<li class="notion-number">.*?<\/li>\n?)+/g, '<ol class="notion-list">$&</ol>')
+
+    return html
   } catch (error) {
     console.error('Error fetching message:', error)
     return ''
@@ -139,9 +232,9 @@ async function getPhotos(): Promise<{ photos: NotionPhoto[], debug?: any }> {
       // Get caption from "Caption", "Descripcion", or "Name" property
       const captionProperty = properties.Caption || properties.Descripcion || properties.Name
       if ((captionProperty as any)?.title) {
-        caption = extractText((captionProperty as any).title)
+        caption = extractPlainText((captionProperty as any).title)
       } else if ((captionProperty as any)?.rich_text) {
-        caption = extractText((captionProperty as any).rich_text)
+        caption = extractPlainText((captionProperty as any).rich_text)
       }
 
       propDebug.finalImageUrl = imageUrl ? 'found' : 'not found'
