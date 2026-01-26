@@ -14,48 +14,31 @@ const DEFAULT_CONTENT: NotionGalleryContent = {
   photos: [],
 }
 
-// Translate text using our API
-async function translateText(text: string, to: string): Promise<string> {
-  if (!text || to === 'es') return text // Original is in Spanish
-
-  try {
-    const response = await fetch('/api/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text,
-        from: 'es',
-        to,
-        isHtml: true, // The message is HTML now
-      }),
-    })
-
-    const data = await response.json()
-    return data.translated || text
-  } catch (error) {
-    console.warn('Translation failed, using original:', error)
-    return text
-  }
-}
-
 export const useNotionGallery = (lang: 'es' | 'en' = 'es'): UseNotionGalleryResult => {
   const [content, setContent] = useState<NotionGalleryContent | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
-  // Cache for original content and translations
-  const originalContentRef = useRef<NotionGalleryContent | null>(null)
-  const translationCacheRef = useRef<{ [key: string]: string }>({})
+  // Cache content by language
+  const contentCacheRef = useRef<{ es?: NotionGalleryContent; en?: NotionGalleryContent }>({})
 
-  const fetchContent = async () => {
+  const fetchContent = async (targetLang: 'es' | 'en') => {
+    // Check cache first
+    if (contentCacheRef.current[targetLang]) {
+      setContent(contentCacheRef.current[targetLang]!)
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
     try {
-      // In development without API, use default content
-      const apiUrl = import.meta.env.PROD 
+      // Build API URL with language parameter
+      const baseUrl = import.meta.env.PROD 
         ? '/api/notion'
         : import.meta.env.VITE_NOTION_API_URL || '/api/notion'
+      
+      const apiUrl = `${baseUrl}?lang=${targetLang}`
 
       const response = await fetch(apiUrl)
       
@@ -63,7 +46,6 @@ export const useNotionGallery = (lang: 'es' | 'en' = 'es'): UseNotionGalleryResu
         // If API is not available, use default content silently
         if (response.status === 404) {
           setContent(DEFAULT_CONTENT)
-          originalContentRef.current = DEFAULT_CONTENT
           return
         }
         throw new Error(`HTTP error: ${response.status}`)
@@ -72,38 +54,17 @@ export const useNotionGallery = (lang: 'es' | 'en' = 'es'): UseNotionGalleryResu
       const data: NotionAPIResponse = await response.json()
 
       if (data.success && data.data) {
-        originalContentRef.current = data.data
-        
-        // If language is not Spanish, translate the message
-        if (lang !== 'es' && data.data.message) {
-          const cacheKey = `${lang}:${data.data.message.substring(0, 50)}`
-          
-          if (translationCacheRef.current[cacheKey]) {
-            setContent({
-              ...data.data,
-              message: translationCacheRef.current[cacheKey],
-            })
-          } else {
-            const translated = await translateText(data.data.message, lang)
-            translationCacheRef.current[cacheKey] = translated
-            setContent({
-              ...data.data,
-              message: translated,
-            })
-          }
-        } else {
-          setContent(data.data)
-        }
+        // Cache the content
+        contentCacheRef.current[targetLang] = data.data
+        setContent(data.data)
       } else {
         // Use default content if no data
         setContent(DEFAULT_CONTENT)
-        originalContentRef.current = DEFAULT_CONTENT
       }
     } catch (err) {
       console.warn('Notion gallery not available:', err)
       // Fail silently and use default content
       setContent(DEFAULT_CONTENT)
-      originalContentRef.current = DEFAULT_CONTENT
       // Only set error in development
       if (import.meta.env.DEV) {
         setError('Notion API not available. Using placeholder content.')
@@ -113,51 +74,15 @@ export const useNotionGallery = (lang: 'es' | 'en' = 'es'): UseNotionGalleryResu
     }
   }
 
-  // Fetch on mount
+  // Fetch on mount and when language changes
   useEffect(() => {
-    fetchContent()
-  }, [])
-
-  // Handle language changes without refetching from Notion
-  useEffect(() => {
-    const updateTranslation = async () => {
-      if (!originalContentRef.current?.message) return
-
-      if (lang === 'es') {
-        // Use original Spanish content
-        setContent(originalContentRef.current)
-      } else {
-        // Translate to target language
-        const cacheKey = `${lang}:${originalContentRef.current.message.substring(0, 50)}`
-        
-        if (translationCacheRef.current[cacheKey]) {
-          setContent({
-            ...originalContentRef.current,
-            message: translationCacheRef.current[cacheKey],
-          })
-        } else {
-          setIsLoading(true)
-          const translated = await translateText(originalContentRef.current.message, lang)
-          translationCacheRef.current[cacheKey] = translated
-          setContent({
-            ...originalContentRef.current,
-            message: translated,
-          })
-          setIsLoading(false)
-        }
-      }
-    }
-
-    // Only run if we have original content loaded
-    if (originalContentRef.current) {
-      updateTranslation()
-    }
+    fetchContent(lang)
   }, [lang])
 
   return {
     content,
     isLoading,
     error,
-    refetch: fetchContent,
+    refetch: () => fetchContent(lang),
   }
 }

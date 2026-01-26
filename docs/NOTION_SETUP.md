@@ -5,10 +5,10 @@ Esta guía te explica cómo configurar Notion para que Deyaneira y Aaron puedan 
 ## Resumen
 
 Los novios tendrán:
-1. **Una página de Notion** - Para escribir su mensaje de agradecimiento
+1. **Dos páginas de Notion** - Una para el mensaje en español, otra para inglés
 2. **Una base de datos de Notion** - Para subir fotos (como una galería)
 
-El sitio web leerá automáticamente este contenido y lo mostrará en la sección "Después de la boda".
+El sitio web leerá automáticamente este contenido y lo mostrará en la sección "Después de la boda". Cuando el usuario cambie el idioma, verá el mensaje correspondiente.
 
 ---
 
@@ -26,12 +26,14 @@ El sitio web leerá automáticamente este contenido y lo mostrará en la secció
 
 ---
 
-## Paso 2: Crear la Página del Mensaje
+## Paso 2: Crear las Páginas del Mensaje (Español e Inglés)
 
-Los novios escribirán su mensaje de agradecimiento aquí.
+Los novios escribirán su mensaje de agradecimiento en dos páginas separadas.
 
-1. En Notion, crea una nueva página llamada **"Mensaje de los Novios"**
-2. Escribe el mensaje que quieran compartir. Ejemplo:
+### 2.1 Página en Español
+
+1. En Notion, crea una nueva página llamada **"Mensaje - Español"**
+2. Escribe el mensaje en español. Ejemplo:
 
 ```
 Gracias a todos por hacer de nuestra boda un día inolvidable. 
@@ -55,6 +57,41 @@ Deyaneira & Aaron
    - Click en **"Share"** → **"Copy link"**
    - El link será algo como: `https://www.notion.so/Tu-Mensaje-abc123def456...`
    - El **PAGE_ID** son los últimos 32 caracteres (sin guiones): `abc123def456...`
+
+### 2.2 Página en Inglés
+
+1. Crea otra página llamada **"Message - English"**
+2. Escribe el mismo mensaje traducido al inglés:
+
+```
+Thank you all for making our wedding an unforgettable day.
+Every hug, every dance, and every moment shared will remain
+engraved in our hearts forever.
+
+We can't believe we're married! This new chapter begins
+thanks to your love and unconditional support.
+
+We love you,
+Deyaneira & Aaron
+```
+
+3. **Conecta la integración** (igual que antes)
+4. **Obtén el ID de la página** → Este será tu `PAGE_ID_EN`
+
+### Formato soportado
+
+Pueden usar:
+- **Negrita** (Ctrl+B)
+- *Cursiva* (Ctrl+I)
+- [Enlaces](url)
+- Emojis 🎉 💕
+- Encabezados (H1, H2, H3)
+- Citas (>)
+- Callouts (/callout)
+- Listas con viñetas
+- Listas numeradas
+- Imágenes dentro del mensaje
+- Divisores (---)
 
 ---
 
@@ -103,8 +140,9 @@ En Vercel (o tu plataforma de hosting), añade estas variables:
 
 ```
 NOTION_API_KEY=secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-NOTION_PAGE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-NOTION_DATABASE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+NOTION_PAGE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx        # Página en español
+NOTION_PAGE_ID_EN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx     # Página en inglés
+NOTION_DATABASE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx    # Base de datos de fotos
 ```
 
 ### En Vercel:
@@ -113,14 +151,19 @@ NOTION_DATABASE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 3. Añade cada variable con su valor
 4. Haz un nuevo deploy (o espera al siguiente push)
 
+**Nota:** `NOTION_PAGE_ID_EN` es opcional. Si no se configura, el mensaje en español se mostrará en ambos idiomas.
+
 ---
 
 ## Uso Diario para los Novios
 
 ### Para cambiar el mensaje:
-1. Abre la página "Mensaje de los Novios" en Notion
-2. Edita el texto
-3. ¡Listo! Los cambios aparecen en el sitio en minutos
+1. Abre la página **"Mensaje - Español"** para editar en español
+2. Abre la página **"Message - English"** para editar en inglés
+3. Edita el texto (puedes usar negrita, cursiva, emojis, etc.)
+4. ¡Listo! Los cambios aparecen en el sitio en minutos
+
+**Tip:** Mantén ambos mensajes sincronizados para que digan lo mismo en cada idioma.
 
 ### Para añadir fotos:
 1. Abre la base de datos "Galería de la Boda"
@@ -178,8 +221,11 @@ NOTION_DATABASE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ```
 Notion Workspace
-├── 📄 Mensaje de los Novios (PAGE)
+├── 📄 Mensaje - Español (PAGE)
 │   └── "Gracias a todos por hacer de nuestra boda..."
+│
+├── 📄 Message - English (PAGE)
+│   └── "Thank you all for making our wedding..."
 │
 └── 📊 Galería de la Boda (DATABASE)
     ├── Foto 1: "Primer baile" - Order: 1

@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 const DATABASE_ID = process.env.NOTION_DATABASE_ID || ''
-const PAGE_ID = process.env.NOTION_PAGE_ID || ''
+const PAGE_ID_ES = process.env.NOTION_PAGE_ID || process.env.NOTION_PAGE_ID_ES || ''
+const PAGE_ID_EN = process.env.NOTION_PAGE_ID_EN || ''
 const NOTION_API_KEY = process.env.NOTION_API_KEY || ''
 
 const NOTION_VERSION = '2022-06-28'
@@ -87,11 +88,12 @@ function richTextToHtml(richText: any[]): string {
 }
 
 // Get the couple's message from a Notion page (returns HTML)
-async function getCoupleMessage(): Promise<string> {
-  if (!PAGE_ID) return ''
+async function getCoupleMessage(lang: 'es' | 'en' = 'es'): Promise<string> {
+  const pageId = lang === 'en' && PAGE_ID_EN ? PAGE_ID_EN : PAGE_ID_ES
+  if (!pageId) return ''
   
   try {
-    const data = await notionFetch(`/blocks/${PAGE_ID}/children?page_size=100`)
+    const data = await notionFetch(`/blocks/${pageId}/children?page_size=100`)
     
     const htmlParts: string[] = []
     
@@ -289,8 +291,11 @@ export default async function handler(
   }
 
   try {
+    // Get language from query parameter (default: Spanish)
+    const lang = req.query.lang === 'en' ? 'en' : 'es'
+
     const [message, photosResult] = await Promise.all([
-      getCoupleMessage(),
+      getCoupleMessage(lang),
       getPhotos(),
     ])
 
