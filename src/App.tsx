@@ -174,7 +174,8 @@ const copy = {
       faq: 'Preguntas',
       location: 'Ubicación',
       travel: 'Viaje',
-      rsvp: 'Reservación',
+      gifts: 'Regalos',
+      rsvp: 'Reservar',
       toggle: 'EN / ES',
       menuOpen: 'Abrir menú',
       menuClose: 'Cerrar menú',
@@ -349,6 +350,7 @@ const copy = {
       faq: 'FAQ',
       location: 'Location',
       travel: 'Travel',
+      gifts: 'Gifts',
       rsvp: 'RSVP',
       toggle: 'ES / EN',
       menuOpen: 'Open menu',
@@ -566,6 +568,23 @@ const SPOTIFY_PLAYLIST_URL = import.meta.env.VITE_SPOTIFY_PLAYLIST_URL || 'https
 const spotifyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
     <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+  </svg>
+)
+
+const globeIcon = (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+    <path d="M2 12h20"/>
+  </svg>
+)
+
+const giftIcon = (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="8" width="18" height="4" rx="1"/>
+    <path d="M12 8v13"/>
+    <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/>
+    <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 4.8 0 0 1 12 8a4.8 4.8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>
   </svg>
 )
 
@@ -895,13 +914,22 @@ export default function App() {
               <a className="nav-link" href="#travel">
                 {content.nav.travel}
               </a>
+              <span className="nav-sep" aria-hidden="true">·</span>
+              <a className="nav-link" href="#gifts">
+                {content.nav.gifts}
+              </a>
             </div>
-            <a href="#rsvp" className="nav-rsvp-btn hidden sm:inline-flex">
-              {content.nav.rsvp}
-            </a>
-            <button type="button" className="nav-lang-btn" onClick={toggleLanguage} aria-label="Toggle language">
-              {content.nav.toggle}
-            </button>
+            <div className="flex items-center gap-2">
+              <a href="#gifts" className="nav-icon-btn hidden sm:inline-flex" aria-label={content.nav.gifts}>
+                {giftIcon}
+              </a>
+              <a href="#rsvp" className="nav-rsvp-btn hidden sm:inline-flex">
+                {content.nav.rsvp}
+              </a>
+              <button type="button" className="nav-icon-btn" onClick={toggleLanguage} aria-label="Toggle language">
+                {globeIcon}
+              </button>
+            </div>
           </div>
           {navOpen && (
             <>
@@ -910,6 +938,7 @@ export default function App() {
                 <a href="#faq" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.faq}</a>
                 <a href="#location" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.location}</a>
                 <a href="#travel" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.travel}</a>
+                <a href="#gifts" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.gifts}</a>
                 <a href="#rsvp" className="nav-mobile-link nav-mobile-link-rsvp" onClick={() => setNavOpen(false)}>{content.nav.rsvp}</a>
               </div>
             </>
@@ -918,8 +947,8 @@ export default function App() {
       ) : (
         /* Minimal nav for during/after - just language toggle */
         <div className="nav-minimal">
-          <button type="button" className="nav-lang-btn" onClick={toggleLanguage} aria-label="Toggle language">
-            {content.nav.toggle}
+          <button type="button" className="nav-icon-btn" onClick={toggleLanguage} aria-label="Toggle language">
+            {globeIcon}
           </button>
         </div>
       )}

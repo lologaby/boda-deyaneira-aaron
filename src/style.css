@@ -602,6 +602,24 @@ h4 {
   color: #F5EFE7;
 }
 
+/* Nav icon buttons (globe, gift) */
+.nav-icon-btn {
+  @apply rounded-full p-2 transition focus:outline-none focus:ring-2 focus:ring-boda-gold/50;
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #EBE4DA;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: transparent;
+}
+.nav-icon-btn:hover {
+  background: rgba(212, 175, 55, 0.15);
+  color: #F5EFE7;
+  border-color: rgba(212, 175, 55, 0.5);
+}
+
 /* ---- Button system: tropical elegance, 44px min touch targets ---- */
 .btn-primary {
   @apply inline-flex items-center justify-center rounded-full px-8 py-3 text-xs font-semibold uppercase tracking-[0.3em] transition focus:outline-none focus:ring-2 focus:ring-boda-terracotta/50 focus:ring-offset-2;
@@ -1266,9 +1284,14 @@ h4 {
   @apply fixed top-4 right-4 z-50;
 }
 
-.nav-minimal .nav-lang-btn {
+.nav-minimal .nav-lang-btn,
+.nav-minimal .nav-icon-btn {
   @apply bg-boda-burgundy/90 text-white shadow-lg backdrop-blur-sm;
-  @apply hover:bg-boda-burgundy;
+  border-color: transparent;
+}
+.nav-minimal .nav-lang-btn:hover,
+.nav-minimal .nav-icon-btn:hover {
+  @apply bg-boda-burgundy;
 }
 
 /* ---- AFTER WEDDING STATE ---- */
