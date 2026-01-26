@@ -7,7 +7,7 @@ import { useRsvpStatus } from './hooks/useRsvpStatus'
 import { useGuestAuth } from './hooks/useGuestAuth'
 import { DuringWedding } from './components/DuringWedding'
 import { AfterWedding } from './components/AfterWedding'
-import { CodeEntry } from './components/CodeEntry'
+// CodeEntry merged into envelope animation
 import { GuestRsvpForm } from './components/GuestRsvpForm'
 
 type Language = 'es' | 'en'
@@ -634,6 +634,9 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
+  const [accessCode, setAccessCode] = useState('')
+  const [codeError, setCodeError] = useState<string | null>(null)
+  const [isValidatingCode, setIsValidatingCode] = useState(false)
   const introCompleted = useRef(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const rsvpSubmitGuardRef = useRef(false)
@@ -759,11 +762,44 @@ export default function App() {
     setShowIntro(false)
     setIntroState('revealed')
   }
-  const handleIntroOpen = () => {
-    if (introState !== 'closed') return
+
+  const openEnvelope = () => {
     setIntroState('opening')
     handleStartMusic()
     window.setTimeout(handleIntroComplete, prefersReducedMotion ? 0 : 3200)
+  }
+
+  const handleCodeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (introState !== 'closed') return
+    if (!accessCode.trim()) {
+      setCodeError(content.codeEntry.error)
+      return
+    }
+
+    setIsValidatingCode(true)
+    setCodeError(null)
+
+    const result = await validateCode(accessCode.trim())
+
+    if (result.success) {
+      // Code is valid, open the envelope!
+      openEnvelope()
+    } else {
+      setCodeError(result.error || content.codeEntry.error)
+      setIsValidatingCode(false)
+    }
+  }
+
+  // For users who are already authenticated (returning visitors)
+  const handleIntroOpen = () => {
+    if (introState !== 'closed') return
+    if (isAuthenticated) {
+      openEnvelope()
+    }
+    // If not authenticated, they must use the code input
   }
 
   const toggleLanguage = () => {
@@ -857,20 +893,6 @@ export default function App() {
   }
 
   // Show code entry if not authenticated
-  if (!isAuthenticated) {
-    return (
-      <AnimatePresence>
-        <CodeEntry
-          content={content.codeEntry}
-          onValidate={validateCode}
-          onSuccess={() => {
-            // Code validated, component will re-render with isAuthenticated=true
-          }}
-        />
-      </AnimatePresence>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-boda-cream text-boda-text">
       <Toaster position="top-center" />
@@ -878,22 +900,21 @@ export default function App() {
       <AnimatePresence>
         {eventState === 'before' && showIntro ? (
           <motion.div
-            className="intro-overlay cursor-pointer"
+            className="intro-overlay"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.5 } }}
-            onClick={handleIntroOpen}
+            onClick={isAuthenticated ? handleIntroOpen : undefined}
           >
             <div className="intro-bg" aria-hidden="true" />
             <div className="intro-leaf" aria-hidden="true" />
-            <motion.button
-              type="button"
+            <motion.div
               className="intro-envelope"
-              onClick={handleIntroOpen}
-              aria-label={content.intro.hint}
               initial={{ scale: 1, y: 0 }}
               animate={introState === 'opening' ? { scale: 1.02, y: -12 } : { scale: 1, y: 0 }}
-              whileHover={introState === 'closed' ? { y: -8 } : {}}
+              whileHover={introState === 'closed' && isAuthenticated ? { y: -8 } : {}}
               transition={{ duration: prefersReducedMotion ? 0 : 0.6, ease: easeCurve }}
+              onClick={isAuthenticated ? handleIntroOpen : undefined}
+              style={{ cursor: isAuthenticated ? 'pointer' : 'default' }}
             >
               <div className="envelope-shell">
                 <div className="envelope-body">
@@ -932,17 +953,73 @@ export default function App() {
                   transition={{ duration: prefersReducedMotion ? 0 : 0.6 }}
                 />
               </div>
-            </motion.button>
-            <button
-              type="button"
-              className={`intro-dots ${introState === 'opening' ? 'hidden' : ''}`}
-              onClick={handleIntroOpen}
-              aria-label={content.intro.hint}
-            >
-              <span className="dot dot-1" />
-              <span className="dot dot-2" />
-              <span className="dot dot-3" />
-            </button>
+            </motion.div>
+
+            {/* Code entry form - shown when not authenticated */}
+            {!isAuthenticated && introState === 'closed' && (
+              <motion.form
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="envelope-code-form"
+                onSubmit={handleCodeSubmit}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="envelope-code-hint">{content.codeEntry.subtitle}</p>
+                <div className="envelope-code-input-wrap">
+                  <input
+                    type="text"
+                    value={accessCode}
+                    onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+                    placeholder={content.codeEntry.placeholder}
+                    className="envelope-code-input"
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    disabled={isValidatingCode}
+                  />
+                  <button
+                    type="submit"
+                    className="envelope-code-btn"
+                    disabled={isValidatingCode || !accessCode.trim()}
+                  >
+                    {isValidatingCode ? (
+                      <span className="envelope-code-spinner" />
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                <AnimatePresence>
+                  {codeError && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="envelope-code-error"
+                    >
+                      {codeError}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.form>
+            )}
+
+            {/* Dots hint - only for authenticated users */}
+            {isAuthenticated && (
+              <button
+                type="button"
+                className={`intro-dots ${introState === 'opening' ? 'hidden' : ''}`}
+                onClick={handleIntroOpen}
+                aria-label={content.intro.hint}
+              >
+                <span className="dot dot-1" />
+                <span className="dot dot-2" />
+                <span className="dot dot-3" />
+              </button>
+            )}
           </motion.div>
         ) : null}
       </AnimatePresence>

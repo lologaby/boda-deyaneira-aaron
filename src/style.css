@@ -1295,77 +1295,73 @@ h4 {
 }
 
 /* ============================= */
-/* Code Entry Screen             */
+/* Envelope Code Entry           */
 /* ============================= */
 
-.code-entry-overlay {
-  @apply fixed inset-0 z-[100] flex items-center justify-center p-6;
-  min-height: 100vh;
-  min-height: 100dvh;
+.envelope-code-form {
+  @apply flex flex-col items-center mt-8 px-4 z-10;
+  max-width: 320px;
+  width: 100%;
 }
 
-.code-entry-bg {
-  @apply absolute inset-0;
-  background: linear-gradient(135deg, #1A4D2E 0%, #2C7873 50%, #5A756E 100%);
+.envelope-code-hint {
+  @apply font-sans text-sm text-center mb-4;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.code-entry-bg::before {
-  content: '';
-  @apply absolute inset-0 opacity-30;
-  background-image: url('/images/Palm_leaves.png');
-  background-size: 400px;
-  background-position: top right;
-  background-repeat: no-repeat;
+.envelope-code-input-wrap {
+  @apply flex items-center gap-2 w-full;
 }
 
-.code-entry-card {
-  @apply relative z-10 w-full max-w-sm bg-boda-cream rounded-3xl p-8 text-center;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+.envelope-code-input {
+  @apply flex-1 px-4 py-3 rounded-xl text-center font-heading text-base tracking-widest;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  color: var(--boda-text, #2C2C2C);
+  transition: all 0.3s ease;
+  min-height: 48px;
 }
 
-.code-entry-icon {
-  @apply mx-auto mb-4 w-20 h-20 rounded-full flex items-center justify-center;
-  background: linear-gradient(135deg, #E89C7C 0%, #D4AF37 100%);
+.envelope-code-input:focus {
+  outline: none;
+  border-color: var(--boda-terracotta, #E89C7C);
+  box-shadow: 0 0 0 3px rgba(232, 156, 124, 0.3);
+}
+
+.envelope-code-input::placeholder {
+  color: var(--boda-sage, #5A756E);
+  opacity: 0.6;
+  font-size: 0.875rem;
+}
+
+.envelope-code-btn {
+  @apply flex items-center justify-center rounded-xl transition-all duration-200;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--boda-terracotta, #E89C7C) 0%, var(--boda-coral, #FF6B6B) 100%);
   color: white;
+  flex-shrink: 0;
 }
 
-.code-entry-title {
-  @apply font-display text-2xl text-boda-forest mb-2;
+.envelope-code-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(232, 156, 124, 0.4);
 }
 
-.code-entry-subtitle {
-  @apply text-boda-sage text-sm mb-6;
+.envelope-code-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.code-entry-form {
-  @apply flex flex-col gap-4;
+.envelope-code-spinner {
+  @apply w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin;
 }
 
-.code-entry-input {
-  @apply w-full text-center text-2xl font-heading tracking-[0.3em] uppercase py-4 px-4 rounded-xl border-2 border-boda-gold/30 bg-white/80;
-  @apply focus:outline-none focus:border-boda-terracotta focus:ring-2 focus:ring-boda-terracotta/20;
-  @apply placeholder:text-boda-sage/50 placeholder:tracking-widest placeholder:text-base;
-  transition: all 0.2s;
-}
-
-.code-entry-input:disabled {
-  @apply opacity-50 cursor-not-allowed;
-}
-
-.code-entry-error {
-  @apply text-red-600 text-sm -mt-2;
-}
-
-.code-entry-button {
-  @apply w-full py-4 rounded-full font-heading text-sm uppercase tracking-[0.2em] transition;
-  @apply bg-boda-terracotta text-white;
-  @apply hover:bg-boda-burgundy hover:shadow-lg;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  min-height: 52px;
-}
-
-.code-entry-hint {
-  @apply text-boda-sage/60 text-xs mt-4 italic;
+.envelope-code-error {
+  @apply text-sm text-center mt-3 px-3 py-2 rounded-lg;
+  background: rgba(231, 76, 60, 0.9);
+  color: white;
 }
 
 /* ============================= */
