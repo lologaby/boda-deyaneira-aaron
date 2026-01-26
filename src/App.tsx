@@ -2,6 +2,9 @@ import React from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
+import { useEventState, type EventState } from './hooks/useEventState'
+import { DuringWedding } from './components/DuringWedding'
+import { AfterWedding } from './components/AfterWedding'
 
 type Language = 'es' | 'en'
 
@@ -269,6 +272,21 @@ const copy = {
       letterNames: 'Deyaneira & Aaron',
       letterDate: '07.18.26',
     },
+    gifts: {
+      title: 'Regalos & Luna de Miel',
+      subtitle: 'Gifts & Honeymoon Fund',
+      paragraphs: [
+        'Tenemos la dicha de ya contar con un hogar lleno de amor, risas y completamente amueblado.',
+        'Si desean celebrar este nuevo capítulo con nosotros, hemos creado un fondo para nuestra luna de miel y así seguir creando recuerdos inolvidables juntos.',
+      ],
+      payment: {
+        ath: 'ATH Móvil',
+        venmo: 'Venmo',
+        zelle: 'Zelle',
+      },
+      note: 'Efectivo y cheques también serán recibidos con mucho cariño 🤍',
+      noteEn: 'Cash and checks are also lovingly appreciated 🤍',
+    },
     music: {
       mute: 'Silenciar música',
       unmute: 'Activar música',
@@ -301,6 +319,25 @@ const copy = {
         { name: 'Peña Blanca', url: 'https://www.google.com/maps/search/Peña+Blanca+Beach+Aguadilla+Puerto+Rico' },
         { name: 'Las Ruinas (El Faro)', url: 'https://www.google.com/maps/search/El+Faro+Aguadilla+Puerto+Rico' },
       ],
+    },
+    during: {
+      title: '¡Estamos Celebrando!',
+      subtitle: 'Deyaneira & Aaron',
+      message: 'En este momento estamos celebrando nuestro amor rodeados de familia y amigos bajo el atardecer puertorriqueño. Gracias por acompañarnos en este día tan especial.',
+      location: 'Officers Club, Aguadilla',
+      time: '5:00 PM – 11:00 PM',
+      note: 'Pronto compartiremos fotos y recuerdos de esta noche mágica ✨',
+    },
+    after: {
+      title: 'Gracias Por Celebrar Con Nosotros',
+      messageMain: 'Nuestra boda fue más hermosa de lo que jamás imaginamos, y eso fue gracias a cada uno de ustedes. Su presencia, amor y energía convirtieron nuestro día especial en un recuerdo que guardaremos en el corazón para siempre.',
+      messageSecondary: 'Gracias por bailar con nosotros bajo las estrellas de Puerto Rico, por sus risas, abrazos y por compartir la alegría de este nuevo capítulo en nuestras vidas.',
+      signoff: 'Con todo nuestro amor,',
+      comingSoonTitle: 'Recuerdos & Galería',
+      comingSoonMessage: 'Pronto compartiremos las fotos profesionales de nuestra celebración y un mensaje especial para todos ustedes.',
+      comingSoonNote: 'Este sitio se actualizará con nuestra galería de fotos y videos. ¡Vuelve pronto!',
+      galleryTitle: 'Recuerdos de Nuestra Boda',
+      galleryLoading: 'Cargando fotos...',
     },
   },
   en: {
@@ -407,6 +444,21 @@ const copy = {
       letterNames: 'Deyaneira & Aaron',
       letterDate: '07.18.26',
     },
+    gifts: {
+      title: 'Gifts & Honeymoon Fund',
+      subtitle: 'Regalos & Luna de Miel',
+      paragraphs: [
+        "We're lucky enough to already have a home full of love, laughter, and furniture.",
+        "If you'd like to celebrate with us, we've created a honeymoon fund to help us make unforgettable memories together.",
+      ],
+      payment: {
+        ath: 'ATH Móvil',
+        venmo: 'Venmo',
+        zelle: 'Zelle',
+      },
+      note: 'Cash and checks are also lovingly appreciated 🤍',
+      noteEn: 'Efectivo y cheques también serán recibidos con mucho cariño 🤍',
+    },
     music: {
       mute: 'Mute music',
       unmute: 'Unmute music',
@@ -439,6 +491,25 @@ const copy = {
         { name: 'Peña Blanca', url: 'https://www.google.com/maps/search/Peña+Blanca+Beach+Aguadilla+Puerto+Rico' },
         { name: 'Las Ruinas (El Faro)', url: 'https://www.google.com/maps/search/El+Faro+Aguadilla+Puerto+Rico' },
       ],
+    },
+    during: {
+      title: 'We Are Celebrating!',
+      subtitle: 'Deyaneira & Aaron',
+      message: 'Right now we are celebrating our love surrounded by family and friends under the Puerto Rican sunset. Thank you for being part of this special day.',
+      location: 'Officers Club, Aguadilla',
+      time: '5:00 PM – 11:00 PM',
+      note: 'We will soon share photos and memories from this magical night ✨',
+    },
+    after: {
+      title: 'Thank You For Celebrating With Us',
+      messageMain: 'Our wedding was more beautiful than we ever imagined, and that was because of each and every one of you. Your presence, love, and energy turned our special day into a memory we will cherish in our hearts forever.',
+      messageSecondary: 'Thank you for dancing with us under the Puerto Rican stars, for your laughter, hugs, and for sharing the joy of this new chapter in our lives.',
+      signoff: 'With all our love,',
+      comingSoonTitle: 'Memories & Gallery',
+      comingSoonMessage: 'We will soon share professional photos from our celebration and a special message for all of you.',
+      comingSoonNote: 'This site will be updated with our photo and video gallery. Come back soon!',
+      galleryTitle: 'Memories From Our Wedding',
+      galleryLoading: 'Loading photos...',
     },
   },
 }
@@ -495,6 +566,9 @@ export default function App() {
   const rsvpSubmitGuardRef = useRef(false)
   const prefersReducedMotion = useReducedMotion()
 
+  // Detect event state (before, during, after)
+  const eventState = useEventState()
+
   const content = copy[lang]
 
   const googleFormConfig = useMemo(() => {
@@ -510,8 +584,7 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const seen = localStorage.getItem('bodaIntroSeen') === 'true'
-    if (seen || prefersReducedMotion) {
+    if (prefersReducedMotion) {
       setShowIntro(false)
       setIntroState('revealed')
       return
@@ -530,6 +603,20 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = lang
   }, [lang])
+
+  useEffect(() => {
+    if (introState !== 'revealed') {
+      document.body.style.overflow = 'hidden'
+      document.body.style.height = '100vh'
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+      return
+    }
+    document.body.style.overflow = ''
+    document.body.style.height = ''
+    document.body.style.position = ''
+    document.body.style.width = ''
+  }, [introState])
 
   useEffect(() => {
     const onResize = () => {
@@ -562,7 +649,6 @@ export default function App() {
   const handleIntroComplete = () => {
     if (introCompleted.current) return
     introCompleted.current = true
-    localStorage.setItem('bodaIntroSeen', 'true')
     setShowIntro(false)
     setIntroState('revealed')
   }
@@ -639,7 +725,7 @@ export default function App() {
       <Toaster position="top-center" />
       <audio ref={audioRef} src="/audio/tqm.mp3" loop preload="auto" />
       <AnimatePresence>
-        {showIntro ? (
+        {eventState === 'before' && showIntro ? (
           <motion.div
             className="intro-overlay cursor-pointer"
             initial={{ opacity: 1 }}
@@ -710,7 +796,7 @@ export default function App() {
         ) : null}
       </AnimatePresence>
 
-      {!showIntro && (
+      {(eventState !== 'before' || !showIntro) && (
         <button
           type="button"
           className="music-toggle hidden sm:flex"
@@ -770,7 +856,20 @@ export default function App() {
         )}
       </nav>
 
-      <header className="hero-section">
+      {/* DURING STATE: Live celebration message */}
+      {eventState === 'during' && (
+        <DuringWedding content={content.during} />
+      )}
+
+      {/* AFTER STATE: Thank you message */}
+      {eventState === 'after' && (
+        <AfterWedding content={content.after} />
+      )}
+
+      {/* BEFORE STATE: Normal invitation site */}
+      {eventState === 'before' && (
+        <>
+        <header className="hero-section">
         <motion.div {...revealMotion} className="hero-inner">
           <img src="/images/Palm_leaves.png" alt="" className="hero-leaf hero-leaf-left" />
           <img src="/images/hibiscus.png" alt="" className="hero-flower hero-flower-left" />
@@ -878,6 +977,39 @@ export default function App() {
                 {content.location.button}
               </a>
             </div>
+          </motion.div>
+        </section>
+
+        <section id="gifts" className="gifts-section">
+          <motion.div {...revealMotion} className="section-inner">
+            <div className="gifts-icon" aria-hidden="true">
+              ♡
+            </div>
+            <div className="gifts-heading">
+              <h2>{content.gifts.title}</h2>
+              <p>{content.gifts.subtitle}</p>
+            </div>
+            <div className="gifts-copy">
+              {content.gifts.paragraphs.map(paragraph => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+            <div className="gifts-box" role="list">
+              <div className="gifts-line" role="listitem">
+                <span>{content.gifts.payment.ath}:</span>
+                <strong>787-516-1189</strong>
+              </div>
+              <div className="gifts-line" role="listitem">
+                <span>{content.gifts.payment.venmo}:</span>
+                <strong>@akfy910</strong>
+              </div>
+              <div className="gifts-line" role="listitem">
+                <span>{content.gifts.payment.zelle}:</span>
+                <strong>516-216-0869</strong>
+              </div>
+            </div>
+            <p className="gifts-note">{content.gifts.note}</p>
+            <p className="gifts-note-alt">{content.gifts.noteEn}</p>
           </motion.div>
         </section>
 
@@ -1036,6 +1168,8 @@ export default function App() {
           </motion.div>
         </section>
       </main>
+        </>
+      )}
 
       <footer className="site-footer">
         <p>

@@ -437,6 +437,18 @@ h4 {
   .stamp-link {
     @apply text-[9px] tracking-[0.24em];
   }
+
+  .gifts-section {
+    @apply px-4 py-12;
+  }
+
+  .gifts-box {
+    @apply p-4;
+  }
+
+  .gifts-line {
+    @apply text-xs;
+  }
   .intro-envelope {
     width: min(85vw, 320px);
     height: 200px;
@@ -781,6 +793,50 @@ h4 {
   @apply mt-3 text-sm sm:text-base text-boda-text/70;
 }
 
+.gifts-section {
+  @apply px-6 py-20 bg-boda-cream;
+}
+
+.gifts-icon {
+  @apply mx-auto mb-6 flex h-10 w-10 items-center justify-center rounded-full border border-boda-burgundy/30 text-boda-burgundy;
+}
+
+.gifts-heading {
+  @apply text-center;
+}
+
+.gifts-heading h2 {
+  @apply text-2xl sm:text-3xl font-display text-boda-burgundy;
+}
+
+.gifts-heading p {
+  @apply mt-2 text-sm uppercase tracking-[0.2em] text-boda-burgundy/70;
+}
+
+.gifts-copy {
+  @apply mx-auto mt-6 max-w-2xl space-y-4 text-base text-boda-text/85 leading-relaxed;
+}
+
+.gifts-box {
+  @apply mx-auto mt-8 w-full max-w-md rounded-2xl border border-boda-burgundy/20 bg-white/80 p-6 shadow-sm;
+}
+
+.gifts-line {
+  @apply flex items-center justify-between gap-3 border-b border-boda-burgundy/10 py-3 text-sm text-boda-text/90;
+}
+
+.gifts-line:last-child {
+  border-bottom: 0;
+}
+
+.gifts-note {
+  @apply mt-6 text-center text-sm text-boda-text/70;
+}
+
+.gifts-note-alt {
+  @apply mt-2 text-center text-sm text-boda-text/60;
+}
+
 /* ---- Travel: section con botones visibles (flight, lugares) ---- */
 .travel-section {
   @apply relative px-6 py-16;
@@ -990,4 +1046,225 @@ h4 {
 }
 .site-footer-link:hover {
   @apply text-boda-sage/65;
+}
+
+/* ---- DURING WEDDING STATE ---- */
+.during-wedding-section {
+  @apply min-h-screen flex items-center justify-center px-4 py-16;
+  background: linear-gradient(
+    to bottom,
+    #E89C7C 0%,
+    #FF6B6B 40%,
+    #8B4B5C 100%
+  );
+}
+
+.during-wedding-inner {
+  @apply max-w-3xl mx-auto text-center text-white;
+}
+
+.during-wedding-heart {
+  @apply mb-8;
+}
+
+.during-wedding-title {
+  @apply font-display text-5xl md:text-7xl mb-6 leading-tight;
+}
+
+.during-wedding-subtitle {
+  @apply font-heading text-xl md:text-2xl mb-8 opacity-90 tracking-wide;
+}
+
+.during-wedding-card {
+  @apply bg-white/10 backdrop-blur-md rounded-2xl p-8 md:p-12 border border-white/20 mb-8;
+}
+
+.during-wedding-message {
+  @apply font-sans text-lg md:text-xl leading-relaxed mb-6;
+}
+
+.during-wedding-details {
+  @apply flex flex-col md:flex-row gap-6 justify-center items-center text-sm md:text-base;
+}
+
+.during-wedding-detail {
+  @apply flex items-center gap-2;
+}
+
+.during-wedding-note {
+  @apply font-sans text-base md:text-lg opacity-80 italic;
+}
+
+.during-wedding-decor {
+  @apply mt-12 flex justify-center gap-8 text-4xl opacity-60;
+}
+
+/* ---- AFTER WEDDING STATE ---- */
+.after-wedding-section {
+  @apply min-h-screen px-4 py-16;
+  background: linear-gradient(
+    to bottom,
+    #F5EFE7 0%,
+    #FFFFFF 50%,
+    #F5EFE7 100%
+  );
+}
+
+.after-wedding-inner {
+  @apply max-w-4xl mx-auto;
+}
+
+.after-wedding-header {
+  @apply text-center mb-16;
+}
+
+.after-wedding-title {
+  @apply font-display text-4xl md:text-6xl text-boda-burgundy mb-4;
+}
+
+.after-wedding-names {
+  @apply font-heading text-xl md:text-2xl text-boda-text/80 mb-8;
+}
+
+.after-wedding-divider {
+  @apply h-px w-32 bg-boda-gold mx-auto;
+}
+
+.after-wedding-card {
+  @apply bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-12 border border-boda-gold/20;
+}
+
+.after-wedding-message-main {
+  @apply font-sans text-lg md:text-xl leading-relaxed text-boda-text mb-6 text-center;
+}
+
+.after-wedding-message-secondary {
+  @apply font-sans text-base md:text-lg leading-relaxed text-boda-text/80 text-center;
+}
+
+.after-wedding-signature {
+  @apply mt-10 text-center;
+}
+
+.after-wedding-signoff {
+  @apply font-display text-2xl text-boda-burgundy italic;
+}
+
+.after-wedding-couple {
+  @apply font-display text-3xl text-boda-burgundy mt-2;
+}
+
+.after-wedding-gallery {
+  @apply bg-gradient-to-br from-boda-terracotta/10 to-boda-burgundy/10 rounded-2xl p-8 md:p-12 border border-boda-burgundy/20;
+}
+
+.after-wedding-gallery-header {
+  @apply text-center mb-8;
+}
+
+.after-wedding-gallery-title {
+  @apply font-display text-3xl text-boda-burgundy mb-4 mt-4;
+}
+
+.after-wedding-gallery-message {
+  @apply font-sans text-lg text-boda-text/80;
+}
+
+.after-wedding-photo-grid {
+  @apply grid grid-cols-3 gap-4 max-w-2xl mx-auto;
+}
+
+.after-wedding-photo-placeholder {
+  @apply aspect-square bg-white/50 rounded-lg border-2 border-dashed border-boda-burgundy/30 flex items-center justify-center;
+}
+
+.after-wedding-gallery-note {
+  @apply text-center mt-8 font-sans text-sm text-boda-text/60 italic;
+}
+
+.after-wedding-decor {
+  @apply mt-16 text-center text-4xl opacity-40;
+}
+
+.after-wedding-custom-message {
+  @apply space-y-4;
+}
+
+.after-wedding-loading {
+  @apply flex flex-col items-center justify-center py-12 gap-4;
+}
+
+.after-wedding-loading p {
+  @apply font-sans text-boda-text/60;
+}
+
+.loading-spinner {
+  @apply w-8 h-8 border-2 border-boda-burgundy/20 border-t-boda-burgundy rounded-full animate-spin;
+}
+
+/* Real photo grid with actual images */
+.after-wedding-photo-grid-real {
+  @apply grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-4xl;
+}
+
+.after-wedding-photo-item {
+  @apply aspect-square rounded-lg overflow-hidden cursor-pointer relative;
+  @apply transition-transform duration-300 hover:scale-105 hover:shadow-lg;
+  @apply focus:outline-none focus:ring-2 focus:ring-boda-burgundy focus:ring-offset-2;
+}
+
+.after-wedding-photo-item img {
+  @apply w-full h-full object-cover;
+}
+
+.after-wedding-photo-item::after {
+  content: '';
+  @apply absolute inset-0 bg-black/0 transition-colors duration-300;
+}
+
+.after-wedding-photo-item:hover::after {
+  @apply bg-black/10;
+}
+
+/* ---- LIGHTBOX ---- */
+.lightbox-overlay {
+  @apply fixed inset-0 z-50 bg-black/95 flex items-center justify-center;
+  @apply backdrop-blur-sm;
+}
+
+.lightbox-close {
+  @apply absolute top-4 right-4 z-10 text-white/80 hover:text-white;
+  @apply transition-colors p-2 rounded-full hover:bg-white/10;
+  @apply focus:outline-none focus:ring-2 focus:ring-white/50;
+}
+
+.lightbox-nav {
+  @apply absolute top-1/2 -translate-y-1/2 z-10 text-white/70 hover:text-white;
+  @apply transition-all p-3 rounded-full hover:bg-white/10;
+  @apply focus:outline-none focus:ring-2 focus:ring-white/50;
+  @apply hidden sm:block;
+}
+
+.lightbox-prev {
+  @apply left-4;
+}
+
+.lightbox-next {
+  @apply right-4;
+}
+
+.lightbox-content {
+  @apply max-w-[90vw] max-h-[85vh] flex flex-col items-center;
+}
+
+.lightbox-image {
+  @apply max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl;
+}
+
+.lightbox-caption {
+  @apply text-white/90 text-center mt-4 font-sans text-lg max-w-xl;
+}
+
+.lightbox-counter {
+  @apply text-white/50 text-sm mt-2 font-sans;
 }
