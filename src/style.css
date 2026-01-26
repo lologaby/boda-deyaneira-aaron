@@ -1480,6 +1480,136 @@ h4 {
   color: rgba(245, 239, 231, 0.8);
 }
 
+/* ============================= */
+/* Song Search Component         */
+/* ============================= */
+
+.song-search {
+  @apply relative;
+}
+
+.song-search-input-wrap {
+  @apply relative;
+}
+
+.song-search-input {
+  @apply pr-10;
+}
+
+.song-search-loading {
+  @apply absolute right-3 top-1/2 -translate-y-1/2;
+}
+
+.loading-spinner-small {
+  @apply w-5 h-5 border-2 border-boda-terracotta/30 border-t-boda-terracotta rounded-full animate-spin;
+}
+
+/* Selected track display */
+.song-selected {
+  @apply flex items-center gap-3 mt-3 p-3 rounded-xl;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.song-selected-art {
+  @apply w-12 h-12 rounded-lg object-cover flex-shrink-0;
+}
+
+.song-selected-info {
+  @apply flex-1 min-w-0 text-left;
+}
+
+.song-selected-name {
+  @apply text-sm font-medium truncate;
+  color: #F5EFE7;
+}
+
+.song-selected-artist {
+  @apply text-xs truncate;
+  color: rgba(245, 239, 231, 0.6);
+}
+
+.song-preview-btn {
+  @apply w-10 h-10 rounded-full flex items-center justify-center transition flex-shrink-0;
+  background: #1DB954;
+  color: white;
+}
+
+.song-preview-btn:hover {
+  background: #1ed760;
+  transform: scale(1.05);
+}
+
+.song-spotify-link {
+  @apply w-8 h-8 rounded-full flex items-center justify-center transition flex-shrink-0;
+  background: rgba(29, 185, 84, 0.2);
+  color: #1DB954;
+}
+
+.song-spotify-link:hover {
+  background: rgba(29, 185, 84, 0.3);
+}
+
+/* Search results dropdown */
+.song-results {
+  @apply absolute z-20 w-full mt-2 rounded-xl overflow-hidden;
+  background: #F5EFE7;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.song-result {
+  @apply w-full flex items-center gap-3 p-3 text-left transition;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.song-result:hover {
+  background: rgba(232, 156, 124, 0.1);
+}
+
+.song-result:last-child {
+  border-bottom: none;
+}
+
+.song-result-art {
+  @apply w-10 h-10 rounded-lg object-cover flex-shrink-0;
+}
+
+.song-result-info {
+  @apply flex-1 min-w-0;
+}
+
+.song-result-name {
+  @apply text-sm font-medium text-boda-text truncate;
+}
+
+.song-result-artist {
+  @apply text-xs text-boda-sage truncate;
+}
+
+.song-result-preview {
+  @apply text-xs text-boda-terracotta opacity-50;
+}
+
+/* Playlist buttons */
+.playlist-buttons {
+  @apply flex gap-3 justify-center flex-wrap;
+}
+
+.btn-apple-music {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full font-heading text-sm font-medium tracking-wider;
+  @apply transition-all duration-200;
+  background: linear-gradient(135deg, #FA233B 0%, #FB5C74 100%);
+  color: white;
+  min-height: 44px;
+}
+
+.btn-apple-music:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(250, 35, 59, 0.3);
+}
+
 /* ---- AFTER WEDDING STATE ---- */
 .after-wedding-section {
   @apply px-4 pt-8 pb-24;

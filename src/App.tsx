@@ -593,8 +593,9 @@ const calendarLink = '/calendar.ics'
 const flightSearchUrl = 'https://www.google.com/travel/flights?q=Flights%20from%20New%20York%20to%20Puerto%20Rico'
 const skyscannerFlightUrl = 'https://www.skyscanner.com/transport/flights/nyca/sjua/'
 
-// Spotify playlist URL - update this with your actual playlist
+// Playlist URLs - update with your actual playlists
 const SPOTIFY_PLAYLIST_URL = import.meta.env.VITE_SPOTIFY_PLAYLIST_URL || 'https://open.spotify.com/playlist/YOUR_PLAYLIST_ID'
+const APPLE_MUSIC_PLAYLIST_URL = import.meta.env.VITE_APPLE_MUSIC_PLAYLIST_URL || ''
 
 const spotifyIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
@@ -616,6 +617,12 @@ const giftIcon = (
     <path d="M12 8v13"/>
     <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/>
     <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 4.8 0 0 1 12 8a4.8 4.8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>
+  </svg>
+)
+
+const appleMusicIcon = (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
+    <path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a5.022 5.022 0 00-1.877-.726 10.496 10.496 0 00-1.564-.15c-.04-.003-.083-.01-.124-.013H5.99c-.042.003-.083.01-.124.013-.5.032-1 .09-1.5.18-.5.09-.97.25-1.4.47a4.9 4.9 0 00-1.68 1.33c-.47.53-.79 1.15-.98 1.83-.16.56-.25 1.14-.29 1.72-.01.12-.02.25-.02.37v11.68c.01.14.02.28.03.42.04.54.12 1.07.27 1.59.21.73.56 1.37 1.08 1.93a4.9 4.9 0 001.77 1.27c.56.23 1.15.37 1.76.44.52.06 1.04.09 1.56.1h12.06c.53-.01 1.06-.04 1.59-.1.56-.07 1.11-.2 1.63-.41a4.9 4.9 0 002-1.48c.49-.61.82-1.3.99-2.05.13-.58.21-1.17.24-1.77.01-.12.02-.25.02-.37V6.5c0-.13-.01-.26-.02-.38zm-6.15 3.27v7.93c0 .56-.11 1.1-.35 1.6-.24.5-.6.93-1.06 1.24-.39.27-.82.46-1.29.56-.55.12-1.1.14-1.65.05-.64-.1-1.22-.36-1.7-.78-.49-.43-.81-.97-.95-1.61-.14-.64-.07-1.27.19-1.87.26-.6.69-1.07 1.26-1.39.33-.19.68-.33 1.05-.42.41-.1.83-.15 1.25-.14.3.01.59.04.88.11v-4.53l-5.5 1.17v6.93c0 .57-.11 1.11-.35 1.62-.24.5-.6.93-1.07 1.24-.39.26-.82.45-1.29.54-.55.12-1.1.13-1.65.04-.64-.1-1.21-.36-1.69-.78-.49-.43-.81-.97-.96-1.61-.14-.64-.08-1.27.19-1.87.26-.6.69-1.07 1.26-1.38.33-.19.68-.33 1.05-.42.41-.1.83-.14 1.24-.13.3.01.6.04.89.11V8.3c0-.28.05-.55.15-.81.1-.26.25-.49.44-.68.23-.24.51-.41.82-.5.32-.1.65-.14.98-.2l6.52-1.37c.27-.06.55-.08.83-.06.28.02.55.09.8.21.25.12.46.3.62.52.16.23.26.49.29.77z"/>
   </svg>
 )
 
@@ -1275,16 +1282,30 @@ export default function App() {
                 {guest && (
                   <p className="rsvp-confirmed-name">{guest.name}</p>
                 )}
-                <a
-                  href={SPOTIFY_PLAYLIST_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-spotify btn-spotify-large"
-                  title={content.rsvp.spotifyTitle}
-                >
-                  {spotifyIcon}
-                  <span>{content.rsvp.spotifyButton}</span>
-                </a>
+                <div className="playlist-buttons">
+                  <a
+                    href={SPOTIFY_PLAYLIST_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-spotify btn-spotify-large"
+                    title={content.rsvp.spotifyTitle}
+                  >
+                    {spotifyIcon}
+                    <span>Spotify</span>
+                  </a>
+                  {APPLE_MUSIC_PLAYLIST_URL && (
+                    <a
+                      href={APPLE_MUSIC_PLAYLIST_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-apple-music"
+                      title="Apple Music"
+                    >
+                      {appleMusicIcon}
+                      <span>Apple Music</span>
+                    </a>
+                  )}
+                </div>
                 <p className="rsvp-spotify-hint">{content.rsvp.spotifyHint}</p>
               </div>
             ) : guest ? (

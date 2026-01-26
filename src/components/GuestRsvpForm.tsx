@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { GuestData } from '../hooks/useGuestAuth'
+import { SongSearch } from './SongSearch'
 
 interface GuestRsvpFormProps {
   guest: GuestData
@@ -18,6 +19,8 @@ interface GuestRsvpFormProps {
     plusOneNo?: string
     confirmButton?: string
     declineButton?: string
+    searching?: string
+    noResults?: string
   }
   googleFormConfig: any
   onSubmit: (attendance: 'yes' | 'no', totalGuests: number, song: string) => Promise<void>
@@ -32,6 +35,7 @@ export const GuestRsvpForm = ({
 }: GuestRsvpFormProps) => {
   const [bringingPlusOne, setBringingPlusOne] = useState(false)
   const [song, setSong] = useState('')
+  const [selectedTrack, setSelectedTrack] = useState<any>(null)
 
   const handleConfirm = async () => {
     const totalGuests = guest.plusOneAllowed && bringingPlusOne ? 2 : 1
@@ -80,17 +84,21 @@ export const GuestRsvpForm = ({
         </div>
       )}
 
-      {/* Song request */}
+      {/* Song request with Spotify search */}
       <div className="input-group">
         <label className="rsvp-song-label">{content.songLabel}</label>
-        <input
-          type="text"
+        <SongSearch
           value={song}
-          onChange={(e) => setSong(e.target.value)}
+          onChange={(value, track) => {
+            setSong(value)
+            setSelectedTrack(track || null)
+          }}
           placeholder={content.songPlaceholder}
-          className="input-field"
           disabled={isSubmitting}
-          required
+          content={{
+            searching: content.searching || 'Buscando...',
+            noResults: content.noResults || 'No se encontraron resultados',
+          }}
         />
       </div>
 
