@@ -1,79 +1,55 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || ''
-const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || ''
+/**
+ * Music Search API - Uses Deezer (no auth required)
+ * Falls back gracefully if Deezer is unavailable
+ */
 
-interface SpotifyTrack {
+interface MusicTrack {
   id: string
   name: string
   artist: string
   album: string
   albumArt: string
   previewUrl: string | null
-  spotifyUrl: string
+  spotifyUrl: string | null
+  deezerUrl: string
   duration: number
 }
 
-// Token cache
-let accessToken: string | null = null
-let tokenExpiry: number = 0
-
-// Get Spotify access token using Client Credentials flow
-async function getAccessToken(): Promise<string> {
-  // Return cached token if valid
-  if (accessToken && Date.now() < tokenExpiry) {
-    return accessToken
-  }
-
-  const response = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')}`,
-    },
-    body: 'grant_type=client_credentials',
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to get Spotify access token')
-  }
-
-  const data = await response.json()
-  accessToken = data.access_token
-  tokenExpiry = Date.now() + (data.expires_in - 60) * 1000 // Refresh 1 min early
-
-  return accessToken!
-}
-
-// Search for tracks
-async function searchTracks(query: string, limit: number = 5): Promise<SpotifyTrack[]> {
-  const token = await getAccessToken()
-
+// Search using Deezer API (no authentication required!)
+async function searchDeezer(query: string, limit: number = 5): Promise<MusicTrack[]> {
   const response = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=${limit}&market=US`,
-    {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    }
+    `https://api.deezer.com/search?q=${encodeURIComponent(query)}&limit=${limit}`
   )
 
   if (!response.ok) {
-    throw new Error('Failed to search Spotify')
+    throw new Error('Failed to search Deezer')
   }
 
   const data = await response.json()
 
-  return data.tracks.items.map((track: any) => ({
-    id: track.id,
-    name: track.name,
-    artist: track.artists.map((a: any) => a.name).join(', '),
-    album: track.album.name,
-    albumArt: track.album.images[0]?.url || '',
-    previewUrl: track.preview_url,
-    spotifyUrl: track.external_urls.spotify,
-    duration: track.duration_ms,
+  if (!data.data || data.data.length === 0) {
+    return []
+  }
+
+  return data.data.map((track: any) => ({
+    id: track.id.toString(),
+    name: track.title,
+    artist: track.artist.name,
+    album: track.album.title,
+    albumArt: track.album.cover_medium || track.album.cover,
+    previewUrl: track.preview, // Deezer provides 30-second previews
+    spotifyUrl: null, // Could add Spotify search link
+    deezerUrl: track.link,
+    duration: track.duration * 1000, // Convert to ms
   }))
+}
+
+// Generate Spotify search link (for opening in Spotify app)
+function generateSpotifySearchUrl(trackName: string, artistName: string): string {
+  const query = encodeURIComponent(`${trackName} ${artistName}`)
+  return `https://open.spotify.com/search/${query}`
 }
 
 export default async function handler(
@@ -93,15 +69,6 @@ export default async function handler(
     return res.status(405).json({ success: false, error: 'Method not allowed' })
   }
 
-  // Check configuration
-  if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
-    return res.status(200).json({
-      success: false,
-      configured: false,
-      error: 'Spotify API not configured',
-    })
-  }
-
   const { q, limit } = req.query
 
   if (!q || typeof q !== 'string') {
@@ -109,20 +76,27 @@ export default async function handler(
   }
 
   try {
-    const tracks = await searchTracks(q, Number(limit) || 5)
+    const tracks = await searchDeezer(q, Number(limit) || 5)
+
+    // Add Spotify search links
+    const tracksWithSpotify = tracks.map(track => ({
+      ...track,
+      spotifyUrl: generateSpotifySearchUrl(track.name, track.artist),
+    }))
 
     // Cache for 5 minutes
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate')
 
     return res.status(200).json({
       success: true,
-      tracks,
+      tracks: tracksWithSpotify,
+      source: 'deezer',
     })
   } catch (error: any) {
-    console.error('Spotify API error:', error)
+    console.error('Music search error:', error)
     return res.status(500).json({
       success: false,
-      error: error.message || 'Failed to search Spotify',
+      error: error.message || 'Failed to search music',
     })
   }
 }

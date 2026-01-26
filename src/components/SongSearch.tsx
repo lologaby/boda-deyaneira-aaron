@@ -1,20 +1,21 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-interface SpotifyTrack {
+interface MusicTrack {
   id: string
   name: string
   artist: string
   album: string
   albumArt: string
   previewUrl: string | null
-  spotifyUrl: string
+  spotifyUrl: string | null
+  deezerUrl?: string
   duration: number
 }
 
 interface SongSearchProps {
   value: string
-  onChange: (value: string, track?: SpotifyTrack) => void
+  onChange: (value: string, track?: MusicTrack) => void
   placeholder: string
   disabled?: boolean
   content: {
@@ -45,10 +46,10 @@ const spotifySmallIcon = (
 
 export const SongSearch = ({ value, onChange, placeholder, disabled, content }: SongSearchProps) => {
   const [query, setQuery] = useState(value)
-  const [results, setResults] = useState<SpotifyTrack[]>([])
+  const [results, setResults] = useState<MusicTrack[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
-  const [selectedTrack, setSelectedTrack] = useState<SpotifyTrack | null>(null)
+  const [selectedTrack, setSelectedTrack] = useState<MusicTrack | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -99,7 +100,7 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
   }
 
   // Handle track selection
-  const handleSelectTrack = (track: SpotifyTrack) => {
+  const handleSelectTrack = (track: MusicTrack) => {
     const displayValue = `${track.name} - ${track.artist}`
     setQuery(displayValue)
     setSelectedTrack(track)
@@ -109,7 +110,7 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
   }
 
   // Preview controls
-  const playPreview = (track: SpotifyTrack) => {
+  const playPreview = (track: MusicTrack) => {
     if (!track.previewUrl) return
 
     if (audioRef.current) {
@@ -131,7 +132,7 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
     setIsPlaying(false)
   }
 
-  const togglePreview = (track: SpotifyTrack) => {
+  const togglePreview = (track: MusicTrack) => {
     if (isPlaying && audioRef.current) {
       stopPreview()
     } else {
@@ -205,7 +206,7 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
               </button>
             )}
             <a
-              href={selectedTrack.spotifyUrl}
+              href={selectedTrack.spotifyUrl || selectedTrack.deezerUrl || '#'}
               target="_blank"
               rel="noopener noreferrer"
               className="song-spotify-link"
