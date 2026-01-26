@@ -1241,6 +1241,7 @@ export default function App() {
                     type="text"
                     name={googleFormConfig?.song ?? 'entry.song'}
                     placeholder={content.rsvp.songPlaceholder}
+                    required
                     className="input-field"
                   />
                 </label>
