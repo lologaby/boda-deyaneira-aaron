@@ -4,6 +4,10 @@ interface RsvpCheckResult {
   success: boolean
   hasSubmitted?: boolean
   configured?: boolean
+  nameMatch?: boolean
+  ipMatch?: boolean
+  submittedName?: string | null
+  checkedBy?: string
   error?: string
 }
 
@@ -139,20 +143,30 @@ export function useRsvpStatus() {
           // Set immediately from localStorage
           setHasSubmitted(true)
           setCheckedName(savedName)
+          setIsInitialized(true)
+          return
+        }
+
+        // If no localStorage, check by IP (server-side)
+        try {
+          const response = await fetch('/api/rsvp')
+          const data: RsvpCheckResult = await response.json()
           
-          // Then verify with server (optional, don't block on it)
-          try {
-            const response = await fetch(`/api/rsvp?name=${encodeURIComponent(savedName)}`)
-            const data: RsvpCheckResult = await response.json()
+          if (data.success && data.hasSubmitted && data.submittedName) {
+            // IP was found, user already submitted
+            setHasSubmitted(true)
+            setCheckedName(data.submittedName)
             
-            // If server explicitly says not submitted, clear (but this is rare)
-            if (data.success && data.hasSubmitted === false && data.configured !== false) {
-              // Server disagrees - but trust localStorage for better UX
-              // User already saw the confirmation
+            // Save to localStorage for future
+            try {
+              localStorage.setItem(RSVP_NAME_KEY, data.submittedName)
+              localStorage.setItem(RSVP_SUBMITTED_KEY, 'true')
+            } catch {
+              // Ignore
             }
-          } catch {
-            // Server check failed, trust localStorage
           }
+        } catch {
+          // Server check failed, no problem
         }
       } catch (error) {
         console.error('Error checking previous submission:', error)

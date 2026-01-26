@@ -17,8 +17,22 @@ function normalizeName(name: string): string {
     .replace(/\s+/g, ' ') // Normalize spaces
 }
 
-// Key prefix for RSVP entries
+// Get client IP from Vercel headers
+function getClientIP(req: VercelRequest): string {
+  const forwarded = req.headers['x-forwarded-for']
+  if (typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim()
+  }
+  const realIp = req.headers['x-real-ip']
+  if (typeof realIp === 'string') {
+    return realIp
+  }
+  return 'unknown'
+}
+
+// Key prefixes for RSVP entries
 const RSVP_KEY_PREFIX = 'rsvp:'
+const RSVP_IP_PREFIX = 'rsvp_ip:'
 
 export default async function handler(
   req: VercelRequest,
@@ -43,25 +57,37 @@ export default async function handler(
   }
 
   try {
-    // GET: Check if a name has already submitted
+    const clientIP = getClientIP(req)
+
+    // GET: Check if a name or IP has already submitted
     if (req.method === 'GET') {
       const { name } = req.query
 
+      // Check by IP first (works even without name)
+      const ipKey = `${RSVP_IP_PREFIX}${clientIP}`
+      const ipData = await redis.get(ipKey) as string | null
+
       if (!name || typeof name !== 'string') {
-        return res.status(400).json({
-          success: false,
-          error: 'Name is required',
+        // No name provided, just check IP
+        return res.status(200).json({
+          success: true,
+          hasSubmitted: !!ipData,
+          submittedName: ipData ? JSON.parse(ipData).name : null,
+          checkedBy: 'ip',
         })
       }
 
       const normalizedName = normalizeName(name)
-      const key = `${RSVP_KEY_PREFIX}${normalizedName}`
-      const exists = await redis.exists(key)
+      const nameKey = `${RSVP_KEY_PREFIX}${normalizedName}`
+      const nameExists = await redis.exists(nameKey)
 
       return res.status(200).json({
         success: true,
-        hasSubmitted: exists === 1,
+        hasSubmitted: nameExists === 1 || !!ipData,
+        nameMatch: nameExists === 1,
+        ipMatch: !!ipData,
         name: name.trim(),
+        submittedName: ipData ? JSON.parse(ipData).name : null,
       })
     }
 
@@ -77,17 +103,21 @@ export default async function handler(
       }
 
       const normalizedName = normalizeName(name)
-      const key = `${RSVP_KEY_PREFIX}${normalizedName}`
+      const nameKey = `${RSVP_KEY_PREFIX}${normalizedName}`
+      const ipKey = `${RSVP_IP_PREFIX}${clientIP}`
 
-      // Check if already submitted
-      const exists = await redis.exists(key)
-      if (exists === 1) {
+      // Check if name already submitted
+      const nameExists = await redis.exists(nameKey)
+      if (nameExists === 1) {
         return res.status(409).json({
           success: false,
           alreadySubmitted: true,
-          error: 'You have already submitted your RSVP',
+          error: 'This name has already submitted an RSVP',
         })
       }
+
+      // Check if IP already submitted (but allow - just warn)
+      const ipData = await redis.get(ipKey) as string | null
 
       // Store the RSVP record
       const rsvpData = {
@@ -95,16 +125,23 @@ export default async function handler(
         attendance: attendance || 'yes',
         guests: guests || 1,
         song: song || '',
+        ip: clientIP,
         submittedAt: new Date().toISOString(),
       }
 
-      // Store with no expiration (permanent)
-      await redis.set(key, JSON.stringify(rsvpData))
+      // Store by name (primary key)
+      await redis.set(nameKey, JSON.stringify(rsvpData))
+      
+      // Store by IP (for quick lookup) - only if IP is valid and not already used
+      if (clientIP !== 'unknown' && !ipData) {
+        await redis.set(ipKey, JSON.stringify({ name: name.trim(), submittedAt: rsvpData.submittedAt }))
+      }
 
       return res.status(200).json({
         success: true,
         registered: true,
         message: 'RSVP registered successfully',
+        ipAlreadyUsed: !!ipData, // Let client know if same IP submitted before
       })
     }
 
