@@ -86,21 +86,26 @@ export const GuestRsvpForm = ({
 
   return (
     <div className="rsvp-guest-form">
-      {/* Guest name display - OUTSIDE the box, foiled gold effect */}
-      <div className="rsvp-guest-name-foiled" ref={nameRef}>
-        <p className="rsvp-guest-label-foiled">{content.nameLabel}</p>
-        <h2 
-          className="rsvp-guest-name-foiled-text"
-          data-text={`${guest.name}${guest.plusOneName ? ` & ${guest.plusOneName}` : ''}`}
-        >
-          {guest.name}
-          {guest.plusOneName && (
-            <span className="rsvp-guest-plusone-foiled">& {guest.plusOneName}</span>
-          )}
-        </h2>
+      {/* Invitation letter style card */}
+      <div className="rsvp-invitation-letter" ref={nameRef}>
+        <div className="rsvp-letter-card">
+          <div className="rsvp-letter-content">
+            {/* Guest name in golden cursive inside the letter */}
+            <p className="rsvp-letter-label">{content.nameLabel}</p>
+            <h2 
+              className="rsvp-letter-name"
+              data-text={`${guest.name}${guest.plusOneName ? ` & ${guest.plusOneName}` : ''}`}
+            >
+              {guest.name}
+              {guest.plusOneName && (
+                <span className="rsvp-letter-plusone">& {guest.plusOneName}</span>
+              )}
+            </h2>
+          </div>
+        </div>
       </div>
 
-      {/* Form fields container - inside box */}
+      {/* Form fields container - below the letter */}
       <div className="rsvp-form-box">
         {/* Plus one question (if allowed) */}
         {guest.plusOneAllowed && (
