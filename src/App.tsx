@@ -1279,7 +1279,7 @@ export default function App() {
         </motion.div>
       </header>
 
-      <main className="space-y-24 pb-24">
+      <main className="space-y-12 sm:space-y-16 pb-16">
         {/* FAQ Section - Elegant Accordion */}
         <FAQElegant
           title={content.faq.title}
