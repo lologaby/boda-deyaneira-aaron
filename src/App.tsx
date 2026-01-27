@@ -273,6 +273,8 @@ const copy = {
       plusOneQuestion: '¿Traerás a tu acompañante?',
       plusOneYes: 'Sí',
       plusOneNo: 'No',
+      plusOneNameLabel: 'Nombre de tu acompañante',
+      plusOneNamePlaceholder: 'Ingresa el nombre completo',
       confirmButton: '¡CONFIRMO MI ASISTENCIA!',
       declineButton: 'Lo siento, no podré asistir',
       alreadySubmittedMessage: '¡Ya confirmaste tu asistencia!',
@@ -462,6 +464,8 @@ const copy = {
       plusOneQuestion: 'Will you bring your plus one?',
       plusOneYes: 'Yes',
       plusOneNo: 'No',
+      plusOneNameLabel: 'Plus one name',
+      plusOneNamePlaceholder: 'Enter full name',
       confirmButton: 'CONFIRM ATTENDANCE!',
       declineButton: 'Sorry, could not attend',
     },
@@ -1529,11 +1533,11 @@ export default function App() {
                 guest={guest}
                 content={content.rsvp}
                 googleFormConfig={googleFormConfig}
-                onSubmit={async (attendance, totalGuests, song) => {
+                onSubmit={async (attendance, totalGuests, song, plusOneName) => {
                   setIsSubmitting(true)
                   try {
                     // Submit to Notion
-                    await submitGuestRsvp(attendance, totalGuests, song)
+                    await submitGuestRsvp(attendance, totalGuests, song, plusOneName)
                     
                     // Also submit to Google Forms
                     if (googleFormConfig) {
@@ -1542,6 +1546,9 @@ export default function App() {
                       formData.set(googleFormConfig.attendance, attendance)
                       formData.set(googleFormConfig.guests, String(totalGuests))
                       formData.set(googleFormConfig.song, song)
+                      if (plusOneName && googleFormConfig.plusOneName) {
+                        formData.set(googleFormConfig.plusOneName, plusOneName)
+                      }
                       
                       await fetch(googleFormConfig.action, {
                         method: 'POST',

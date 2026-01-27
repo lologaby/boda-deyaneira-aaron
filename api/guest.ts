@@ -102,6 +102,7 @@ async function updateGuest(
     attendance?: string
     totalGuests?: number
     song?: string
+    plusOneName?: string | null
   }
 ): Promise<boolean> {
   const properties: any = {}
@@ -118,6 +119,16 @@ async function updateGuest(
   if (updates.song !== undefined) {
     properties.Song = {
       rich_text: [{ type: 'text', text: { content: updates.song } }],
+    }
+  }
+  if (updates.plusOneName !== undefined) {
+    if (updates.plusOneName) {
+      properties.PlusOneName = {
+        rich_text: [{ type: 'text', text: { content: updates.plusOneName } }],
+      }
+    } else {
+      // Clear the field if empty
+      properties.PlusOneName = { rich_text: [] }
     }
   }
 
@@ -230,7 +241,7 @@ export default async function handler(
 
     // PATCH: Update guest RSVP
     if (req.method === 'PATCH') {
-      const { code, attendance, totalGuests, song } = req.body
+      const { code, attendance, totalGuests, song, plusOneName } = req.body
 
       if (!code || typeof code !== 'string') {
         return res.status(400).json({ success: false, error: 'Code is required' })
@@ -248,6 +259,7 @@ export default async function handler(
         attendance: attendance || 'yes',
         totalGuests: totalGuests || 1,
         song: song || '',
+        plusOneName: plusOneName || null,
       })
 
       return res.status(200).json({

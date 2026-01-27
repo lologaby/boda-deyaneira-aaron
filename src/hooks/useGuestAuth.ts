@@ -59,7 +59,8 @@ export function useGuestAuth() {
   const submitRsvp = useCallback(async (
     attendance: 'yes' | 'no',
     totalGuests: number,
-    song: string
+    song: string,
+    plusOneName?: string
   ): Promise<{ success: boolean; error?: string }> => {
     if (!state.guest) {
       return { success: false, error: 'Not authenticated' }
@@ -75,6 +76,7 @@ export function useGuestAuth() {
           attendance,
           totalGuests,
           song,
+          plusOneName: plusOneName || null,
         }),
       })
 
@@ -88,6 +90,7 @@ export function useGuestAuth() {
           attendance,
           totalGuests,
           song,
+          plusOneName: plusOneName || state.guest.plusOneName,
         }
 
         setState(prev => ({

@@ -23,7 +23,7 @@ interface GuestRsvpFormProps {
     noResults?: string
   }
   googleFormConfig: any
-  onSubmit: (attendance: 'yes' | 'no', totalGuests: number, song: string) => Promise<void>
+  onSubmit: (attendance: 'yes' | 'no', totalGuests: number, song: string, plusOneName?: string) => Promise<void>
   isSubmitting: boolean
 }
 
@@ -34,12 +34,14 @@ export const GuestRsvpForm = ({
   isSubmitting,
 }: GuestRsvpFormProps) => {
   const [bringingPlusOne, setBringingPlusOne] = useState(false)
+  const [plusOneName, setPlusOneName] = useState('')
   const [song, setSong] = useState('')
   const [selectedTrack, setSelectedTrack] = useState<any>(null)
 
   const handleConfirm = async () => {
     const totalGuests = guest.plusOneAllowed && bringingPlusOne ? 2 : 1
-    await onSubmit('yes', totalGuests, song)
+    const nameToSubmit = guest.plusOneAllowed && bringingPlusOne ? plusOneName.trim() : undefined
+    await onSubmit('yes', totalGuests, song, nameToSubmit)
   }
 
   const handleDecline = async () => {
@@ -125,12 +127,32 @@ export const GuestRsvpForm = ({
               <button
                 type="button"
                 className={`rsvp-plusone-btn ${!bringingPlusOne ? 'active' : ''}`}
-                onClick={() => setBringingPlusOne(false)}
+                onClick={() => {
+                  setBringingPlusOne(false)
+                  setPlusOneName('')
+                }}
                 disabled={isSubmitting}
               >
                 {content.plusOneNo || 'No'}
               </button>
             </div>
+            {/* Plus one name input (shown when bringing +1) */}
+            {bringingPlusOne && (
+              <div className="input-group mt-4">
+                <label className="input-label">
+                  {content.plusOneNameLabel || 'Nombre de tu acompañante'}
+                </label>
+                <input
+                  type="text"
+                  className="input-field"
+                  value={plusOneName}
+                  onChange={(e) => setPlusOneName(e.target.value)}
+                  placeholder={content.plusOneNamePlaceholder || 'Ingresa el nombre completo'}
+                  disabled={isSubmitting}
+                  required={bringingPlusOne}
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -158,7 +180,7 @@ export const GuestRsvpForm = ({
             type="button"
             className="rsvp-confirm-btn"
             onClick={handleConfirm}
-            disabled={isSubmitting || !song.trim()}
+            disabled={isSubmitting || !song.trim() || (bringingPlusOne && !plusOneName.trim())}
           >
             {isSubmitting ? content.submitting : (content.confirmButton || '¡Confirmo mi asistencia!')}
           </button>
