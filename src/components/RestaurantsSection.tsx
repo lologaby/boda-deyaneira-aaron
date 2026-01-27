@@ -106,9 +106,9 @@ const mealConfig: Record<MealType, { icon: React.ReactNode; color: string; spotl
 const restaurantDescriptions: Record<string, Record<'es' | 'en', string>> = {
   'Alba': { es: 'Comienza el día con vistas al mar', en: 'Start your day with ocean views' },
   'Sal De Mar': { es: 'Mariscos frescos y ambiente único', en: 'Fresh seafood and unique atmosphere' },
-  'Monson': { es: 'Cenas elegantes bajo las estrellas', en: 'Elegant dinners under the stars' },
+  'Monsoon': { es: 'Cenas elegantes bajo las estrellas', en: 'Elegant dinners under the stars' },
   'La Chocolateria': { es: 'Dulces tentaciones artesanales', en: 'Artisan sweet temptations' },
-  'Levian': { es: 'El mejor café de la isla', en: 'The best coffee on the island' },
+  'Levain': { es: 'El mejor café de la isla', en: 'The best coffee on the island' },
 }
 
 export const RestaurantsSection: React.FC<RestaurantsSectionProps> = ({

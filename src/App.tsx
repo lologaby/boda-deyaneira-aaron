@@ -324,9 +324,9 @@ const copy = {
       restaurants: [
         { name: 'Alba', url: 'https://www.google.com/maps/search/Alba+Aguadilla+Puerto+Rico', meal: 'breakfast' },
         { name: 'Sal De Mar', url: 'https://www.google.com/maps/search/Sal+De+Mar+Aguadilla+Puerto+Rico', meal: 'lunch' },
-        { name: 'Monson', url: 'https://www.google.com/maps/search/Monson+Aguadilla+Puerto+Rico', meal: 'dinner' },
+        { name: 'Monsoon', url: 'https://www.google.com/maps/search/Monsoon+Aguadilla+Puerto+Rico', meal: 'dinner' },
         { name: 'La Chocolateria', url: 'https://www.google.com/maps/search/La+Chocolateria+Aguadilla+Puerto+Rico', meal: 'desserts' },
-        { name: 'Levian', url: 'https://www.google.com/maps/search/Levian+cafe+Aguadilla+Puerto+Rico', meal: 'cafe' },
+        { name: 'Levain', url: 'https://www.google.com/maps/search/Levain+cafe+Aguadilla+Puerto+Rico', meal: 'cafe' },
       ],
       beaches: [
         { name: 'Crash Boat Beach', url: 'https://www.google.com/maps/search/Crash+Boat+Beach+Aguadilla+Puerto+Rico' },
@@ -514,9 +514,9 @@ const copy = {
       restaurants: [
         { name: 'Alba', url: 'https://www.google.com/maps/search/Alba+Aguadilla+Puerto+Rico', meal: 'breakfast' },
         { name: 'Sal De Mar', url: 'https://www.google.com/maps/search/Sal+De+Mar+Aguadilla+Puerto+Rico', meal: 'lunch' },
-        { name: 'Monson', url: 'https://www.google.com/maps/search/Monson+Aguadilla+Puerto+Rico', meal: 'dinner' },
+        { name: 'Monsoon', url: 'https://www.google.com/maps/search/Monsoon+Aguadilla+Puerto+Rico', meal: 'dinner' },
         { name: 'La Chocolateria', url: 'https://www.google.com/maps/search/La+Chocolateria+Aguadilla+Puerto+Rico', meal: 'desserts' },
-        { name: 'Levian', url: 'https://www.google.com/maps/search/Levian+cafe+Aguadilla+Puerto+Rico', meal: 'cafe' },
+        { name: 'Levain', url: 'https://www.google.com/maps/search/Levain+cafe+Aguadilla+Puerto+Rico', meal: 'cafe' },
       ],
       beaches: [
         { name: 'Crash Boat Beach', url: 'https://www.google.com/maps/search/Crash+Boat+Beach+Aguadilla+Puerto+Rico' },
