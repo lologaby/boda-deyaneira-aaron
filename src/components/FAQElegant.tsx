@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { TbShirt } from 'react-icons/tb'
+import { TbShoe } from 'react-icons/tb'
 
 interface FAQItem {
   key: string
@@ -82,9 +84,25 @@ export const FAQElegant: React.FC<FAQElegantProps> = ({
                           <p>{item.answer}</p>
                         ) : (
                           <>
-                            {item.answerLines?.map((line, i) => (
-                              <p key={i}>{line}</p>
-                            ))}
+                            {item.answerLines?.map((line, i) => {
+                              // Check if line contains "No shorts" or "No sandals"
+                              const isNoShorts = line.toLowerCase().includes('no shorts') || line.toLowerCase().includes('no pantalones cortos')
+                              const isNoSandals = line.toLowerCase().includes('no sandals') || line.toLowerCase().includes('no sandalias')
+                              
+                              if (isNoShorts || isNoSandals) {
+                                const Icon = isNoShorts ? TbShirt : TbShoe
+                                return (
+                                  <div key={i} className="faq-dresscode-prohibited">
+                                    <div className="faq-prohibited-icon-wrapper">
+                                      <Icon className="faq-prohibited-icon" />
+                                      <div className="faq-prohibited-x"></div>
+                                    </div>
+                                    <p className="faq-prohibited-text">{line.replace(/^•\s*/, '')}</p>
+                                  </div>
+                                )
+                              }
+                              return <p key={i}>{line}</p>
+                            })}
                             {isDressCode && dressCodeColors.length > 0 && (
                               <motion.div 
                                 className="faq-elegant-colors"

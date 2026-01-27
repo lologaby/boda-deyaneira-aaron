@@ -18,6 +18,8 @@ import { TbBuildingAirport } from 'react-icons/tb' // Airport
 import { HiHeart } from 'react-icons/hi2' // Heart
 import { MdCheckroom } from 'react-icons/md' // Dress
 import { MdChildCare } from 'react-icons/md' // Children/Kid
+import { TbShirt } from 'react-icons/tb' // Shorts/Clothing
+import { TbShoe } from 'react-icons/tb' // Sandals/Shoes
 
 type Language = 'es' | 'en'
 

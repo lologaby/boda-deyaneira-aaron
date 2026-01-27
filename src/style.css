@@ -2341,6 +2341,65 @@ h4 {
   @apply mb-2 last:mb-0;
 }
 
+/* Dress code prohibited items with icons */
+.faq-dresscode-prohibited {
+  @apply flex items-center gap-3 mb-3;
+}
+
+.faq-prohibited-icon-wrapper {
+  @apply relative flex-shrink-0 flex items-center justify-center;
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.faq-prohibited-icon {
+  width: 32px;
+  height: 32px;
+  color: rgba(255, 255, 255, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+.faq-prohibited-x {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  color: #FF4444;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 
+    0 0 6px rgba(255, 68, 68, 0.8),
+    0 0 12px rgba(255, 68, 68, 0.4);
+  pointer-events: none;
+  z-index: 2;
+  width: 2px;
+  height: 28px;
+  background: #FF4444;
+  border-radius: 2px;
+  box-shadow: 
+    0 0 6px rgba(255, 68, 68, 0.8),
+    0 0 12px rgba(255, 68, 68, 0.4);
+}
+
+.faq-prohibited-x::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  width: 2px;
+  height: 28px;
+  background: #FF4444;
+  border-radius: 2px;
+}
+
+.faq-prohibited-text {
+  @apply mb-0 text-white/85;
+}
+
 .faq-elegant-colors {
   @apply flex flex-wrap justify-start gap-3 mt-4;
 }
