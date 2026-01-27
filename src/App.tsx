@@ -580,7 +580,9 @@ const revealMotion = {
 }
 
 const calendarLink = '/calendar.ics'
-const flightSearchUrl = 'https://www.google.com/travel/flights?q=Flights%20from%20New%20York%20to%20Puerto%20Rico'
+// Google Flights search for roundtrip flights from NYC to San Juan, Puerto Rico
+// Google Flights defaults to roundtrip when searching
+const flightSearchUrl = 'https://www.google.com/travel/flights/flights-from-new-york-to-san-juan.html'
 
 // Playlist URLs - update with your actual playlists
 const SPOTIFY_PLAYLIST_URL = import.meta.env.VITE_SPOTIFY_PLAYLIST_URL || 'https://open.spotify.com/playlist/YOUR_PLAYLIST_ID'
