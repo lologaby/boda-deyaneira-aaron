@@ -916,6 +916,15 @@ h4 {
   border-bottom: 0;
 }
 
+.gifts-payment-label {
+  @apply flex items-center gap-2;
+}
+
+.gifts-payment-label svg {
+  @apply text-boda-burgundy;
+  flex-shrink: 0;
+}
+
 .gifts-note {
   @apply mt-6 text-center text-sm text-boda-text/70;
 }
