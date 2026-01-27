@@ -9,7 +9,7 @@ import { DuringWedding } from './components/DuringWedding'
 import { AfterWedding } from './components/AfterWedding'
 import { GuestRsvpForm } from './components/GuestRsvpForm'
 import { FAQElegant } from './components/FAQElegant'
-import { SplitText, BlurText, SpotlightCard, TiltedCard } from './components/react-bits'
+import { SpotlightCard, TiltedCard } from './components/react-bits'
 
 type Language = 'es' | 'en'
 
@@ -1169,27 +1169,9 @@ export default function App() {
           <img src="/images/bird_of_paradise.png" alt="" className="hero-flower hero-flower-right" />
           <div className="hero-content">
             <h1 className="hero-names">
-              <SplitText 
-                text="DEYANEIRA" 
-                className="hero-names-animated"
-                delay={0.5}
-                staggerChildren={0.04}
-              />
-              <span className="hero-amp">&amp;</span>
-              <SplitText 
-                text="AARON" 
-                className="hero-names-animated"
-                delay={0.9}
-                staggerChildren={0.05}
-              />
+              DEYANEIRA <span className="hero-amp">&amp;</span> AARON
             </h1>
-            <p className="hero-tagline">
-              <BlurText 
-                text={content.hero.tagline}
-                delay={1.4}
-                duration={0.6}
-              />
-            </p>
+            <p className="hero-tagline">{content.hero.tagline}</p>
             <div className="hero-details">
               <p>{content.hero.date}</p>
               <p>{content.hero.venueLine1}</p>
