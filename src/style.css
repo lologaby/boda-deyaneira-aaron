@@ -1617,14 +1617,12 @@ h4 {
 }
 
 .rsvp-confirmed-name {
-  @apply font-display text-2xl md:text-3xl font-medium italic;
-  background: linear-gradient(135deg, #8B6914 0%, #A67C00 50%, #8B6914 100%);
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 4px rgba(139, 105, 20, 0.4));
-  animation: shimmer 3s ease-in-out infinite;
+  @apply font-display text-2xl md:text-3xl font-semibold italic;
+  color: #F5EFE7;
+  text-shadow: 
+    0 0 20px rgba(212, 175, 55, 0.6),
+    0 0 40px rgba(212, 175, 55, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.3);
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 }
