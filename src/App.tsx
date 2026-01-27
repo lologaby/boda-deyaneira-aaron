@@ -133,43 +133,68 @@ const volumeOffIcon = (
   </svg>
 )
 
-const faqIconStyle = { strokeWidth: 1.5, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
-const faqIconSvg = (paths: React.ReactNode) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="shrink-0" {...faqIconStyle}>
-    {paths}
-  </svg>
+// Modern FAQ icons with gold gradient
+const faqIconWrapper = (paths: React.ReactNode, viewBox = "0 0 24 24") => (
+  <div className="faq-icon-modern">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox={viewBox} fill="none" className="faq-icon-svg">
+      <defs>
+        <linearGradient id="faqGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#D4AF37" />
+          <stop offset="50%" stopColor="#F4D03F" />
+          <stop offset="100%" stopColor="#D4AF37" />
+        </linearGradient>
+      </defs>
+      {paths}
+    </svg>
+  </div>
 )
 
-const faqIconPlusOne = faqIconSvg(
+const faqIconPlusOne = faqIconWrapper(
   <>
-    <circle cx="9" cy="7" r="2.5" />
-    <path d="M5 20v-2a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v2" />
-    <path d="M16 11h4" />
-    <path d="M18 9v4" />
+    <circle cx="12" cy="8" r="3.5" stroke="url(#faqGoldGradient)" strokeWidth="2" fill="none" />
+    <path d="M8 20v-2a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v2" stroke="url(#faqGoldGradient)" strokeWidth="2" fill="none" />
+    <path d="M19 12h4" stroke="url(#faqGoldGradient)" strokeWidth="2" strokeLinecap="round" />
+    <path d="M21 10v4" stroke="url(#faqGoldGradient)" strokeWidth="2" strokeLinecap="round" />
   </>
 )
-const faqIconHotel = faqIconSvg(
+
+const faqIconHotel = faqIconWrapper(
   <>
-    <path d="M4 21V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12" />
-    <path d="M4 13h16" />
-    <circle cx="9" cy="9" r="1" fill="currentColor" />
-    <circle cx="15" cy="9" r="1" fill="currentColor" />
-    <circle cx="9" cy="16" r="1" fill="currentColor" />
-    <circle cx="15" cy="16" r="1" fill="currentColor" />
+    <rect x="4" y="9" width="16" height="12" rx="1" stroke="url(#faqGoldGradient)" strokeWidth="2" fill="none" />
+    <path d="M4 13h16" stroke="url(#faqGoldGradient)" strokeWidth="2" />
+    <circle cx="9" cy="11" r="1.5" fill="url(#faqGoldGradient)" />
+    <circle cx="15" cy="11" r="1.5" fill="url(#faqGoldGradient)" />
+    <circle cx="9" cy="18" r="1.5" fill="url(#faqGoldGradient)" />
+    <circle cx="15" cy="18" r="1.5" fill="url(#faqGoldGradient)" />
   </>
 )
-const faqIconPlane = faqIconSvg(
-  <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
+
+const faqIconPlane = faqIconWrapper(
+  <path 
+    d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" 
+    stroke="url(#faqGoldGradient)" 
+    strokeWidth="2" 
+    fill="none"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
 )
-const faqIconHeart = faqIconSvg(
-  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+
+const faqIconHeart = faqIconWrapper(
+  <path 
+    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" 
+    stroke="url(#faqGoldGradient)" 
+    strokeWidth="2" 
+    fill="none"
+  />
 )
-const faqIconDress = faqIconSvg(
+
+const faqIconDress = faqIconWrapper(
   <>
-    <path d="M12 2v2" />
-    <path d="M8 6h8" />
-    <path d="M7 6v12h10V6H7z" />
-    <path d="M7 10h10" />
+    <path d="M12 2v3" stroke="url(#faqGoldGradient)" strokeWidth="2" strokeLinecap="round" />
+    <path d="M8 7h8" stroke="url(#faqGoldGradient)" strokeWidth="2" strokeLinecap="round" />
+    <rect x="7" y="7" width="10" height="13" rx="1" stroke="url(#faqGoldGradient)" strokeWidth="2" fill="none" />
+    <path d="M7 11h10" stroke="url(#faqGoldGradient)" strokeWidth="2" />
   </>
 )
 

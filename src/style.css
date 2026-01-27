@@ -2246,8 +2246,39 @@ h4 {
 }
 
 .faq-elegant-icon {
-  @apply text-3xl flex-shrink-0;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  @apply flex-shrink-0;
+}
+
+.faq-icon-modern {
+  @apply flex items-center justify-center;
+  width: 48px;
+  height: 48px;
+  position: relative;
+}
+
+.faq-icon-modern::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.faq-elegant-item:hover .faq-icon-modern::before {
+  opacity: 1;
+}
+
+.faq-icon-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.4));
+  transition: transform 0.3s ease;
+}
+
+.faq-elegant-item:hover .faq-icon-svg {
+  transform: scale(1.1);
 }
 
 .faq-elegant-question {
