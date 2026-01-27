@@ -1130,7 +1130,8 @@ h4 {
     0 -5px 20px rgba(0, 0, 0, 0.08),
     0 5px 20px rgba(0, 0, 0, 0.08);
   overflow: visible; /* Allow dropdown to extend beyond section */
-  z-index: 1; /* Lower than dropdown */
+  z-index: 100; /* Higher z-index to create stacking context above RSVP */
+  isolation: isolate; /* Create new stacking context */
 }
 
 .travel-title {
@@ -1224,7 +1225,7 @@ h4 {
   top: calc(100% + 1rem);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000; /* High z-index to appear above RSVP section */
+  z-index: 9999; /* Very high z-index to appear above everything */
   max-height: 0;
   overflow: hidden;
   opacity: 0;
@@ -1254,6 +1255,8 @@ h4 {
   padding: 1.5rem;
   margin-top: 1rem;
   pointer-events: auto;
+  overflow-y: auto; /* Allow scrolling if content is too tall */
+  overflow-x: hidden;
 }
 
 .travel-subsection {
@@ -1343,7 +1346,7 @@ h4 {
     0 -10px 40px rgba(0, 0, 0, 0.25),
     0 10px 40px rgba(0, 0, 0, 0.25),
     inset 0 0 60px rgba(0, 0, 0, 0.15);
-  z-index: 1; /* Lower than dropdown */
+  z-index: 1; /* Lower than travel-section */
   position: relative;
 }
 
