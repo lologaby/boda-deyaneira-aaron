@@ -8,8 +8,8 @@ import { useGuestAuth } from './hooks/useGuestAuth'
 import { DuringWedding } from './components/DuringWedding'
 import { AfterWedding } from './components/AfterWedding'
 import { GuestRsvpForm } from './components/GuestRsvpForm'
-import { FAQCarousel } from './components/FAQCarousel'
-import { SplitText, BlurText } from './components/react-bits'
+import { FAQElegant } from './components/FAQElegant'
+import { SplitText, BlurText, SpotlightCard, TiltedCard } from './components/react-bits'
 
 type Language = 'es' | 'en'
 
@@ -1217,14 +1217,13 @@ export default function App() {
       </header>
 
       <main className="space-y-24 pb-24">
-        {/* FAQ Carousel Section */}
-        <FAQCarousel
+        {/* FAQ Section - Elegant Accordion */}
+        <FAQElegant
           title={content.faq.title}
           rsvpLink="#rsvp"
           rsvpLinkText={content.faq.rsvpLink}
           items={content.faq.items}
           dressCodeColors={swatchColors}
-          lang={lang}
         />
 
         <section id="location" className="section">
@@ -1316,43 +1315,72 @@ export default function App() {
                   <span className="travel-chevron" aria-hidden="true" />
                 </summary>
                 <div className="travel-places-inner">
+                  {/* Restaurants with SpotlightCards */}
                   <p className="travel-subsection">{content.travel.restaurantsLabel}</p>
-                  <ul className="travel-restaurants-list" aria-label={content.travel.restaurantsLabel}>
-                    {content.travel.restaurants.map(r => {
+                  <div className="travel-restaurants-grid">
+                    {content.travel.restaurants.map((r, index) => {
                       const mealLabel = content.travel[({ breakfast: 'mealBreakfast', lunch: 'mealLunch', dinner: 'mealDinner', desserts: 'mealDesserts', cafe: 'mealCafe' } as const)[r.meal]]
+                      const mealColors: Record<string, { color: string; spotlight: string }> = {
+                        breakfast: { color: '#FFB347', spotlight: '255, 179, 71' },
+                        lunch: { color: '#87CEEB', spotlight: '135, 206, 235' },
+                        dinner: { color: '#9B7EDE', spotlight: '155, 126, 222' },
+                        desserts: { color: '#FFB6C1', spotlight: '255, 182, 193' },
+                        cafe: { color: '#C19A6B', spotlight: '193, 154, 107' },
+                      }
+                      const config = mealColors[r.meal]
                       return (
-                        <li key={r.name}>
-                          <a
-                            href={r.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="travel-restaurant-pill"
-                            title={mealLabel + ': ' + r.name}
-                          >
-                            <span className="travel-restaurant-icon" aria-hidden="true">{MEAL_ICONS[r.meal]}</span>
-                            <span className="travel-restaurant-meal">{mealLabel}</span>
-                            <span className="travel-restaurant-sep" aria-hidden="true">·</span>
-                            <span>{r.name}</span>
+                        <motion.div
+                          key={r.name}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1, duration: 0.4 }}
+                        >
+                          <a href={r.url} target="_blank" rel="noopener noreferrer" className="travel-card-link">
+                            <SpotlightCard className="travel-restaurant-card" spotlightColor={config.spotlight}>
+                              <div className="travel-card-icon" style={{ backgroundColor: `${config.color}20`, color: config.color }}>
+                                {MEAL_ICONS[r.meal]}
+                              </div>
+                              <div className="travel-card-info">
+                                <span className="travel-card-tag" style={{ backgroundColor: `${config.color}30`, color: config.color }}>
+                                  {mealLabel}
+                                </span>
+                                <span className="travel-card-name">{r.name}</span>
+                              </div>
+                              <div className="travel-card-arrow">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M7 17L17 7M17 7H7M17 7V17" />
+                                </svg>
+                              </div>
+                            </SpotlightCard>
                           </a>
-                        </li>
+                        </motion.div>
                       )
                     })}
-                  </ul>
+                  </div>
+
+                  {/* Beaches with TiltedCards */}
                   <p className="travel-subsection">{content.travel.beachesLabel}</p>
-                  <ul className="travel-beaches-grid">
-                    {content.travel.beaches.map(place => (
-                      <li key={place.name}>
-                        <a
-                          href={place.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="travel-place-btn"
-                        >
-                          {place.name}
+                  <div className="travel-beaches-cards">
+                    {content.travel.beaches.map((place, index) => (
+                      <motion.div
+                        key={place.name}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.08, duration: 0.4 }}
+                      >
+                        <a href={place.url} target="_blank" rel="noopener noreferrer" className="travel-card-link">
+                          <TiltedCard className="travel-beach-card" maxTilt={8} scale={1.02}>
+                            <div className="travel-beach-content">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="travel-beach-icon">
+                                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+                              </svg>
+                              <span className="travel-beach-name">{place.name}</span>
+                            </div>
+                          </TiltedCard>
                         </a>
-                      </li>
+                      </motion.div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
                 <div className="travel-platea-wrap">
                   <a
