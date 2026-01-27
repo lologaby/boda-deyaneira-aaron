@@ -1160,14 +1160,6 @@ export default function App() {
               >
                 {content.nav.travel}
               </a>
-              <span className="nav-sep" aria-hidden="true">·</span>
-              <a 
-                ref={(el) => { navLinksRef.current['gifts'] = el }}
-                className={`nav-link ${activeSection === 'gifts' ? 'active' : ''}`} 
-                href="#gifts"
-              >
-                {content.nav.gifts}
-              </a>
             </div>
             <div className="flex items-center gap-2 relative">
               <a 
@@ -1192,7 +1184,6 @@ export default function App() {
                 <a href="#faq" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.faq}</a>
                 <a href="#location" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.location}</a>
                 <a href="#travel" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.travel}</a>
-                <a href="#gifts" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.gifts}</a>
                 <a href="#rsvp" className="nav-mobile-link nav-mobile-link-rsvp" onClick={() => setNavOpen(false)}>{content.nav.rsvp}</a>
               </div>
             </>
