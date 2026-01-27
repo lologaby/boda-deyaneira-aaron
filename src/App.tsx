@@ -1355,14 +1355,26 @@ export default function App() {
                   {venmoIcon}
                   {content.gifts.payment.venmo}:
                 </span>
-                <strong>@akfy910</strong>
+                <a 
+                  href="https://venmo.com/akfy910" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="gifts-payment-link"
+                >
+                  @akfy910
+                </a>
               </div>
               <div className="gifts-line" role="listitem">
                 <span className="gifts-payment-label">
                   {zelleIcon}
                   {content.gifts.payment.zelle}:
                 </span>
-                <strong>516-216-0869</strong>
+                <a 
+                  href="tel:5162160869" 
+                  className="gifts-payment-link"
+                >
+                  516-216-0869
+                </a>
               </div>
             </div>
             <p className="gifts-note">{content.gifts.note}</p>

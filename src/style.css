@@ -927,6 +927,16 @@ h4 {
   object-fit: contain;
 }
 
+.gifts-payment-link {
+  @apply font-semibold text-boda-burgundy transition-colors;
+  text-decoration: none;
+}
+
+.gifts-payment-link:hover {
+  @apply text-boda-terracotta;
+  text-decoration: underline;
+}
+
 .gifts-note {
   @apply mt-6 text-center text-sm text-boda-text/70;
 }
