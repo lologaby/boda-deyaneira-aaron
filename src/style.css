@@ -2305,10 +2305,11 @@ h4 {
 }
 
 .faq-icon-svg {
-  width: 100%;
-  height: 100%;
+  width: 20px;
+  height: 20px;
   filter: drop-shadow(0 1px 3px rgba(232, 156, 124, 0.3));
   transition: transform 0.3s ease;
+  display: block;
 }
 
 .faq-elegant-item:hover .faq-icon-svg {

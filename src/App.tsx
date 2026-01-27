@@ -11,6 +11,12 @@ import { AfterWedding } from './components/AfterWedding'
 import { GuestRsvpForm } from './components/GuestRsvpForm'
 import { FAQElegant } from './components/FAQElegant'
 import { SpotlightCard, TiltedCard } from './components/react-bits'
+// React Icons
+import { HiUsers } from 'react-icons/hi2' // Plus One - couple
+import { HiBuildingOffice2 } from 'react-icons/hi2' // Hotel
+import { HiPaperAirplane } from 'react-icons/hi2' // Plane
+import { HiHeart } from 'react-icons/hi2' // Heart
+import { MdCheckroom } from 'react-icons/md' // Dress
 
 type Language = 'es' | 'en'
 
@@ -133,77 +139,27 @@ const volumeOffIcon = (
   </svg>
 )
 
-// Modern FAQ icons with terracotta color - elegant and refined
-const faqIconWrapper = (paths: React.ReactNode, viewBox = "0 0 24 24") => (
+// FAQ icons using react-icons with terracotta color
+const faqIconWrapper = (IconComponent: React.ComponentType<any>) => (
   <div className="faq-icon-modern">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox={viewBox} fill="none" className="faq-icon-svg">
-      {paths}
-    </svg>
+    <IconComponent className="faq-icon-svg" color="#E89C7C" size={20} />
   </div>
 )
 
-// Plus One - Elegant couple icon
-const faqIconPlusOne = faqIconWrapper(
-  <>
-    <circle cx="9" cy="7" r="2.5" stroke="#E89C7C" strokeWidth="1.5" fill="none" />
-    <path d="M5 20v-2a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v2" stroke="#E89C7C" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-    <circle cx="15" cy="7" r="2.5" stroke="#E89C7C" strokeWidth="1.5" fill="none" />
-    <path d="M19 20v-2a4 4 0 0 0-4-4h0a4 4 0 0 0-4 4v2" stroke="#E89C7C" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M9 7h6" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
-  </>,
-  "0 0 24 24"
-)
+// Plus One - Couple icon
+const faqIconPlusOne = faqIconWrapper(HiUsers)
 
-// Hotel - Modern building icon
-const faqIconHotel = faqIconWrapper(
-  <>
-    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18" stroke="#E89C7C" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M6 12h12" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M6 15h12" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M6 9h12" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
-    <circle cx="10" cy="7" r="1" fill="#E89C7C" />
-    <circle cx="14" cy="7" r="1" fill="#E89C7C" />
-  </>,
-  "0 0 24 24"
-)
+// Hotel - Building icon
+const faqIconHotel = faqIconWrapper(HiBuildingOffice2)
 
-// Plane - Elegant airplane icon
-const faqIconPlane = faqIconWrapper(
-  <path 
-    d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" 
-    stroke="#E89C7C" 
-    strokeWidth="1.5" 
-    fill="none"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  />,
-  "0 0 24 24"
-)
+// Plane - Airplane icon
+const faqIconPlane = faqIconWrapper(HiPaperAirplane)
 
-// Heart - Elegant heart icon
-const faqIconHeart = faqIconWrapper(
-  <path 
-    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" 
-    stroke="#E89C7C" 
-    strokeWidth="1.5" 
-    fill="none"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  />,
-  "0 0 24 24"
-)
+// Heart - Heart icon
+const faqIconHeart = faqIconWrapper(HiHeart)
 
-// Dress - Elegant dress icon
-const faqIconDress = faqIconWrapper(
-  <>
-    <path d="M12 2v2" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M8 6h8" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M7 6v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6" stroke="#E89C7C" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M7 10h10" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M7 14h10" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
-  </>,
-  "0 0 24 24"
-)
+// Dress - Dress/Checkroom icon
+const faqIconDress = faqIconWrapper(MdCheckroom)
 
 const copy = {
   es: {
