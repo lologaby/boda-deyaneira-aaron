@@ -238,7 +238,8 @@ const copy = {
           question: '¿Cuál es el código de vestimenta?',
           answerLines: [
             'El código de vestimenta es formal playero.',
-            '– No pantalones cortos, – No sandalias para hombres',
+            '• No pantalones cortos',
+            '• No sandalias para hombres',
             'Adjuntamos una paleta de colores como referencia para su atuendo.',
           ],
         },
@@ -428,7 +429,8 @@ const copy = {
           question: 'What is the dress code?',
           answerLines: [
             'The dress code is beach formal.',
-            '– No shorts, – No sandals for men',
+            '• No shorts',
+            '• No sandals for men',
             'We have included a color palette for outfit inspiration.',
           ],
         },
