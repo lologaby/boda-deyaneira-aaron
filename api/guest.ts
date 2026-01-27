@@ -197,6 +197,18 @@ export default async function handler(
         return res.status(404).json({ success: false, error: 'Invalid code' })
       }
 
+      // Mark as "pending" if attendance is not yet set (first time entering code)
+      if (guest.attendance === 'pending' || !guest.hasConfirmed) {
+        await updateGuest(guest.id, {
+          attendance: 'pending',
+        })
+        // Refresh guest data
+        const updatedGuest = await findGuestByCode(code)
+        if (updatedGuest) {
+          Object.assign(guest, updatedGuest)
+        }
+      }
+
       // Set cookie for future visits (30 days) - one time magic!
       const cookieValue = code.toUpperCase().trim()
       const cookieOptions = [

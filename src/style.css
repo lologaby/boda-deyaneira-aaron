@@ -1372,25 +1372,80 @@ h4 {
   @apply flex flex-col gap-6 max-w-md mx-auto;
 }
 
-.rsvp-guest-name-card {
-  @apply text-center py-6 px-4 rounded-2xl;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+.rsvp-form-box {
+  @apply bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-boda-gold/30;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.rsvp-guest-label {
-  @apply text-xs uppercase tracking-[0.2em] mb-2;
-  color: rgba(245, 239, 231, 0.7);
+/* Foiled gold name - outside the box */
+.rsvp-guest-name-foiled {
+  @apply text-center mb-8 relative;
+  --shine-x: 50%;
+  --shine-y: 50%;
 }
 
-.rsvp-guest-name {
-  @apply font-display text-2xl sm:text-3xl;
-  color: #F5EFE7;
+.rsvp-guest-label-foiled {
+  @apply text-xs uppercase tracking-[0.3em] mb-3;
+  color: rgba(212, 175, 55, 0.6);
+  font-weight: 500;
+  letter-spacing: 0.4em;
 }
 
-.rsvp-guest-plusone {
-  @apply font-display text-xl mt-1;
-  color: rgba(245, 239, 231, 0.8);
+.rsvp-guest-name-foiled-text {
+  @apply font-display text-3xl sm:text-4xl md:text-5xl relative inline-block;
+  background: linear-gradient(
+    135deg,
+    #D4AF37 0%,
+    #F4D03F 25%,
+    #D4AF37 50%,
+    #F4D03F 75%,
+    #D4AF37 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.4));
+  position: relative;
+  animation: shimmer 3s ease-in-out infinite;
+  letter-spacing: 0.05em;
+}
+
+.rsvp-guest-name-foiled-text::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse 200% 100% at var(--shine-x) var(--shine-y),
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.7) 20%,
+    rgba(255, 255, 255, 0.3) 40%,
+    transparent 60%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  transition: background-position 0.15s ease-out;
+  will-change: background-position;
+}
+
+.rsvp-guest-plusone-foiled {
+  @apply block mt-2 text-2xl sm:text-3xl;
+  opacity: 0.9;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .rsvp-plusone-section {
@@ -1439,36 +1494,67 @@ h4 {
 }
 
 .rsvp-confirm-btn {
-  @apply w-full py-4 rounded-full font-heading text-sm uppercase tracking-[0.2em] transition;
-  background: linear-gradient(135deg, #E89C7C 0%, #D4AF37 100%);
-  color: white;
+  @apply w-full py-4 rounded-full font-heading text-sm uppercase tracking-[0.2em] transition-all duration-300;
+  background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 50%, #D4AF37 100%);
+  background-size: 200% 200%;
+  color: #1A4D2E;
+  font-weight: 600;
   min-height: 52px;
-  box-shadow: 0 4px 15px rgba(232, 156, 124, 0.3);
+  box-shadow: 
+    0 4px 15px rgba(212, 175, 55, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  animation: goldShimmer 3s ease-in-out infinite;
 }
 
 .rsvp-confirm-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(232, 156, 124, 0.4);
+  box-shadow: 
+    0 6px 25px rgba(212, 175, 55, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  background-position: 100% 50%;
+}
+
+.rsvp-confirm-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 10px rgba(212, 175, 55, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .rsvp-confirm-btn:disabled {
   @apply opacity-50 cursor-not-allowed;
+  animation: none;
 }
 
 .rsvp-decline-btn {
-  @apply w-full py-3 rounded-full font-heading text-xs uppercase tracking-wider transition;
-  color: rgba(245, 239, 231, 0.6);
-  background: transparent;
-  border: 1px solid rgba(245, 239, 231, 0.2);
+  @apply w-full py-3 rounded-full font-heading text-xs uppercase tracking-wider transition-all duration-300;
+  color: rgba(245, 239, 231, 0.8);
+  background: rgba(139, 75, 92, 0.2);
+  border: 1px solid rgba(139, 75, 92, 0.4);
+  backdrop-filter: blur(10px);
 }
 
 .rsvp-decline-btn:hover:not(:disabled) {
-  color: rgba(245, 239, 231, 0.9);
-  border-color: rgba(245, 239, 231, 0.4);
+  color: rgba(245, 239, 231, 1);
+  background: rgba(139, 75, 92, 0.3);
+  border-color: rgba(139, 75, 92, 0.6);
+  transform: translateY(-1px);
 }
 
 .rsvp-decline-btn:disabled {
   @apply opacity-50 cursor-not-allowed;
+}
+
+@keyframes goldShimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .rsvp-confirmed-name {
