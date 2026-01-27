@@ -1416,11 +1416,11 @@ export default function App() {
                     {content.travel.restaurants.map((r, index) => {
                       const mealLabel = content.travel[({ breakfast: 'mealBreakfast', lunch: 'mealLunch', dinner: 'mealDinner', desserts: 'mealDesserts', cafe: 'mealCafe' } as const)[r.meal]]
                       const mealColors: Record<string, { color: string; spotlight: string }> = {
-                        breakfast: { color: '#3B342E', spotlight: '59, 52, 46' }, /* Espresso suave */
-                        lunch: { color: '#3B342E', spotlight: '59, 52, 46' }, /* Espresso suave */
-                        dinner: { color: '#3B342E', spotlight: '59, 52, 46' }, /* Espresso suave */
-                        desserts: { color: '#3B342E', spotlight: '59, 52, 46' }, /* Espresso suave */
-                        cafe: { color: '#3B342E', spotlight: '59, 52, 46' }, /* Espresso suave */
+                        breakfast: { color: '#FFB347', spotlight: '255, 179, 71' },
+                        lunch: { color: '#87CEEB', spotlight: '135, 206, 235' },
+                        dinner: { color: '#9B7EDE', spotlight: '155, 126, 222' },
+                        desserts: { color: '#FFB6C1', spotlight: '255, 182, 193' },
+                        cafe: { color: '#C19A6B', spotlight: '193, 154, 107' },
                       }
                       const config = mealColors[r.meal]
                       return (
@@ -1432,11 +1432,11 @@ export default function App() {
                         >
                           <a href={r.url} target="_blank" rel="noopener noreferrer" className="travel-card-link">
                             <SpotlightCard className="travel-restaurant-card" spotlightColor={config.spotlight}>
-                              <div className="travel-card-icon" style={{ backgroundColor: 'rgba(59, 52, 46, 0.1)', color: '#4A4038' }}>
+                              <div className="travel-card-icon" style={{ backgroundColor: `${config.color}20`, color: config.color }}>
                                 {MEAL_ICONS[r.meal]}
                               </div>
                               <div className="travel-card-info">
-                                <span className="travel-card-tag" style={{ backgroundColor: 'rgba(59, 52, 46, 0.15)', color: '#3B342E' }}>
+                                <span className="travel-card-tag" style={{ backgroundColor: `${config.color}30`, color: config.color }}>
                                   {mealLabel}
                                 </span>
                                 <span className="travel-card-name">{r.name}</span>

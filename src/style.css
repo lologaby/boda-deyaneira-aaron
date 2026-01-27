@@ -2747,25 +2747,23 @@ h4 {
 }
 
 .travel-restaurant-card {
-  @apply p-4 backdrop-blur-sm flex items-center gap-3;
+  @apply p-4 bg-white/95 backdrop-blur-sm flex items-center gap-3;
   @apply transition-all duration-300;
-  background: #EAD7C5; /* Beige cálido */
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   box-shadow: 
     0 4px 16px rgba(0, 0, 0, 0.1),
     0 2px 8px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
   transform: translateZ(5px);
   transform-style: preserve-3d;
 }
 
 .travel-restaurant-card:hover {
-  background: #E6CDB8; /* Arena suave on hover */
   transform: translateZ(15px) translateY(-3px) rotateX(2deg);
   box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.25),
-    0 6px 16px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    0 12px 32px rgba(0, 0, 0, 0.2),
+    0 6px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .travel-card-icon {
@@ -2781,14 +2779,11 @@ h4 {
 }
 
 .travel-card-name {
-  @apply font-display text-sm;
-  color: #2F2A25; /* Charcoal cálido */
-  font-weight: 600;
+  @apply font-display text-sm text-boda-burgundy;
 }
 
 .travel-card-arrow {
-  @apply flex-shrink-0 transition-all duration-300;
-  color: #4A4038; /* Icon color */
+  @apply flex-shrink-0 text-boda-text/30 transition-all duration-300;
 }
 
 .travel-restaurant-card:hover .travel-card-arrow {
