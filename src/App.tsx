@@ -14,7 +14,7 @@ import { SpotlightCard, TiltedCard } from './components/react-bits'
 // React Icons
 import { HiUsers } from 'react-icons/hi2' // Plus One - couple
 import { HiBuildingOffice2 } from 'react-icons/hi2' // Hotel
-import { HiPaperAirplane } from 'react-icons/hi2' // Plane
+import { TbBuildingAirport } from 'react-icons/tb' // Airport
 import { HiHeart } from 'react-icons/hi2' // Heart
 import { MdCheckroom } from 'react-icons/md' // Dress
 import { MdChildCare } from 'react-icons/md' // Children/Kid
@@ -153,8 +153,8 @@ const faqIconPlusOne = faqIconWrapper(HiUsers)
 // Hotel - Building icon
 const faqIconHotel = faqIconWrapper(HiBuildingOffice2)
 
-// Plane - Airplane icon
-const faqIconPlane = faqIconWrapper(HiPaperAirplane)
+// Airport - Building Airport icon
+const faqIconPlane = faqIconWrapper(TbBuildingAirport)
 
 // Heart - Heart icon
 const faqIconHeart = faqIconWrapper(HiHeart)
