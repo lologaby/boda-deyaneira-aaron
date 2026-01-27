@@ -1693,6 +1693,13 @@ h4 {
   transform-style: preserve-3d;
 }
 
+@media (max-width: 639px) {
+  .rsvp-form-box {
+    padding: 1rem;
+    max-width: 100%;
+  }
+}
+
 /* Invitation letter style for RSVP - Minimal */
 .rsvp-invitation-letter {
   @apply mb-4 relative;
@@ -1771,12 +1778,20 @@ h4 {
 }
 
 .rsvp-plusone-btn {
-  @apply px-6 py-2 font-heading text-[10px] uppercase tracking-[0.2em] transition-all duration-300;
+  @apply px-6 py-2 font-heading uppercase tracking-[0.2em] transition-all duration-300;
+  font-size: 13px; /* Larger on mobile for better proportion */
   border: 1px solid rgba(245, 239, 231, 0.3);
   color: rgba(245, 239, 231, 0.6);
   background: transparent;
   border-radius: 2px;
   min-width: 80px;
+  min-height: 44px; /* Better touch target */
+}
+
+@media (min-width: 640px) {
+  .rsvp-plusone-btn {
+    font-size: 10px; /* Smaller on desktop */
+  }
 }
 
 .rsvp-plusone-btn:hover:not(:disabled) {
@@ -1791,16 +1806,30 @@ h4 {
 }
 
 .rsvp-song-label {
-  @apply block text-center mb-3 font-heading text-[10px] uppercase tracking-[0.2em];
+  @apply block text-center mb-3 font-heading uppercase tracking-[0.2em];
+  font-size: 12px; /* Larger on mobile */
   color: rgba(245, 239, 231, 0.6);
 }
 
+@media (min-width: 640px) {
+  .rsvp-song-label {
+    font-size: 10px; /* Smaller on desktop */
+  }
+}
+
 .rsvp-guest-form .input-field {
-  @apply text-center text-sm;
+  @apply text-center;
+  font-size: 16px; /* Prevent iOS zoom on focus */
   background: rgba(245, 239, 231, 0.18);
   border: 1px solid rgba(245, 239, 231, 0.35);
   border-radius: 4px;
   color: #F5EFE7;
+}
+
+@media (min-width: 640px) {
+  .rsvp-guest-form .input-field {
+    font-size: 14px; /* Smaller on desktop */
+  }
 }
 
 .rsvp-guest-form .input-field::placeholder {
@@ -1815,12 +1844,19 @@ h4 {
 }
 
 .rsvp-action-buttons {
-  @apply flex flex-col gap-2 mt-3;
+  @apply flex flex-col gap-3 mt-4;
+}
+
+@media (max-width: 639px) {
+  .rsvp-action-buttons {
+    gap: 2.5rem; /* More space between buttons on mobile */
+  }
 }
 
 /* RSVP buttons - matching page style with terracotta */
 .rsvp-confirm-btn {
-  @apply w-full py-3 font-heading text-xs uppercase tracking-[0.3em] transition-all duration-300;
+  @apply w-full py-3 font-heading uppercase tracking-[0.3em] transition-all duration-300;
+  font-size: 14px; /* Larger on mobile for better proportion */
   background: #E89C7C;
   color: #FFFFFF;
   font-weight: 600;
@@ -1833,6 +1869,12 @@ h4 {
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform: translateZ(15px);
   transform-style: preserve-3d;
+}
+
+@media (min-width: 640px) {
+  .rsvp-confirm-btn {
+    font-size: 12px; /* Smaller on desktop */
+  }
 }
 
 .rsvp-confirm-btn:hover:not(:disabled) {
@@ -1855,12 +1897,19 @@ h4 {
 }
 
 .rsvp-decline-btn {
-  @apply w-full py-2.5 font-heading text-[10px] uppercase tracking-[0.2em] transition-all duration-300;
+  @apply w-full py-2.5 font-heading uppercase tracking-[0.2em] transition-all duration-300;
+  font-size: 13px; /* Larger on mobile for better proportion */
   color: rgba(245, 239, 231, 0.7);
   background: transparent;
   border: 1px solid rgba(245, 239, 231, 0.3);
   border-radius: 9999px;
   margin-top: 0;
+}
+
+@media (min-width: 640px) {
+  .rsvp-decline-btn {
+    font-size: 10px; /* Smaller on desktop */
+  }
 }
 
 .rsvp-decline-btn:hover:not(:disabled) {
@@ -1907,6 +1956,13 @@ h4 {
 
 .song-search-input {
   @apply pr-10;
+  font-size: 16px !important; /* Prevent iOS zoom on focus */
+}
+
+@media (min-width: 640px) {
+  .song-search-input {
+    font-size: 16px; /* Keep readable on desktop too */
+  }
 }
 
 .song-search-loading {
@@ -1972,9 +2028,23 @@ h4 {
   overflow-y: auto;
 }
 
+@media (max-width: 639px) {
+  .song-results {
+    max-height: 50vh; /* Better mobile viewport usage */
+    margin-top: 0.5rem;
+  }
+}
+
 .song-result {
   @apply w-full flex items-center gap-3 p-3 text-left transition;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  min-height: 60px; /* Better touch target on mobile */
+}
+
+@media (max-width: 639px) {
+  .song-result {
+    padding: 0.875rem; /* Slightly more padding on mobile */
+  }
 }
 
 .song-result:hover {
