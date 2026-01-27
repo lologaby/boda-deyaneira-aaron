@@ -1127,8 +1127,8 @@ export default function App() {
       {eventState === 'before' ? (
         <nav className="nav-bar" aria-label="Main">
           <div className="nav-inner">
-            {/* Mobile: Hamburger and language toggle */}
-            <div className="flex sm:hidden items-center justify-between w-full">
+            {/* Mobile: Hamburger, RSVP, and language toggle in one row */}
+            <div className="flex sm:hidden items-center justify-between w-full gap-2">
               <button
                 type="button"
                 className="nav-hamburger"
@@ -1142,18 +1142,16 @@ export default function App() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 12h16" /><path d="M4 6h16" /><path d="M4 18h16" /></svg>
                 )}
               </button>
+              <a 
+                href="#rsvp" 
+                className={`nav-rsvp-btn-mobile flex-1 ${activeSection === 'rsvp' ? 'active' : ''}`}
+              >
+                {content.nav.rsvp}
+              </a>
               <button type="button" className="nav-icon-btn" onClick={toggleLanguage} aria-label="Toggle language">
                 {globeIcon}
               </button>
             </div>
-
-            {/* Mobile: Centered RSVP button */}
-            <a 
-              href="#rsvp" 
-              className={`nav-rsvp-btn-mobile sm:hidden ${activeSection === 'rsvp' ? 'active' : ''}`}
-            >
-              {content.nav.rsvp}
-            </a>
 
             {/* Desktop: Nav links with indicator */}
             <div className="hidden sm:flex items-center gap-2 relative">
