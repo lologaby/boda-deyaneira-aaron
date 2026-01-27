@@ -1137,6 +1137,7 @@ h4 {
 
 .travel-buttons {
   @apply mt-8 flex flex-wrap items-center justify-center gap-4;
+  align-items: flex-start; /* Align to top so button doesn't shift */
 }
 
 .travel-btn {
@@ -1167,14 +1168,27 @@ h4 {
 }
 
 .travel-details {
-  @apply block;
+  @apply block relative;
+  display: inline-block; /* Prevent full-width expansion */
 }
 
 .travel-details .travel-btn-places {
   @apply cursor-pointer list-none;
+  position: relative;
+  z-index: 2;
+  /* Prevent any movement when details opens */
+  transform: none !important;
+  top: 0 !important;
+  left: 0 !important;
 }
 .travel-details .travel-btn-places::-webkit-details-marker {
   display: none;
+}
+
+/* Prevent summary from moving when details opens */
+.travel-details[open] .travel-btn-places {
+  position: relative;
+  transform: none !important;
 }
 
 .travel-chevron {
@@ -1186,7 +1200,22 @@ h4 {
 }
 
 .travel-places-inner {
-  @apply mt-4 space-y-6;
+  @apply space-y-6;
+  position: relative;
+  z-index: 1;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 0;
+}
+
+.travel-details[open] .travel-places-inner {
+  max-height: 3000px; /* Large enough for content */
+  opacity: 1;
+  margin-top: 1rem;
 }
 
 .travel-subsection {
