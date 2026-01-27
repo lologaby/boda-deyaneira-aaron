@@ -1116,11 +1116,11 @@ export default function App() {
               </a>
             </div>
             <div className="flex items-center gap-2">
-              <a href="#gifts" className="nav-icon-btn hidden sm:inline-flex" aria-label={content.nav.gifts}>
-                {giftIcon}
-              </a>
               <a href="#rsvp" className="nav-rsvp-btn hidden sm:inline-flex">
                 {content.nav.rsvp}
+              </a>
+              <a href="#gifts" className="nav-icon-btn hidden sm:inline-flex" aria-label={content.nav.gifts}>
+                {giftIcon}
               </a>
               <button type="button" className="nav-icon-btn" onClick={toggleLanguage} aria-label="Toggle language">
                 {globeIcon}
