@@ -449,7 +449,7 @@ const copy = {
     rsvp: {
       title: 'RSVP',
       subtitle: 'Confirm attendance',
-      nameLabel: 'Full name',
+      nameLabel: 'Name',
       namePlaceholder: 'Your full name',
       attendanceLabel: 'Will you attend?',
       attendanceYes: 'Joyfully accepts',
