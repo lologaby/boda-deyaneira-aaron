@@ -2752,18 +2752,18 @@ h4 {
 .travel-restaurant-card {
   @apply p-4 backdrop-blur-sm flex items-center gap-3;
   @apply transition-all duration-300;
-  background: rgba(201, 166, 135, 0.75); /* Darker beige for better contrast */
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  background: #EAD7C5; /* Beige cálido */
+  border: 1px solid rgba(212, 175, 55, 0.2);
   box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.12),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateZ(5px);
   transform-style: preserve-3d;
 }
 
 .travel-restaurant-card:hover {
-  background: rgba(201, 166, 135, 0.85); /* Slightly lighter on hover */
+  background: #E6CDB8; /* Arena suave on hover */
   transform: translateZ(15px) translateY(-3px) rotateX(2deg);
   box-shadow: 
     0 12px 32px rgba(0, 0, 0, 0.25),
@@ -2785,13 +2785,13 @@ h4 {
 
 .travel-card-name {
   @apply font-display text-sm;
-  color: #5A2C2C; /* Darker burgundy for better contrast on beige */
+  color: #2F2A25; /* Charcoal cálido */
   font-weight: 600;
 }
 
 .travel-card-arrow {
   @apply flex-shrink-0 transition-all duration-300;
-  color: rgba(90, 44, 44, 0.6); /* Darker arrow for better visibility */
+  color: #4A4038; /* Icon color */
 }
 
 .travel-restaurant-card:hover .travel-card-arrow {
