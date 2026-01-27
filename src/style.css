@@ -506,8 +506,9 @@ h4 {
 @media (min-width: 640px) {
   .nav-bar {
     top: 1rem;
-    right: 1rem;
-    left: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
   }
 }
 
@@ -517,7 +518,7 @@ h4 {
 }
 @media (max-width: 639px) {
   .nav-inner {
-    @apply w-full justify-between rounded-b-2xl border-0 border-b border-boda-gold/30 px-4 py-3;
+    @apply w-full flex-col rounded-b-2xl border-0 border-b border-boda-gold/30 px-4 py-3;
   }
 }
 @media (min-width: 640px) {
@@ -612,11 +613,6 @@ h4 {
 .nav-rsvp-btn.active {
   background: rgba(232, 156, 124, 0.95);
   box-shadow: 0 4px 16px rgba(232, 156, 124, 0.5);
-}
-
-.nav-rsvp-btn.active {
-  background: rgba(232, 156, 124, 0.95);
-  box-shadow: 0 4px 16px rgba(232, 156, 124, 0.5);
   position: relative;
 }
 
@@ -633,6 +629,28 @@ h4 {
   box-shadow: 
     0 4px 20px rgba(232, 156, 124, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile RSVP button - centered and unique */
+.nav-rsvp-btn-mobile {
+  @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.25em] transition focus:outline-none focus:ring-2 focus:ring-boda-gold/50;
+  min-height: 44px;
+  background: #E89C7C;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(232, 156, 124, 0.4);
+  width: auto;
+  margin: 0.5rem auto 0;
+}
+
+.nav-rsvp-btn-mobile.active {
+  background: rgba(232, 156, 124, 0.95);
+  box-shadow: 0 6px 20px rgba(232, 156, 124, 0.5);
+}
+
+.nav-rsvp-btn-mobile:hover {
+  background: #f0a67a;
+  box-shadow: 0 6px 20px rgba(232, 156, 124, 0.5);
+  transform: translateY(-1px);
 }
 .nav-rsvp-btn:hover {
   background: #f0a67a;

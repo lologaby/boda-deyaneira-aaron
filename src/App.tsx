@@ -1110,19 +1110,35 @@ export default function App() {
       {eventState === 'before' ? (
         <nav className="nav-bar" aria-label="Main">
           <div className="nav-inner">
-            <button
-              type="button"
-              className="nav-hamburger sm:hidden"
-              onClick={() => setNavOpen(v => !v)}
-              aria-expanded={navOpen}
-              aria-label={navOpen ? content.nav.menuClose : content.nav.menuOpen}
+            {/* Mobile: Hamburger and language toggle */}
+            <div className="flex sm:hidden items-center justify-between w-full">
+              <button
+                type="button"
+                className="nav-hamburger"
+                onClick={() => setNavOpen(v => !v)}
+                aria-expanded={navOpen}
+                aria-label={navOpen ? content.nav.menuClose : content.nav.menuOpen}
+              >
+                {navOpen ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 12h16" /><path d="M4 6h16" /><path d="M4 18h16" /></svg>
+                )}
+              </button>
+              <button type="button" className="nav-icon-btn" onClick={toggleLanguage} aria-label="Toggle language">
+                {globeIcon}
+              </button>
+            </div>
+
+            {/* Mobile: Centered RSVP button */}
+            <a 
+              href="#rsvp" 
+              className={`nav-rsvp-btn-mobile sm:hidden ${activeSection === 'rsvp' ? 'active' : ''}`}
             >
-              {navOpen ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 12h16" /><path d="M4 6h16" /><path d="M4 18h16" /></svg>
-              )}
-            </button>
+              {content.nav.rsvp}
+            </a>
+
+            {/* Desktop: Nav links with indicator */}
             <div className="hidden sm:flex items-center gap-2 relative">
               <motion.div
                 className="nav-indicator"
@@ -1161,15 +1177,17 @@ export default function App() {
                 {content.nav.travel}
               </a>
             </div>
-            <div className="flex items-center gap-2 relative">
+
+            {/* Desktop: RSVP, Gift, Language buttons */}
+            <div className="hidden sm:flex items-center gap-2 relative">
               <a 
                 ref={(el) => { navLinksRef.current['rsvp'] = el }}
                 href="#rsvp" 
-                className={`nav-rsvp-btn hidden sm:inline-flex ${activeSection === 'rsvp' ? 'active' : ''}`}
+                className={`nav-rsvp-btn ${activeSection === 'rsvp' ? 'active' : ''}`}
               >
                 {content.nav.rsvp}
               </a>
-              <a href="#gifts" className="nav-icon-btn hidden sm:inline-flex" aria-label={content.nav.gifts}>
+              <a href="#gifts" className="nav-icon-btn" aria-label={content.nav.gifts}>
                 {giftIcon}
               </a>
               <button type="button" className="nav-icon-btn" onClick={toggleLanguage} aria-label="Toggle language">
@@ -1184,7 +1202,6 @@ export default function App() {
                 <a href="#faq" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.faq}</a>
                 <a href="#location" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.location}</a>
                 <a href="#travel" className="nav-mobile-link" onClick={() => setNavOpen(false)}>{content.nav.travel}</a>
-                <a href="#rsvp" className="nav-mobile-link nav-mobile-link-rsvp" onClick={() => setNavOpen(false)}>{content.nav.rsvp}</a>
               </div>
             </>
           )}
