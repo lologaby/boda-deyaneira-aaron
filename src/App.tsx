@@ -309,7 +309,6 @@ const copy = {
     travel: {
       title: 'Para tu viaje',
       flight: 'Reservar vuelo (NYC → Puerto Rico)',
-      flightSkyscanner: 'Comparar precios en Skyscanner',
       places: 'Lugares en Aguadilla',
       restaurantsLabel: 'Restaurantes',
       beachesLabel: 'Playas',
@@ -498,7 +497,6 @@ const copy = {
     travel: {
       title: 'For your trip',
       flight: 'Book a flight (NYC → Puerto Rico)',
-      flightSkyscanner: 'Compare prices on Skyscanner',
       places: 'Places in Aguadilla',
       restaurantsLabel: 'Restaurants',
       beachesLabel: 'Beaches',
@@ -583,7 +581,6 @@ const revealMotion = {
 
 const calendarLink = '/calendar.ics'
 const flightSearchUrl = 'https://www.google.com/travel/flights?q=Flights%20from%20New%20York%20to%20Puerto%20Rico'
-const skyscannerFlightUrl = 'https://www.skyscanner.com/transport/flights/nyca/sjua/'
 
 // Playlist URLs - update with your actual playlists
 const SPOTIFY_PLAYLIST_URL = import.meta.env.VITE_SPOTIFY_PLAYLIST_URL || 'https://open.spotify.com/playlist/YOUR_PLAYLIST_ID'
@@ -1394,15 +1391,6 @@ export default function App() {
               >
                 {planeIcon}
                 <span>{content.travel.flight}</span>
-              </a>
-              <a
-                href={skyscannerFlightUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="travel-btn travel-btn-places"
-              >
-                {planeIcon}
-                <span>{content.travel.flightSkyscanner}</span>
               </a>
               <details className="travel-details">
                 <summary className="travel-btn travel-btn-places">
