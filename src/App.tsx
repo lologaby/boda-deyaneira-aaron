@@ -281,7 +281,7 @@ const copy = {
       plusOneYes: 'Sí',
       plusOneNo: 'No',
       confirmButton: '¡CONFIRMO MI ASISTENCIA!',
-      declineButton: 'No podré asistir',
+      declineButton: 'Lo siento, no podré asistir',
       alreadySubmittedMessage: '¡Ya confirmaste tu asistencia!',
     },
     footer: {
@@ -472,7 +472,7 @@ const copy = {
       plusOneYes: 'Yes',
       plusOneNo: 'No',
       confirmButton: 'CONFIRM ATTENDANCE!',
-      declineButton: 'Cannot attend',
+      declineButton: 'Sorry, could not attend',
     },
     footer: {
       credits: 'Made with care for Deyaneira & Aaron',
