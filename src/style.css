@@ -570,7 +570,31 @@ h4 {
 }
 
 .nav-link {
-  @apply text-[11px] uppercase tracking-[0.2em] text-boda-cream/90 hover:text-boda-light transition-colors;
+  @apply text-[11px] uppercase tracking-[0.2em] text-boda-cream/90 hover:text-boda-light transition-colors relative z-10 px-3 py-1.5 rounded-lg;
+}
+
+.nav-link.active {
+  @apply text-boda-light;
+}
+
+/* Liquid glass indicator for active nav link - iOS 16 style */
+.nav-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+  z-index: 0;
+  height: 32px;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
 .nav-sep {
@@ -578,11 +602,37 @@ h4 {
 }
 
 .nav-rsvp-btn {
-  @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.25em] transition focus:outline-none focus:ring-2 focus:ring-boda-gold/50 focus:ring-offset-2 focus:ring-offset-boda-sageDark;
+  @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.25em] transition focus:outline-none focus:ring-2 focus:ring-boda-gold/50 focus:ring-offset-2 focus:ring-offset-boda-sageDark relative z-10;
   min-height: 36px;
   background: #E89C7C;
   color: #fff;
   box-shadow: 0 2px 10px rgba(232, 156, 124, 0.4);
+}
+
+.nav-rsvp-btn.active {
+  background: rgba(232, 156, 124, 0.95);
+  box-shadow: 0 4px 16px rgba(232, 156, 124, 0.5);
+}
+
+.nav-rsvp-btn.active {
+  background: rgba(232, 156, 124, 0.95);
+  box-shadow: 0 4px 16px rgba(232, 156, 124, 0.5);
+  position: relative;
+}
+
+.nav-rsvp-btn.active::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: rgba(232, 156, 124, 0.2);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(232, 156, 124, 0.3);
+  border-radius: 9999px;
+  z-index: -1;
+  box-shadow: 
+    0 4px 20px rgba(232, 156, 124, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .nav-rsvp-btn:hover {
   background: #f0a67a;

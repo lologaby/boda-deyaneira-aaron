@@ -5,6 +5,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import { useEventState, type EventState } from './hooks/useEventState'
 import { useRsvpStatus } from './hooks/useRsvpStatus'
 import { useGuestAuth } from './hooks/useGuestAuth'
+import { useActiveSection } from './hooks/useActiveSection'
 import { DuringWedding } from './components/DuringWedding'
 import { AfterWedding } from './components/AfterWedding'
 import { GuestRsvpForm } from './components/GuestRsvpForm'
@@ -671,6 +672,8 @@ export default function App() {
   const nameInputRef = useRef<HTMLInputElement | null>(null)
   const authCheckedRef = useRef(false)
   const prefersReducedMotion = useReducedMotion()
+  const navLinksRef = useRef<{ [key: string]: HTMLAnchorElement | null }>({})
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 })
 
   // Detect event state (before, during, after)
   const eventState = useEventState()
@@ -686,6 +689,28 @@ export default function App() {
 
   // RSVP status tracking (server-side) - used as fallback
   const { hasSubmitted: rsvpSubmitted, checkRsvpStatus, registerRsvp, isChecking: isCheckingRsvp } = useRsvpStatus()
+
+  // Active section detection for navbar indicator
+  const activeSection = useActiveSection()
+
+  // Update indicator position based on active section
+  useEffect(() => {
+    const activeLink = navLinksRef.current[activeSection]
+    if (activeLink && activeSection !== 'rsvp') {
+      const container = activeLink.parentElement
+      if (container) {
+        const containerRect = container.getBoundingClientRect()
+        const linkRect = activeLink.getBoundingClientRect()
+        setIndicatorStyle({
+          left: linkRect.left - containerRect.left,
+          width: linkRect.width,
+          opacity: 1,
+        })
+      }
+    } else {
+      setIndicatorStyle(prev => ({ ...prev, opacity: 0 }))
+    }
+  }, [activeSection])
 
   // Guest has confirmed if they're authenticated and hasConfirmed is true
   const guestHasConfirmed = isAuthenticated && guest?.hasConfirmed
@@ -1098,25 +1123,58 @@ export default function App() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 12h16" /><path d="M4 6h16" /><path d="M4 18h16" /></svg>
               )}
             </button>
-            <div className="hidden sm:flex items-center gap-2">
-              <a className="nav-link" href="#faq">
+            <div className="hidden sm:flex items-center gap-2 relative">
+              <motion.div
+                className="nav-indicator"
+                style={{
+                  left: `${indicatorStyle.left}px`,
+                  width: `${indicatorStyle.width}px`,
+                  opacity: indicatorStyle.opacity,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30,
+                }}
+              />
+              <a 
+                ref={(el) => { navLinksRef.current['faq'] = el }}
+                className={`nav-link ${activeSection === 'faq' ? 'active' : ''}`} 
+                href="#faq"
+              >
                 {content.nav.faq}
               </a>
               <span className="nav-sep" aria-hidden="true">·</span>
-              <a className="nav-link" href="#location">
+              <a 
+                ref={(el) => { navLinksRef.current['location'] = el }}
+                className={`nav-link ${activeSection === 'location' ? 'active' : ''}`} 
+                href="#location"
+              >
                 {content.nav.location}
               </a>
               <span className="nav-sep" aria-hidden="true">·</span>
-              <a className="nav-link" href="#travel">
+              <a 
+                ref={(el) => { navLinksRef.current['travel'] = el }}
+                className={`nav-link ${activeSection === 'travel' ? 'active' : ''}`} 
+                href="#travel"
+              >
                 {content.nav.travel}
               </a>
               <span className="nav-sep" aria-hidden="true">·</span>
-              <a className="nav-link" href="#gifts">
+              <a 
+                ref={(el) => { navLinksRef.current['gifts'] = el }}
+                className={`nav-link ${activeSection === 'gifts' ? 'active' : ''}`} 
+                href="#gifts"
+              >
                 {content.nav.gifts}
               </a>
             </div>
-            <div className="flex items-center gap-2">
-              <a href="#rsvp" className="nav-rsvp-btn hidden sm:inline-flex">
+            <div className="flex items-center gap-2 relative">
+              <a 
+                ref={(el) => { navLinksRef.current['rsvp'] = el }}
+                href="#rsvp" 
+                className={`nav-rsvp-btn hidden sm:inline-flex ${activeSection === 'rsvp' ? 'active' : ''}`}
+              >
                 {content.nav.rsvp}
               </a>
               <a href="#gifts" className="nav-icon-btn hidden sm:inline-flex" aria-label={content.nav.gifts}>
