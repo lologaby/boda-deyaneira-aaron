@@ -692,8 +692,10 @@ export default function App() {
   // Hide envelope if user is already authenticated via cookie (returning visitor)
   // Only run once when initial auth check completes
   useEffect(() => {
-    if (isAuthLoading || authCheckedRef.current) return // Wait for initial auth check
+    if (isAuthLoading) return // Wait for initial auth check to complete
     
+    // Only check once
+    if (authCheckedRef.current) return
     authCheckedRef.current = true
     
     if (isAuthenticated) {
@@ -707,6 +709,15 @@ export default function App() {
       setIntroState('closed')
     }
   }, [isAuthLoading, isAuthenticated]) // Run when auth state changes
+  
+  // Also ensure envelope stays hidden if user becomes authenticated later
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated && showIntro) {
+      setShowIntro(false)
+      setIntroState('revealed')
+      introCompleted.current = true
+    }
+  }, [isAuthenticated, isAuthLoading, showIntro])
 
   const content = copy[lang]
 
