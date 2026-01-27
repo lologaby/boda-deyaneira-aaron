@@ -1210,7 +1210,7 @@ h4 {
 
 .travel-restaurant-pill {
   @apply inline-flex items-center gap-2 rounded-full border border-boda-sage/35 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-boda-sage/90 transition focus:outline-none focus:ring-2 focus:ring-boda-terracotta/40 focus:ring-offset-2;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(201, 166, 135, 0.65);
 }
 .travel-restaurant-pill:hover {
   background: rgba(90, 118, 110, 0.12);
