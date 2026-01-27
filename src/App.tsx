@@ -133,69 +133,76 @@ const volumeOffIcon = (
   </svg>
 )
 
-// Modern FAQ icons with gold gradient
+// Modern FAQ icons with terracotta color - elegant and refined
 const faqIconWrapper = (paths: React.ReactNode, viewBox = "0 0 24 24") => (
   <div className="faq-icon-modern">
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox={viewBox} fill="none" className="faq-icon-svg">
-      <defs>
-        <linearGradient id="faqGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#D4AF37" />
-          <stop offset="50%" stopColor="#F4D03F" />
-          <stop offset="100%" stopColor="#D4AF37" />
-        </linearGradient>
-      </defs>
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox={viewBox} fill="none" className="faq-icon-svg">
       {paths}
     </svg>
   </div>
 )
 
+// Plus One - Elegant couple icon
 const faqIconPlusOne = faqIconWrapper(
   <>
-    <circle cx="12" cy="8" r="3.5" stroke="url(#faqGoldGradient)" strokeWidth="2" fill="none" />
-    <path d="M8 20v-2a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v2" stroke="url(#faqGoldGradient)" strokeWidth="2" fill="none" />
-    <path d="M19 12h4" stroke="url(#faqGoldGradient)" strokeWidth="2" strokeLinecap="round" />
-    <path d="M21 10v4" stroke="url(#faqGoldGradient)" strokeWidth="2" strokeLinecap="round" />
-  </>
+    <circle cx="9" cy="7" r="2.5" stroke="#E89C7C" strokeWidth="1.5" fill="none" />
+    <path d="M5 20v-2a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v2" stroke="#E89C7C" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="15" cy="7" r="2.5" stroke="#E89C7C" strokeWidth="1.5" fill="none" />
+    <path d="M19 20v-2a4 4 0 0 0-4-4h0a4 4 0 0 0-4 4v2" stroke="#E89C7C" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M9 7h6" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
+  </>,
+  "0 0 24 24"
 )
 
+// Hotel - Modern building icon
 const faqIconHotel = faqIconWrapper(
   <>
-    <rect x="4" y="9" width="16" height="12" rx="1" stroke="url(#faqGoldGradient)" strokeWidth="2" fill="none" />
-    <path d="M4 13h16" stroke="url(#faqGoldGradient)" strokeWidth="2" />
-    <circle cx="9" cy="11" r="1.5" fill="url(#faqGoldGradient)" />
-    <circle cx="15" cy="11" r="1.5" fill="url(#faqGoldGradient)" />
-    <circle cx="9" cy="18" r="1.5" fill="url(#faqGoldGradient)" />
-    <circle cx="15" cy="18" r="1.5" fill="url(#faqGoldGradient)" />
-  </>
+    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18" stroke="#E89C7C" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M6 12h12" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M6 15h12" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M6 9h12" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="10" cy="7" r="1" fill="#E89C7C" />
+    <circle cx="14" cy="7" r="1" fill="#E89C7C" />
+  </>,
+  "0 0 24 24"
 )
 
+// Plane - Elegant airplane icon
 const faqIconPlane = faqIconWrapper(
   <path 
     d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" 
-    stroke="url(#faqGoldGradient)" 
-    strokeWidth="2" 
+    stroke="#E89C7C" 
+    strokeWidth="1.5" 
     fill="none"
     strokeLinecap="round"
     strokeLinejoin="round"
-  />
+  />,
+  "0 0 24 24"
 )
 
+// Heart - Elegant heart icon
 const faqIconHeart = faqIconWrapper(
   <path 
     d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" 
-    stroke="url(#faqGoldGradient)" 
-    strokeWidth="2" 
+    stroke="#E89C7C" 
+    strokeWidth="1.5" 
     fill="none"
-  />
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />,
+  "0 0 24 24"
 )
 
+// Dress - Elegant dress icon
 const faqIconDress = faqIconWrapper(
   <>
-    <path d="M12 2v3" stroke="url(#faqGoldGradient)" strokeWidth="2" strokeLinecap="round" />
-    <path d="M8 7h8" stroke="url(#faqGoldGradient)" strokeWidth="2" strokeLinecap="round" />
-    <rect x="7" y="7" width="10" height="13" rx="1" stroke="url(#faqGoldGradient)" strokeWidth="2" fill="none" />
-    <path d="M7 11h10" stroke="url(#faqGoldGradient)" strokeWidth="2" />
-  </>
+    <path d="M12 2v2" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M8 6h8" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M7 6v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6" stroke="#E89C7C" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M7 10h10" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M7 14h10" stroke="#E89C7C" strokeWidth="1.5" strokeLinecap="round" />
+  </>,
+  "0 0 24 24"
 )
 
 const copy = {
@@ -1355,18 +1362,13 @@ export default function App() {
             <div className="gifts-icon" aria-hidden="true">
               <div className="gifts-heart-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" className="gifts-heart-svg">
-                  <defs>
-                    <linearGradient id="giftsGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#D4AF37" />
-                      <stop offset="50%" stopColor="#F4D03F" />
-                      <stop offset="100%" stopColor="#D4AF37" />
-                    </linearGradient>
-                  </defs>
                   <path 
                     d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" 
-                    stroke="url(#giftsGoldGradient)" 
+                    stroke="#E89C7C" 
                     strokeWidth="2" 
                     fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </div>
