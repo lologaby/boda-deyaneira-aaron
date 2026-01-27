@@ -7,8 +7,11 @@ import { useRsvpStatus } from './hooks/useRsvpStatus'
 import { useGuestAuth } from './hooks/useGuestAuth'
 import { DuringWedding } from './components/DuringWedding'
 import { AfterWedding } from './components/AfterWedding'
-// CodeEntry merged into envelope animation
 import { GuestRsvpForm } from './components/GuestRsvpForm'
+import { PhotoGallery } from './components/PhotoGallery'
+import { FAQCarousel } from './components/FAQCarousel'
+import { RestaurantsSection } from './components/RestaurantsSection'
+import { SplitText, BlurText } from './components/react-bits'
 
 type Language = 'es' | 'en'
 
@@ -291,6 +294,10 @@ const copy = {
     calendar: {
       add: 'Agregar al calendario',
     },
+    photoGallery: {
+      title: 'Nuestra Historia',
+      subtitle: 'Momentos que nos trajeron hasta aquí',
+    },
     intro: {
       hint: 'Descubre',
       letterNames: 'Deyaneira & Aaron',
@@ -480,6 +487,10 @@ const copy = {
     },
     calendar: {
       add: 'Add to calendar',
+    },
+    photoGallery: {
+      title: 'Our Story',
+      subtitle: 'Moments that brought us here',
     },
     intro: {
       hint: 'Discover',
@@ -1168,9 +1179,27 @@ export default function App() {
           <img src="/images/bird_of_paradise.png" alt="" className="hero-flower hero-flower-right" />
           <div className="hero-content">
             <h1 className="hero-names">
-              DEYANEIRA <span className="hero-amp">&amp;</span> AARON
+              <SplitText 
+                text="DEYANEIRA" 
+                className="hero-names-animated"
+                delay={0.5}
+                staggerChildren={0.04}
+              />
+              <span className="hero-amp">&amp;</span>
+              <SplitText 
+                text="AARON" 
+                className="hero-names-animated"
+                delay={0.9}
+                staggerChildren={0.05}
+              />
             </h1>
-            <p className="hero-tagline">{content.hero.tagline}</p>
+            <p className="hero-tagline">
+              <BlurText 
+                text={content.hero.tagline}
+                delay={1.4}
+                duration={0.6}
+              />
+            </p>
             <div className="hero-details">
               <p>{content.hero.date}</p>
               <p>{content.hero.venueLine1}</p>
@@ -1198,52 +1227,29 @@ export default function App() {
       </header>
 
       <main className="space-y-24 pb-24">
-        <section id="faq" className="faq-section">
-          <img src="/images/hibiscus.png" alt="" className="faq-flower faq-flower-left" />
-          <img src="/images/bird_of_paradise.png" alt="" className="faq-flower faq-flower-right" />
-          <motion.div {...revealMotion} className="section-inner">
-            <div className="details-banner">
-              <span className="details-text">{content.details}</span>
-            </div>
-            <div className="section-heading">
-              <h2 className="section-title">{content.faq.title}</h2>
-            </div>
-            <div className="faq-rsvp-row">
-              <a href="#rsvp" className="faq-rsvp-link">
-                {content.faq.rsvpLink}
-              </a>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              {content.faq.items.map(item => (
-                <details key={item.key} className="faq-details">
-                  <summary className="faq-summary">
-                    <span className="faq-icon" aria-hidden="true">
-                      {item.icon}
-                    </span>
-                    <h3 className="faq-title">{item.question}</h3>
-                    <span className="faq-chevron" aria-hidden="true" />
-                  </summary>
-                  <div className="faq-content">
-                    {'answer' in item ? (
-                      <p>{item.answer}</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {item.answerLines?.map(line => (
-                          <p key={line}>{line}</p>
-                        ))}
-                        <div className="mt-4 flex flex-wrap justify-center gap-3">
-                          {swatchColors.map(color => (
-                            <span key={color} className={`h-8 w-8 rounded-full ${color} shadow-sm`} />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </details>
-              ))}
-            </div>
-          </motion.div>
-        </section>
+        {/* Photo Gallery Section */}
+        <PhotoGallery
+          title={content.photoGallery.title}
+          subtitle={content.photoGallery.subtitle}
+          photos={[
+            { url: '/photos/couple1.jpg', caption: lang === 'es' ? 'Nuestra primera cita' : 'Our first date', location: 'Nueva York' },
+            { url: '/photos/couple2.jpg', caption: lang === 'es' ? 'La pedida de mano' : 'The proposal', location: 'Central Park' },
+            { url: '/photos/couple3.jpg', caption: lang === 'es' ? 'Juntos en Puerto Rico' : 'Together in Puerto Rico', location: 'Aguadilla' },
+            { url: '/photos/couple4.jpg', caption: lang === 'es' ? 'Una noche especial' : 'A special night', location: 'Brooklyn' },
+            { url: '/photos/couple5.jpg', caption: lang === 'es' ? 'Vacaciones juntos' : 'Vacation together', location: 'Miami' },
+            { url: '/photos/couple6.jpg', caption: lang === 'es' ? 'El comienzo de todo' : 'Where it all began', location: 'NYC' },
+          ]}
+        />
+
+        {/* FAQ Carousel Section */}
+        <FAQCarousel
+          title={content.faq.title}
+          rsvpLink="#rsvp"
+          rsvpLinkText={content.faq.rsvpLink}
+          items={content.faq.items}
+          dressCodeColors={swatchColors}
+          lang={lang}
+        />
 
         <section id="location" className="section">
           <motion.div {...revealMotion} className="section-inner">
@@ -1327,64 +1333,25 @@ export default function App() {
                 {planeIcon}
                 <span>{content.travel.flightSkyscanner}</span>
               </a>
-              <details className="travel-details">
-                <summary className="travel-btn travel-btn-places">
-                  {mapPinIcon}
-                  <span>{content.travel.places}</span>
-                  <span className="travel-chevron" aria-hidden="true" />
-                </summary>
-                <div className="travel-places-inner">
-                  <p className="travel-subsection">{content.travel.restaurantsLabel}</p>
-                  <ul className="travel-restaurants-list" aria-label={content.travel.restaurantsLabel}>
-                    {content.travel.restaurants.map(r => {
-                      const mealLabel = content.travel[({ breakfast: 'mealBreakfast', lunch: 'mealLunch', dinner: 'mealDinner', desserts: 'mealDesserts', cafe: 'mealCafe' } as const)[r.meal]]
-                      return (
-                        <li key={r.name}>
-                          <a
-                            href={r.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="travel-restaurant-pill"
-                            title={mealLabel + ': ' + r.name}
-                          >
-                            <span className="travel-restaurant-icon" aria-hidden="true">{MEAL_ICONS[r.meal]}</span>
-                            <span className="travel-restaurant-meal">{mealLabel}</span>
-                            <span className="travel-restaurant-sep" aria-hidden="true">·</span>
-                            <span>{r.name}</span>
-                          </a>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                  <p className="travel-subsection">{content.travel.beachesLabel}</p>
-                  <ul className="travel-beaches-grid">
-                    {content.travel.beaches.map(place => (
-                      <li key={place.name}>
-                        <a
-                          href={place.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="travel-place-btn"
-                        >
-                          {place.name}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="travel-platea-wrap">
-                  <a
-                    href={content.travel.plateaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="travel-platea-btn"
-                  >
-                    {plateIcon}
-                    <span>{content.travel.platea}</span>
-                  </a>
-                </div>
-              </details>
             </div>
+            
+            {/* Modernized Restaurants & Beaches Section */}
+            <RestaurantsSection
+              title={content.travel.places}
+              restaurantsLabel={content.travel.restaurantsLabel}
+              beachesLabel={content.travel.beachesLabel}
+              mealLabels={{
+                breakfast: content.travel.mealBreakfast,
+                lunch: content.travel.mealLunch,
+                dinner: content.travel.mealDinner,
+                desserts: content.travel.mealDesserts,
+                cafe: content.travel.mealCafe,
+              }}
+              restaurants={content.travel.restaurants}
+              beaches={content.travel.beaches}
+              plateaText={content.travel.platea}
+              plateaUrl={content.travel.plateaUrl}
+            />
           </motion.div>
         </section>
 

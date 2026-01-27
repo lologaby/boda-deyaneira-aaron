@@ -697,6 +697,7 @@ h4 {
 
 .countdown-number {
   @apply text-3xl font-display text-boda-sageDark;
+  text-shadow: 0 0 20px rgba(232, 156, 124, 0.3), 0 0 40px rgba(232, 156, 124, 0.1);
 }
 
 .countdown-label {
@@ -1978,4 +1979,276 @@ h4 {
 
 .lightbox-counter {
   @apply text-white/50 text-sm mt-2 font-sans;
+}
+
+/* ========================================= */
+/* PHOTO GALLERY SECTION (React Bits)       */
+/* ========================================= */
+
+.photo-gallery-section {
+  @apply py-16 md:py-24;
+  background: linear-gradient(180deg, #F5EFE7 0%, #FAF7F2 50%, #F5EFE7 100%);
+}
+
+.photo-gallery-title {
+  @apply text-3xl md:text-4xl font-display text-boda-burgundy text-center mb-2;
+}
+
+.photo-gallery-subtitle {
+  @apply text-center text-boda-text/70 font-sans mb-8;
+}
+
+.photo-gallery-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto;
+}
+
+.photo-gallery-card {
+  @apply bg-white/80 backdrop-blur-sm border-boda-gold/20 overflow-hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.photo-gallery-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(139, 75, 92, 0.15);
+}
+
+.photo-gallery-image-wrapper {
+  @apply relative aspect-[4/5] overflow-hidden;
+}
+
+.photo-gallery-image {
+  @apply w-full h-full object-cover transition-transform duration-500;
+}
+
+.photo-gallery-card:hover .photo-gallery-image {
+  transform: scale(1.05);
+}
+
+.photo-gallery-overlay {
+  @apply absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity duration-300;
+}
+
+.photo-gallery-card:hover .photo-gallery-overlay {
+  opacity: 1;
+}
+
+.photo-gallery-caption {
+  @apply p-4 text-center;
+}
+
+.photo-gallery-caption-text {
+  @apply font-display text-lg text-boda-burgundy;
+}
+
+.photo-gallery-location {
+  @apply inline-flex items-center gap-1 text-sm text-boda-text/60 mt-1;
+}
+
+/* ========================================= */
+/* FAQ CAROUSEL SECTION (React Bits)        */
+/* ========================================= */
+
+.faq-carousel-section {
+  @apply relative py-16 md:py-24 overflow-hidden;
+  background: linear-gradient(135deg, #1A4D2E 0%, #2A5D3E 50%, #1A4D2E 100%);
+}
+
+.faq-carousel-section .section-title {
+  @apply text-white;
+}
+
+.faq-carousel-container {
+  @apply relative flex items-center justify-center gap-4 md:gap-8 max-w-4xl mx-auto px-4;
+  min-height: 400px;
+}
+
+.faq-carousel-nav {
+  @apply flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center;
+  @apply bg-white/10 backdrop-blur-sm border border-white/20;
+  @apply text-white/80 hover:text-white hover:bg-white/20;
+  @apply transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-boda-gold/50;
+}
+
+.faq-carousel-nav:hover {
+  transform: scale(1.05);
+}
+
+.faq-carousel-cards {
+  @apply relative flex-1 max-w-2xl overflow-hidden;
+  min-height: 350px;
+}
+
+.faq-carousel-card {
+  @apply absolute inset-0 p-8 md:p-10 rounded-2xl text-center cursor-grab active:cursor-grabbing;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.faq-carousel-icon {
+  @apply text-5xl md:text-6xl mb-6;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.faq-carousel-question {
+  @apply text-xl md:text-2xl font-display text-white mb-6;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.faq-carousel-answer {
+  @apply text-white/90 font-sans leading-relaxed;
+}
+
+.faq-carousel-answer p {
+  @apply mb-2 last:mb-0;
+}
+
+.faq-dress-colors {
+  @apply flex justify-center gap-3 mt-6;
+}
+
+.faq-dress-color {
+  @apply w-10 h-10 rounded-full shadow-lg;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+}
+
+.faq-carousel-dots {
+  @apply flex justify-center gap-2 mt-8;
+}
+
+.faq-carousel-dot {
+  @apply w-3 h-3 rounded-full bg-white/30 transition-all duration-300;
+  @apply focus:outline-none focus:ring-2 focus:ring-boda-gold/50;
+}
+
+.faq-carousel-dot.active {
+  @apply bg-boda-gold w-8;
+}
+
+.faq-carousel-dot:hover:not(.active) {
+  @apply bg-white/50;
+}
+
+/* ========================================= */
+/* RESTAURANTS SECTION (React Bits)         */
+/* ========================================= */
+
+.restaurants-section {
+  @apply space-y-12;
+}
+
+.restaurants-subsection {
+  @apply space-y-6;
+}
+
+.restaurants-label,
+.beaches-label {
+  @apply text-xl font-heading text-boda-burgundy font-medium tracking-wide text-center;
+}
+
+.restaurants-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+.restaurant-card-link {
+  @apply block no-underline;
+}
+
+.restaurant-card {
+  @apply p-5 bg-white/90 backdrop-blur-sm border-boda-gold/20 flex items-start gap-4;
+  @apply transition-all duration-300;
+  min-height: 120px;
+}
+
+.restaurant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(139, 75, 92, 0.1);
+}
+
+.restaurant-icon-wrapper {
+  @apply flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center;
+}
+
+.restaurant-info {
+  @apply flex-1 min-w-0;
+}
+
+.restaurant-meal-tag {
+  @apply inline-block text-xs font-heading uppercase tracking-wider px-2 py-0.5 rounded-full mb-2;
+}
+
+.restaurant-name {
+  @apply font-display text-lg text-boda-burgundy mb-1;
+}
+
+.restaurant-description {
+  @apply text-sm text-boda-text/70 line-clamp-2;
+}
+
+.restaurant-arrow {
+  @apply flex-shrink-0 text-boda-text/30 transition-all duration-300;
+}
+
+.restaurant-card:hover .restaurant-arrow {
+  @apply text-boda-terracotta;
+  transform: translate(2px, -2px);
+}
+
+/* Beaches Grid */
+.beaches-grid {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3;
+}
+
+.beach-card-link {
+  @apply block no-underline;
+}
+
+.beach-card {
+  @apply rounded-xl overflow-hidden;
+  background: linear-gradient(135deg, #2C7873 0%, #3D9B94 100%);
+}
+
+.beach-card-content {
+  @apply p-4 flex flex-col items-center text-center gap-2;
+}
+
+.beach-icon {
+  @apply text-white/90;
+}
+
+.beach-name {
+  @apply font-heading text-sm text-white font-medium leading-tight;
+}
+
+.beach-arrow {
+  @apply text-white/50 transition-all duration-300;
+}
+
+.beach-card:hover .beach-arrow {
+  @apply text-white;
+  transform: translate(2px, -2px);
+}
+
+/* Platea Link */
+.platea-wrapper {
+  @apply flex justify-center mt-8;
+}
+
+.platea-link {
+  @apply inline-flex items-center gap-2 px-6 py-3 rounded-full;
+  @apply bg-boda-burgundy/10 text-boda-burgundy font-heading text-sm tracking-wide;
+  @apply transition-all duration-300 hover:bg-boda-burgundy hover:text-white;
+}
+
+/* ========================================= */
+/* HERO TEXT ANIMATIONS (React Bits)        */
+/* ========================================= */
+
+.hero-names-animated {
+  @apply inline-flex flex-wrap justify-center;
+}
+
+.hero-tagline-animated {
+  @apply inline-flex flex-wrap justify-center gap-x-2;
 }
