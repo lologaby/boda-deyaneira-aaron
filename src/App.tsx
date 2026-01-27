@@ -1353,7 +1353,23 @@ export default function App() {
         <section id="gifts" className="gifts-section">
           <motion.div {...revealMotion} className="section-inner">
             <div className="gifts-icon" aria-hidden="true">
-              ♡
+              <div className="gifts-heart-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" className="gifts-heart-svg">
+                  <defs>
+                    <linearGradient id="giftsGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#D4AF37" />
+                      <stop offset="50%" stopColor="#F4D03F" />
+                      <stop offset="100%" stopColor="#D4AF37" />
+                    </linearGradient>
+                  </defs>
+                  <path 
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" 
+                    stroke="url(#giftsGoldGradient)" 
+                    strokeWidth="2" 
+                    fill="none"
+                  />
+                </svg>
+              </div>
             </div>
             <div className="gifts-heading">
               <h2>{content.gifts.title}</h2>
