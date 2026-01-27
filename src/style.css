@@ -773,20 +773,6 @@ h4 {
 }
 
 /* ---- FAQ: collapsible details/summary ---- */
-.faq-rsvp-row {
-  @apply mb-6 text-center;
-}
-
-.faq-rsvp-link {
-  @apply inline-flex items-center justify-center rounded-full border px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.28em] transition focus:outline-none focus:ring-2 focus:ring-boda-gold/50 focus:ring-offset-2 focus:ring-offset-boda-sageDark;
-  border-color: rgba(212, 175, 55, 0.5);
-  color: #F5EFE7;
-}
-.faq-rsvp-link:hover {
-  background: #E89C7C;
-  border-color: #E89C7C;
-  color: #fff;
-}
 
 .faq-details {
   @apply rounded-2xl shadow-sm;

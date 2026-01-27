@@ -236,7 +236,6 @@ const copy = {
     },
     faq: {
       title: 'Preguntas Frecuentes',
-      rsvpLink: 'Ir a Reservación',
       items: [
         {
           key: 'plusone',
@@ -426,7 +425,6 @@ const copy = {
     },
     faq: {
       title: 'Frequently Asked Questions',
-      rsvpLink: 'Go to RSVP',
       items: [
         {
           key: 'plusone',
@@ -1321,8 +1319,6 @@ export default function App() {
         {/* FAQ Section - Elegant Accordion */}
         <FAQElegant
           title={content.faq.title}
-          rsvpLink="#rsvp"
-          rsvpLinkText={content.faq.rsvpLink}
           items={content.faq.items}
           dressCodeColors={swatchColors}
         />

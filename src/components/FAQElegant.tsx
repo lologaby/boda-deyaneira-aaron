@@ -11,16 +11,12 @@ interface FAQItem {
 
 interface FAQElegantProps {
   title: string
-  rsvpLink: string
-  rsvpLinkText: string
   items: FAQItem[]
   dressCodeColors?: string[]
 }
 
 export const FAQElegant: React.FC<FAQElegantProps> = ({
   title,
-  rsvpLink,
-  rsvpLinkText,
   items,
   dressCodeColors = [],
 }) => {
@@ -39,13 +35,6 @@ export const FAQElegant: React.FC<FAQElegantProps> = ({
       <div className="section-inner">
         <div className="section-heading">
           <h2 className="section-title">{title}</h2>
-        </div>
-
-        {/* RSVP Link */}
-        <div className="faq-rsvp-row">
-          <a href={rsvpLink} className="faq-rsvp-link">
-            {rsvpLinkText}
-          </a>
         </div>
 
         {/* FAQ Items - Elegant accordion */}
