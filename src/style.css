@@ -172,7 +172,55 @@ body {
 
 #root {
   position: relative;
-  z-index: 2;
+  z-index: 1;
+}
+
+/* Ensure all interactive elements and content are above paper texture */
+nav,
+button,
+a,
+input,
+select,
+textarea,
+[role="button"],
+[tabindex] {
+  position: relative;
+  z-index: 10;
+}
+
+/* Ensure images and decorative elements are above paper texture */
+img,
+[style*="background-image"],
+section,
+header,
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure all interactive elements and content are above paper texture */
+nav,
+button,
+a,
+input,
+select,
+textarea,
+[role="button"],
+[tabindex] {
+  position: relative;
+  z-index: 10;
+}
+
+/* Ensure images and decorative elements are above paper texture */
+img,
+[style*="background-image"],
+section,
+header,
+main,
+footer {
+  position: relative;
+  z-index: 1;
 }
 
 h1,

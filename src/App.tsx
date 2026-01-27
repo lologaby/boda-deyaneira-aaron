@@ -11,6 +11,7 @@ import { AfterWedding } from './components/AfterWedding'
 import { GuestRsvpForm } from './components/GuestRsvpForm'
 import { FAQElegant } from './components/FAQElegant'
 import { SpotlightCard, TiltedCard } from './components/react-bits'
+import { PaperTexture } from './components/PaperTexture'
 // React Icons
 import { HiUsers } from 'react-icons/hi2' // Plus One - couple
 import { HiBuildingOffice2 } from 'react-icons/hi2' // Hotel
@@ -992,6 +993,8 @@ export default function App() {
     <div className="min-h-screen bg-boda-cream text-boda-text">
       <Toaster position="top-center" />
       <audio ref={audioRef} src="/audio/tqm.mp3" loop preload="auto" />
+      {/* Paper texture overlay - adds crinkled paper effect */}
+      <PaperTexture />
       <AnimatePresence>
         {eventState === 'before' && showIntro ? (
           <motion.div
