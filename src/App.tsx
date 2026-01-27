@@ -622,27 +622,32 @@ const giftIcon = (
   </svg>
 )
 
-// Payment method logos
+// Payment method logos - using official logos
 const venmoIcon = (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
-    <path d="M19.405 0c.192 0 .327.008.402.015v.584c-.075-.007-.21-.015-.402-.015-.5 0-1.194.146-1.805.438-.63.3-1.125.73-1.5 1.287-.375.558-.563 1.23-.563 2.016 0 .785.188 1.457.563 2.015.375.558.87.988 1.5 1.287.61.292 1.305.438 1.805.438.192 0 .327-.008.402-.015v.584c-.075.007-.21.015-.402.015-1.042 0-1.98-.292-2.812-.876-.833-.584-1.458-1.376-1.875-2.376-.417-1-.625-2.103-.625-3.31 0-1.207.208-2.31.625-3.31.417-1 1.042-1.792 1.875-2.376C17.425.292 18.363 0 19.405 0zm-4.5 3.31c0 .785-.188 1.457-.563 2.015-.375.558-.87.988-1.5 1.287-.61.292-1.305.438-1.805.438-.192 0-.327-.008-.402-.015v.584c.075-.007.21-.015.402-.015.5 0 1.194.146 1.805.438.63.3 1.125.73 1.5 1.287.375.558.563 1.23.563 2.016 0 .785-.188 1.457-.563 2.015-.375.558-.87.988-1.5 1.287-.61.292-1.305.438-1.805.438-.192 0-.327-.008-.402-.015v.584c.075.007.21.015.402.015 1.042 0 1.98-.292 2.812-.876.833-.584 1.458-1.376 1.875-2.376.417-1 .625-2.103.625-3.31 0-1.207-.208-2.31-.625-3.31-.417-1-1.042-1.792-1.875-2.376C15.925.292 14.987 0 13.945 0c-.192 0-.327.008-.402.015v.584c.075-.007.21-.015.402-.015.5 0 1.194.146 1.805.438.63.3 1.125.73 1.5 1.287.375.558.563 1.23.563 2.016z"/>
-    <path d="M7.5 2.25c-1.5 0-2.25.75-2.25 2.25v15h2.25v-6h1.5c3 0 4.5-1.5 4.5-4.5 0-2.25-1.5-3.75-4.5-3.75H7.5zm0 2.25h1.5c1.5 0 2.25.75 2.25 2.25s-.75 2.25-2.25 2.25H7.5V4.5z"/>
-  </svg>
+  <img 
+    src="https://images.ctfassets.net/gkyt4bl1j2fs/ym6BkLqyGjMBmiCwtM7AW/829bf561ea771c00839b484cb8edeebb/App_Icon.png?w=276&h=276&q=50&fm=webp&bg=transparent"
+    alt="Venmo"
+    className="payment-logo"
+    loading="lazy"
+  />
 )
 
 const zelleIcon = (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
-    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.5"/>
-    <path d="M8 8h8M8 12h8M8 16h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-    <path d="M12 6v12" stroke="currentColor" strokeWidth="1.5"/>
-  </svg>
+  <img 
+    src="https://cdn.brandfetch.io/idzVXa6fkl/w/400/h/400/theme/dark/icon.jpeg?c=1dxbfHSJFAPEGdCLU4o5B"
+    alt="Zelle"
+    className="payment-logo"
+    loading="lazy"
+  />
 )
 
 const athMovilIcon = (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
-    <rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5"/>
-    <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-  </svg>
+  <img 
+    src="https://portal.athmovil.com/images/individuos/athm-circle-logo.svg"
+    alt="ATH Móvil"
+    className="payment-logo"
+    loading="lazy"
+  />
 )
 
 const appleMusicIcon = (

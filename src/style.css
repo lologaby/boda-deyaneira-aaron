@@ -920,9 +920,11 @@ h4 {
   @apply flex items-center gap-2;
 }
 
-.gifts-payment-label svg {
-  @apply text-boda-burgundy;
+.payment-logo {
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
+  object-fit: contain;
 }
 
 .gifts-note {
