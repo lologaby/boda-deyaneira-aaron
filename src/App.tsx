@@ -8,9 +8,7 @@ import { useGuestAuth } from './hooks/useGuestAuth'
 import { DuringWedding } from './components/DuringWedding'
 import { AfterWedding } from './components/AfterWedding'
 import { GuestRsvpForm } from './components/GuestRsvpForm'
-import { PhotoGallery } from './components/PhotoGallery'
 import { FAQCarousel } from './components/FAQCarousel'
-import { RestaurantsSection } from './components/RestaurantsSection'
 import { SplitText, BlurText } from './components/react-bits'
 
 type Language = 'es' | 'en'
@@ -294,10 +292,6 @@ const copy = {
     calendar: {
       add: 'Agregar al calendario',
     },
-    photoGallery: {
-      title: 'Nuestra Historia',
-      subtitle: 'Momentos que nos trajeron hasta aquí',
-    },
     intro: {
       hint: 'Descubre',
       letterNames: 'Deyaneira & Aaron',
@@ -487,10 +481,6 @@ const copy = {
     },
     calendar: {
       add: 'Add to calendar',
-    },
-    photoGallery: {
-      title: 'Our Story',
-      subtitle: 'Moments that brought us here',
     },
     intro: {
       hint: 'Discover',
@@ -1227,20 +1217,6 @@ export default function App() {
       </header>
 
       <main className="space-y-24 pb-24">
-        {/* Photo Gallery Section */}
-        <PhotoGallery
-          title={content.photoGallery.title}
-          subtitle={content.photoGallery.subtitle}
-          photos={[
-            { url: '/photos/couple1.jpg', caption: lang === 'es' ? 'Nuestra primera cita' : 'Our first date', location: 'Nueva York' },
-            { url: '/photos/couple2.jpg', caption: lang === 'es' ? 'La pedida de mano' : 'The proposal', location: 'Central Park' },
-            { url: '/photos/couple3.jpg', caption: lang === 'es' ? 'Juntos en Puerto Rico' : 'Together in Puerto Rico', location: 'Aguadilla' },
-            { url: '/photos/couple4.jpg', caption: lang === 'es' ? 'Una noche especial' : 'A special night', location: 'Brooklyn' },
-            { url: '/photos/couple5.jpg', caption: lang === 'es' ? 'Vacaciones juntos' : 'Vacation together', location: 'Miami' },
-            { url: '/photos/couple6.jpg', caption: lang === 'es' ? 'El comienzo de todo' : 'Where it all began', location: 'NYC' },
-          ]}
-        />
-
         {/* FAQ Carousel Section */}
         <FAQCarousel
           title={content.faq.title}
@@ -1333,25 +1309,64 @@ export default function App() {
                 {planeIcon}
                 <span>{content.travel.flightSkyscanner}</span>
               </a>
+              <details className="travel-details">
+                <summary className="travel-btn travel-btn-places">
+                  {mapPinIcon}
+                  <span>{content.travel.places}</span>
+                  <span className="travel-chevron" aria-hidden="true" />
+                </summary>
+                <div className="travel-places-inner">
+                  <p className="travel-subsection">{content.travel.restaurantsLabel}</p>
+                  <ul className="travel-restaurants-list" aria-label={content.travel.restaurantsLabel}>
+                    {content.travel.restaurants.map(r => {
+                      const mealLabel = content.travel[({ breakfast: 'mealBreakfast', lunch: 'mealLunch', dinner: 'mealDinner', desserts: 'mealDesserts', cafe: 'mealCafe' } as const)[r.meal]]
+                      return (
+                        <li key={r.name}>
+                          <a
+                            href={r.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="travel-restaurant-pill"
+                            title={mealLabel + ': ' + r.name}
+                          >
+                            <span className="travel-restaurant-icon" aria-hidden="true">{MEAL_ICONS[r.meal]}</span>
+                            <span className="travel-restaurant-meal">{mealLabel}</span>
+                            <span className="travel-restaurant-sep" aria-hidden="true">·</span>
+                            <span>{r.name}</span>
+                          </a>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                  <p className="travel-subsection">{content.travel.beachesLabel}</p>
+                  <ul className="travel-beaches-grid">
+                    {content.travel.beaches.map(place => (
+                      <li key={place.name}>
+                        <a
+                          href={place.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="travel-place-btn"
+                        >
+                          {place.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="travel-platea-wrap">
+                  <a
+                    href={content.travel.plateaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="travel-platea-btn"
+                  >
+                    {plateIcon}
+                    <span>{content.travel.platea}</span>
+                  </a>
+                </div>
+              </details>
             </div>
-            
-            {/* Modernized Restaurants & Beaches Section */}
-            <RestaurantsSection
-              title={content.travel.places}
-              restaurantsLabel={content.travel.restaurantsLabel}
-              beachesLabel={content.travel.beachesLabel}
-              mealLabels={{
-                breakfast: content.travel.mealBreakfast,
-                lunch: content.travel.mealLunch,
-                dinner: content.travel.mealDinner,
-                desserts: content.travel.mealDesserts,
-                cafe: content.travel.mealCafe,
-              }}
-              restaurants={content.travel.restaurants}
-              beaches={content.travel.beaches}
-              plateaText={content.travel.platea}
-              plateaUrl={content.travel.plateaUrl}
-            />
           </motion.div>
         </section>
 

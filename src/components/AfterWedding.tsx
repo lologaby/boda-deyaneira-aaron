@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { useNotionGallery } from '../hooks/useNotionGallery'
 import type { NotionPhoto } from '../types/notion'
+import { SpotlightCard } from './react-bits/SpotlightCard'
 
 interface AfterWeddingProps {
   content: {
@@ -281,7 +282,7 @@ export const AfterWedding = ({ content, lang = 'es' }: AfterWeddingProps) => {
             )}
           </div>
 
-          {/* Photo grid - Real photos or placeholders */}
+          {/* Photo grid - Real photos with SpotlightCard or placeholders */}
           {isLoading ? (
             <div className="after-wedding-loading">
               <div className="loading-spinner" />
@@ -290,21 +291,34 @@ export const AfterWedding = ({ content, lang = 'es' }: AfterWeddingProps) => {
           ) : hasPhotos ? (
             <div className="after-wedding-photo-grid after-wedding-photo-grid-real">
               {notionContent!.photos.map((photo, index) => (
-                <motion.button
+                <motion.div
                   key={photo.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="after-wedding-photo-item"
-                  onClick={() => openLightbox(index)}
-                  aria-label={photo.caption || `Ver foto ${index + 1}`}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.08, duration: 0.5 }}
                 >
-                  <img 
-                    src={photo.url} 
-                    alt={photo.caption || `Foto ${index + 1}`}
-                    loading="lazy"
-                  />
-                </motion.button>
+                  <SpotlightCard
+                    className="after-wedding-spotlight-card"
+                    spotlightColor="232, 156, 124"
+                  >
+                    <button
+                      className="after-wedding-photo-item"
+                      onClick={() => openLightbox(index)}
+                      aria-label={photo.caption || `Ver foto ${index + 1}`}
+                    >
+                      <img 
+                        src={photo.url} 
+                        alt={photo.caption || `Foto ${index + 1}`}
+                        loading="lazy"
+                      />
+                      {photo.caption && (
+                        <div className="after-wedding-photo-caption">
+                          {photo.caption}
+                        </div>
+                      )}
+                    </button>
+                  </SpotlightCard>
+                </motion.div>
               ))}
             </div>
           ) : (

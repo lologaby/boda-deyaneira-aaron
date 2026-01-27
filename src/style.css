@@ -1919,23 +1919,44 @@ h4 {
   @apply grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-w-4xl;
 }
 
+.after-wedding-spotlight-card {
+  @apply bg-white/80 backdrop-blur-sm border-boda-gold/20 overflow-hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.after-wedding-spotlight-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(139, 75, 92, 0.15);
+}
+
 .after-wedding-photo-item {
-  @apply aspect-square rounded-lg overflow-hidden cursor-pointer relative;
-  @apply transition-transform duration-300 hover:scale-105 hover:shadow-lg;
+  @apply w-full aspect-square rounded-lg overflow-hidden cursor-pointer relative;
+  @apply transition-transform duration-300;
   @apply focus:outline-none focus:ring-2 focus:ring-boda-burgundy focus:ring-offset-2;
+  display: block;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .after-wedding-photo-item img {
-  @apply w-full h-full object-cover;
+  @apply w-full h-full object-cover transition-transform duration-500;
 }
 
-.after-wedding-photo-item::after {
-  content: '';
-  @apply absolute inset-0 bg-black/0 transition-colors duration-300;
+.after-wedding-spotlight-card:hover .after-wedding-photo-item img {
+  transform: scale(1.05);
 }
 
-.after-wedding-photo-item:hover::after {
-  @apply bg-black/10;
+.after-wedding-photo-caption {
+  @apply absolute bottom-0 left-0 right-0 p-3;
+  @apply text-sm text-white font-sans text-center;
+  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.after-wedding-spotlight-card:hover .after-wedding-photo-caption {
+  opacity: 1;
 }
 
 /* ---- LIGHTBOX ---- */
