@@ -17,6 +17,7 @@ import { HiBuildingOffice2 } from 'react-icons/hi2' // Hotel
 import { HiPaperAirplane } from 'react-icons/hi2' // Plane
 import { HiHeart } from 'react-icons/hi2' // Heart
 import { MdCheckroom } from 'react-icons/md' // Dress
+import { MdChildCare } from 'react-icons/md' // Children/Kid
 
 type Language = 'es' | 'en'
 
@@ -158,6 +159,9 @@ const faqIconPlane = faqIconWrapper(HiPaperAirplane)
 // Heart - Heart icon
 const faqIconHeart = faqIconWrapper(HiHeart)
 
+// Children - Kid/Child icon
+const faqIconChildren = faqIconWrapper(MdChildCare)
+
 // Dress - Dress/Checkroom icon
 const faqIconDress = faqIconWrapper(MdCheckroom)
 
@@ -223,7 +227,7 @@ const copy = {
         },
         {
           key: 'children',
-          icon: faqIconHeart,
+          icon: faqIconChildren,
           question: '¿Pueden asistir niños?',
           answer:
             'Amamos a todos los peques, pero hemos decidido que nuestra ceremonia y recepción serán solo para adultos. Los invitamos a aprovechar esta ocasión como un date night.',
@@ -412,7 +416,7 @@ const copy = {
         },
         {
           key: 'children',
-          icon: faqIconHeart,
+          icon: faqIconChildren,
           question: 'Are children allowed to attend?',
           answer:
             'While we love all little ones, we have decided to make our ceremony and reception adults-only. Enjoy a special date night.',
