@@ -764,13 +764,14 @@ export default function App() {
   }, [isAuthLoading, isAuthenticated]) // Run when auth state changes
   
   // Also ensure envelope stays hidden if user becomes authenticated later
+  // BUT don't interrupt the envelope opening animation if it's in progress
   useEffect(() => {
-    if (!isAuthLoading && isAuthenticated && showIntro) {
+    if (!isAuthLoading && isAuthenticated && showIntro && introState !== 'opening') {
       setShowIntro(false)
       setIntroState('revealed')
       introCompleted.current = true
     }
-  }, [isAuthenticated, isAuthLoading, showIntro])
+  }, [isAuthenticated, isAuthLoading, showIntro, introState])
 
   const content = copy[lang]
 
