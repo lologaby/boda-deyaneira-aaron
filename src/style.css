@@ -1168,6 +1168,7 @@ h4 {
 .travel-section {
   position: relative;
   overflow: visible;
+  z-index: 10; /* Above RSVP section */
 }
 
 .travel-section .section-inner {
@@ -1205,6 +1206,7 @@ h4 {
   display: inline-flex;
   flex-shrink: 0;
   position: relative; /* Positioning context for dropdown on desktop */
+  z-index: 100; /* Ensure dropdown shows above other sections */
 }
 
 .travel-details .travel-btn-places {
@@ -1254,7 +1256,7 @@ h4 {
   transform: translateX(-50%);
   width: calc(100vw - 3rem);
   max-width: 1200px;
-  z-index: 100;
+  z-index: 9999; /* Very high to be above everything */
 }
 
 /* Mobile: relative positioning to push content */
@@ -1369,6 +1371,7 @@ h4 {
     0 10px 40px rgba(0, 0, 0, 0.25),
     inset 0 0 60px rgba(0, 0, 0, 0.15);
   position: relative;
+  z-index: 1; /* Below travel section dropdown */
 }
 
 .rsvp-title {
