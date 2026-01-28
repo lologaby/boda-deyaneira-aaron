@@ -863,7 +863,8 @@ export default function App() {
   const openEnvelope = () => {
     setIntroState('opening')
     handleStartMusic()
-    window.setTimeout(handleIntroComplete, prefersReducedMotion ? 0 : 3200)
+    // Increased time to appreciate the full animation
+    window.setTimeout(handleIntroComplete, prefersReducedMotion ? 0 : 4500)
   }
 
   const handleCodeSubmit = async (e: React.FormEvent) => {
@@ -1000,9 +1001,9 @@ export default function App() {
             <motion.div
               className="intro-envelope"
               initial={{ scale: 1, y: 0 }}
-              animate={introState === 'opening' ? { scale: 1.02, y: -12 } : { scale: 1, y: 0 }}
+              animate={introState === 'opening' ? { scale: 1.05, y: -20 } : { scale: 1, y: 0 }}
               whileHover={introState === 'closed' && isAuthenticated ? { y: -8 } : {}}
-              transition={{ duration: prefersReducedMotion ? 0 : 0.6, ease: easeCurve }}
+              transition={{ duration: prefersReducedMotion ? 0 : 1.0, ease: easeCurve }}
               onClick={isAuthenticated ? handleIntroOpen : undefined}
               style={{ cursor: isAuthenticated ? 'pointer' : 'default' }}
             >
@@ -1014,21 +1015,21 @@ export default function App() {
                 </div>
                 <motion.div
                   className="envelope-flap"
-                  animate={introState === 'opening' ? { y: -90, opacity: 0 } : { y: 0, opacity: 1 }}
-                  transition={{ duration: prefersReducedMotion ? 0 : 0.9, ease: [0.4, 0, 0.2, 1] }}
+                  animate={introState === 'opening' ? { y: -100, opacity: 0 } : { y: 0, opacity: 1 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 1.4, ease: [0.4, 0, 0.2, 1], delay: 0.2 }}
                 />
                 <div className="envelope-letter">
                   <motion.div
                     className="envelope-letter-card"
                     animate={
                       introState === 'opening'
-                        ? { y: -180, scale: 1, opacity: 1 }
+                        ? { y: -200, scale: 1, opacity: 1 }
                         : { y: 0, scale: 0.9, opacity: 0 }
                     }
                     transition={{
-                      y: { duration: prefersReducedMotion ? 0 : 1.4, ease: easeCurve, delay: 0.5 },
-                      scale: { duration: prefersReducedMotion ? 0 : 1.4, ease: easeCurve, delay: 0.5 },
-                      opacity: { duration: prefersReducedMotion ? 0 : 0.3, delay: 0.5 },
+                      y: { duration: prefersReducedMotion ? 0 : 2.2, ease: easeCurve, delay: 0.8 },
+                      scale: { duration: prefersReducedMotion ? 0 : 1.5, ease: easeCurve, delay: 0.8 },
+                      opacity: { duration: prefersReducedMotion ? 0 : 0.6, delay: 0.8 },
                     }}
                   >
                     <div className="letter-content">
@@ -1040,7 +1041,7 @@ export default function App() {
                 <motion.div
                   className="envelope-shadow"
                   animate={introState === 'opening' ? { opacity: 0 } : { opacity: 1 }}
-                  transition={{ duration: prefersReducedMotion ? 0 : 0.6 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 1.2, delay: 0.3 }}
                 />
               </div>
             </motion.div>
