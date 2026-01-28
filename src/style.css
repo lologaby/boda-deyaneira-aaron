@@ -1815,8 +1815,10 @@ h4 {
 
 .rsvp-letter-plusone {
   @apply block mt-1 text-2xl sm:text-3xl md:text-4xl;
-  opacity: 0.7;
+  opacity: 0.8;
   font-style: italic;
+  /* Inherit the golden color from parent, not any other color */
+  color: inherit;
 }
 
 @keyframes shimmer {
@@ -1948,17 +1950,20 @@ h4 {
 .rsvp-decline-btn {
   @apply inline-flex items-center justify-center font-heading uppercase tracking-[0.15em] transition-all duration-300;
   font-size: 10px;
-  padding: 0.5rem 1.5rem;
-  color: rgba(245, 239, 231, 0.5);
+  padding: 0.625rem 1.75rem;
+  color: rgba(245, 239, 231, 0.7);
   background: transparent;
-  border: none;
-  margin-top: 0.75rem;
+  border: 1px solid rgba(245, 239, 231, 0.3);
+  border-radius: 9999px;
+  margin-top: 1rem;
+  min-height: 40px;
+  cursor: pointer;
 }
 
 .rsvp-decline-btn:hover:not(:disabled) {
-  color: rgba(245, 239, 231, 0.8);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  color: rgba(245, 239, 231, 0.95);
+  border-color: rgba(245, 239, 231, 0.5);
+  background: rgba(245, 239, 231, 0.08);
 }
 
 .rsvp-decline-btn:disabled {

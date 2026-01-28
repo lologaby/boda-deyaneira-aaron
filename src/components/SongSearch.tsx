@@ -226,13 +226,18 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className="song-results"
+            onClick={(e) => e.stopPropagation()}
           >
             {results.map((track) => (
               <button
                 key={track.id}
                 type="button"
                 className="song-result"
-                onClick={() => handleSelectTrack(track)}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleSelectTrack(track)
+                }}
               >
                 <img src={track.albumArt} alt={track.album} className="song-result-art" />
                 <div className="song-result-info">
