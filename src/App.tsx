@@ -980,16 +980,7 @@ export default function App() {
     }
   }
 
-  // Show loading while checking auth
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-boda-cream flex items-center justify-center">
-        <div className="loading-spinner" />
-      </div>
-    )
-  }
-
-  // Show code entry if not authenticated
+  // Don't block page render - show content immediately, auth check happens in background
   return (
     <div className="min-h-screen bg-boda-cream text-boda-text">
       <Toaster position="top-center" />
@@ -1059,50 +1050,59 @@ export default function App() {
               <motion.form
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
+                transition={{ delay: isAuthLoading ? 0 : 0.3, duration: 0.5 }}
                 className="envelope-code-form"
                 onSubmit={handleCodeSubmit}
                 onClick={(e) => e.stopPropagation()}
               >
-                <p className="envelope-code-hint">{content.codeEntry.subtitle}</p>
-                <div className="envelope-code-input-wrap">
-                  <input
-                    type="text"
-                    value={accessCode}
-                    onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-                    placeholder={content.codeEntry.placeholder}
-                    className="envelope-code-input"
-                    autoComplete="off"
-                    autoCapitalize="characters"
-                    spellCheck={false}
-                    disabled={isValidatingCode}
-                  />
-                  <button
-                    type="submit"
-                    className="envelope-code-btn"
-                    disabled={isValidatingCode || !accessCode.trim()}
-                  >
-                    {isValidatingCode ? (
-                      <span className="envelope-code-spinner" />
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-                <AnimatePresence>
-                  {codeError && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="envelope-code-error"
-                    >
-                      {codeError}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
+                {isAuthLoading ? (
+                  /* Show subtle loading while checking auth cookie */
+                  <div className="envelope-auth-loading">
+                    <span className="envelope-code-spinner" />
+                  </div>
+                ) : (
+                  <>
+                    <p className="envelope-code-hint">{content.codeEntry.subtitle}</p>
+                    <div className="envelope-code-input-wrap">
+                      <input
+                        type="text"
+                        value={accessCode}
+                        onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+                        placeholder={content.codeEntry.placeholder}
+                        className="envelope-code-input"
+                        autoComplete="off"
+                        autoCapitalize="characters"
+                        spellCheck={false}
+                        disabled={isValidatingCode}
+                      />
+                      <button
+                        type="submit"
+                        className="envelope-code-btn"
+                        disabled={isValidatingCode || !accessCode.trim()}
+                      >
+                        {isValidatingCode ? (
+                          <span className="envelope-code-spinner" />
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                    <AnimatePresence>
+                      {codeError && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="envelope-code-error"
+                        >
+                          {codeError}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </>
+                )}
               </motion.form>
             )}
 
@@ -1257,9 +1257,9 @@ export default function App() {
         <>
         <header className="hero-section">
         <motion.div {...revealMotion} className="hero-inner">
-          <img src="/images/Palm_leaves.png" alt="" className="hero-leaf hero-leaf-left" />
-          <img src="/images/hibiscus.png" alt="" className="hero-flower hero-flower-left" />
-          <img src="/images/bird_of_paradise.png" alt="" className="hero-flower hero-flower-right" />
+          <img src="/images/Palm_leaves.png" alt="" className="hero-leaf hero-leaf-left" loading="eager" />
+          <img src="/images/hibiscus.png" alt="" className="hero-flower hero-flower-left" loading="lazy" />
+          <img src="/images/bird_of_paradise.png" alt="" className="hero-flower hero-flower-right" loading="lazy" />
           <div className="hero-content">
             <h1 className="hero-names">
               DEYANEIRA <span className="hero-amp">&amp;</span> AARON
