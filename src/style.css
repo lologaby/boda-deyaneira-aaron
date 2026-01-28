@@ -248,7 +248,8 @@ h4 {
 }
 
 .hero-kicker {
-  @apply mt-6 mb-2 text-xs uppercase tracking-[0.4em] text-boda-sage/80 font-heading;
+  @apply mt-10 mb-1 text-[10px] uppercase tracking-[0.5em] text-boda-sage/60 font-heading;
+  /* Positioned as part of countdown section */
 }
 
 .hero-names {
@@ -274,7 +275,7 @@ h4 {
 }
 
 .hero-countdown {
-  @apply mt-10 grid grid-cols-2 gap-4 border-y border-boda-sage/20 py-6 sm:flex sm:flex-wrap sm:justify-center;
+  @apply mt-2 grid grid-cols-2 gap-4 border-y border-boda-sage/20 py-6 sm:flex sm:flex-wrap sm:justify-center;
 }
 
 .hero-flower,
@@ -1904,46 +1905,31 @@ h4 {
 }
 
 .rsvp-action-buttons {
-  @apply flex flex-col gap-3 mt-4;
+  @apply flex flex-col items-center gap-2 mt-6;
 }
 
-@media (max-width: 639px) {
-  .rsvp-action-buttons {
-    gap: 2.5rem; /* More space between buttons on mobile */
-  }
-}
-
-/* RSVP buttons - matching page style with terracotta */
+/* RSVP buttons - elegant, compact style */
 .rsvp-confirm-btn {
-  @apply w-full py-3 font-heading uppercase tracking-[0.3em] transition-all duration-300;
-  font-size: 14px; /* Larger on mobile for better proportion */
+  @apply inline-flex items-center justify-center font-heading uppercase tracking-[0.2em] transition-all duration-300;
+  font-size: 11px;
+  padding: 0.75rem 2.5rem;
   background: #E89C7C;
   color: #FFFFFF;
   font-weight: 600;
-  min-height: 48px;
-  border: none;
   border-radius: 9999px;
+  border: none;
   box-shadow: 
-    0 6px 20px rgba(232, 156, 124, 0.4),
-    0 2px 8px rgba(232, 156, 124, 0.3),
+    0 4px 14px rgba(232, 156, 124, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transform: translateZ(15px);
-  transform-style: preserve-3d;
-}
-
-@media (min-width: 640px) {
-  .rsvp-confirm-btn {
-    font-size: 12px; /* Smaller on desktop */
-  }
+  min-height: 44px;
 }
 
 .rsvp-confirm-btn:hover:not(:disabled) {
   background: #f0a67a;
   box-shadow: 
-    0 10px 30px rgba(232, 156, 124, 0.5),
-    0 4px 12px rgba(232, 156, 124, 0.4),
+    0 6px 20px rgba(232, 156, 124, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transform: translateZ(25px) translateY(-2px);
+  transform: translateY(-2px);
 }
 
 .rsvp-confirm-btn:active:not(:disabled) {
@@ -1953,29 +1939,23 @@ h4 {
 .rsvp-confirm-btn:disabled {
   @apply opacity-70 cursor-not-allowed;
   transform: none;
-  box-shadow: 0 2px 8px rgba(232, 156, 124, 0.25);
+  box-shadow: 0 2px 8px rgba(232, 156, 124, 0.2);
 }
 
 .rsvp-decline-btn {
-  @apply w-full py-2.5 font-heading uppercase tracking-[0.2em] transition-all duration-300;
-  font-size: 13px; /* Larger on mobile for better proportion */
-  color: rgba(245, 239, 231, 0.7);
+  @apply inline-flex items-center justify-center font-heading uppercase tracking-[0.15em] transition-all duration-300;
+  font-size: 10px;
+  padding: 0.5rem 1.5rem;
+  color: rgba(245, 239, 231, 0.5);
   background: transparent;
-  border: 1px solid rgba(245, 239, 231, 0.3);
-  border-radius: 9999px;
-  margin-top: 0;
-}
-
-@media (min-width: 640px) {
-  .rsvp-decline-btn {
-    font-size: 10px; /* Smaller on desktop */
-  }
+  border: none;
+  margin-top: 0.75rem;
 }
 
 .rsvp-decline-btn:hover:not(:disabled) {
-  color: rgba(245, 239, 231, 0.9);
-  border-color: rgba(245, 239, 231, 0.5);
-  background: rgba(245, 239, 231, 0.05);
+  color: rgba(245, 239, 231, 0.8);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .rsvp-decline-btn:disabled {
