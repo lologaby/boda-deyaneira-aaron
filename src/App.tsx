@@ -689,6 +689,7 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
+  const [placesOpen, setPlacesOpen] = useState(false)
   const [accessCode, setAccessCode] = useState('')
   const [codeError, setCodeError] = useState<string | null>(null)
   const [isValidatingCode, setIsValidatingCode] = useState(false)
@@ -1393,7 +1394,8 @@ export default function App() {
             <div className="section-heading">
               <h2 className="travel-title">{content.travel.title}</h2>
             </div>
-            <div className="travel-buttons">
+            {/* Buttons row - stays fixed */}
+            <div className="travel-buttons-row">
               <a
                 href={flightSearchUrl}
                 target="_blank"
@@ -1403,93 +1405,111 @@ export default function App() {
                 {planeIcon}
                 <span>{content.travel.flight}</span>
               </a>
-              <details className="travel-details">
-                <summary className="travel-btn travel-btn-places">
-                  {mapPinIcon}
-                  <span>{content.travel.places}</span>
-                  <span className="travel-chevron" aria-hidden="true" />
-                </summary>
-                <div className="travel-places-inner">
-                  {/* Restaurants with SpotlightCards */}
-                  <p className="travel-subsection">{content.travel.restaurantsLabel}</p>
-                  <div className="travel-restaurants-grid">
-                    {content.travel.restaurants.map((r, index) => {
-                      const mealLabel = content.travel[({ breakfast: 'mealBreakfast', lunch: 'mealLunch', dinner: 'mealDinner', desserts: 'mealDesserts', cafe: 'mealCafe' } as const)[r.meal]]
-                      const mealColors: Record<string, { color: string; spotlight: string }> = {
-                        breakfast: { color: '#FFB347', spotlight: '255, 179, 71' },
-                        lunch: { color: '#87CEEB', spotlight: '135, 206, 235' },
-                        dinner: { color: '#9B7EDE', spotlight: '155, 126, 222' },
-                        desserts: { color: '#FFB6C1', spotlight: '255, 182, 193' },
-                        cafe: { color: '#C19A6B', spotlight: '193, 154, 107' },
-                      }
-                      const config = mealColors[r.meal]
-                      return (
+              <button
+                type="button"
+                className={`travel-btn travel-btn-places ${placesOpen ? 'is-open' : ''}`}
+                onClick={() => setPlacesOpen(!placesOpen)}
+                aria-expanded={placesOpen}
+              >
+                {mapPinIcon}
+                <span>{content.travel.places}</span>
+                <span className={`travel-chevron ${placesOpen ? 'is-open' : ''}`} aria-hidden="true" />
+              </button>
+            </div>
+            
+            {/* Expandable content - outside buttons, pushes content down */}
+            <AnimatePresence>
+              {placesOpen && (
+                <motion.div
+                  className="travel-places-content"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                >
+                  <div className="travel-places-inner">
+                    {/* Restaurants with SpotlightCards */}
+                    <p className="travel-subsection">{content.travel.restaurantsLabel}</p>
+                    <div className="travel-restaurants-grid">
+                      {content.travel.restaurants.map((r, index) => {
+                        const mealLabel = content.travel[({ breakfast: 'mealBreakfast', lunch: 'mealLunch', dinner: 'mealDinner', desserts: 'mealDesserts', cafe: 'mealCafe' } as const)[r.meal]]
+                        const mealColors: Record<string, { color: string; spotlight: string }> = {
+                          breakfast: { color: '#FFB347', spotlight: '255, 179, 71' },
+                          lunch: { color: '#87CEEB', spotlight: '135, 206, 235' },
+                          dinner: { color: '#9B7EDE', spotlight: '155, 126, 222' },
+                          desserts: { color: '#FFB6C1', spotlight: '255, 182, 193' },
+                          cafe: { color: '#C19A6B', spotlight: '193, 154, 107' },
+                        }
+                        const config = mealColors[r.meal]
+                        return (
+                          <motion.div
+                            key={r.name}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1, duration: 0.4 }}
+                          >
+                            <a href={r.url} target="_blank" rel="noopener noreferrer" className="travel-card-link">
+                              <SpotlightCard className="travel-restaurant-card" spotlightColor={config.spotlight}>
+                                <div className="travel-card-icon" style={{ backgroundColor: `${config.color}20`, color: config.color }}>
+                                  {MEAL_ICONS[r.meal]}
+                                </div>
+                                <div className="travel-card-info">
+                                  <span className="travel-card-tag" style={{ backgroundColor: `${config.color}30`, color: config.color }}>
+                                    {mealLabel}
+                                  </span>
+                                  <span className="travel-card-name">{r.name}</span>
+                                </div>
+                                <div className="travel-card-arrow">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M7 17L17 7M17 7H7M17 7V17" />
+                                  </svg>
+                                </div>
+                              </SpotlightCard>
+                            </a>
+                          </motion.div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Beaches with TiltedCards */}
+                    <p className="travel-subsection">{content.travel.beachesLabel}</p>
+                    <div className="travel-beaches-cards">
+                      {content.travel.beaches.map((place, index) => (
                         <motion.div
-                          key={r.name}
+                          key={place.name}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1, duration: 0.4 }}
+                          transition={{ delay: index * 0.08, duration: 0.4 }}
                         >
-                          <a href={r.url} target="_blank" rel="noopener noreferrer" className="travel-card-link">
-                            <SpotlightCard className="travel-restaurant-card" spotlightColor={config.spotlight}>
-                              <div className="travel-card-icon" style={{ backgroundColor: `${config.color}20`, color: config.color }}>
-                                {MEAL_ICONS[r.meal]}
-                              </div>
-                              <div className="travel-card-info">
-                                <span className="travel-card-tag" style={{ backgroundColor: `${config.color}30`, color: config.color }}>
-                                  {mealLabel}
-                                </span>
-                                <span className="travel-card-name">{r.name}</span>
-                              </div>
-                              <div className="travel-card-arrow">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <path d="M7 17L17 7M17 7H7M17 7V17" />
+                          <a href={place.url} target="_blank" rel="noopener noreferrer" className="travel-card-link">
+                            <TiltedCard className="travel-beach-card" maxTilt={8} scale={1.02}>
+                              <div className="travel-beach-content">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="travel-beach-icon">
+                                  <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
                                 </svg>
+                                <span className="travel-beach-name">{place.name}</span>
                               </div>
-                            </SpotlightCard>
+                            </TiltedCard>
                           </a>
                         </motion.div>
-                      )
-                    })}
+                      ))}
+                    </div>
                   </div>
-
-                  {/* Beaches with TiltedCards */}
-                  <p className="travel-subsection">{content.travel.beachesLabel}</p>
-                  <div className="travel-beaches-cards">
-                    {content.travel.beaches.map((place, index) => (
-                      <motion.div
-                        key={place.name}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.08, duration: 0.4 }}
-                      >
-                        <a href={place.url} target="_blank" rel="noopener noreferrer" className="travel-card-link">
-                          <TiltedCard className="travel-beach-card" maxTilt={8} scale={1.02}>
-                            <div className="travel-beach-content">
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="travel-beach-icon">
-                                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
-                              </svg>
-                              <span className="travel-beach-name">{place.name}</span>
-                            </div>
-                          </TiltedCard>
-                        </a>
-                      </motion.div>
-                    ))}
+                  
+                  <div className="travel-platea-wrap">
+                    <a
+                      href={content.travel.plateaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="travel-platea-btn"
+                    >
+                      {plateIcon}
+                      <span>{content.travel.platea}</span>
+                    </a>
                   </div>
-                </div>
-                <div className="travel-platea-wrap">
-                  <a
-                    href={content.travel.plateaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="travel-platea-btn"
-                  >
-                    {plateIcon}
-                    <span>{content.travel.platea}</span>
-                  </a>
-                </div>
-              </details>
-            </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </section>
 

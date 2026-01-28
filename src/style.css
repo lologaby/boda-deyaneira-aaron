@@ -1136,15 +1136,16 @@ h4 {
   @apply text-2xl sm:text-3xl text-boda-text tracking-[0.2em] font-heading uppercase;
 }
 
-.travel-buttons {
+/* Buttons row - always centered, never affected by dropdown */
+.travel-buttons-row {
   @apply mt-8 flex items-center justify-center gap-4;
-  flex-wrap: nowrap; /* Keep buttons on same row */
+  flex-wrap: nowrap;
   width: 100%;
 }
 
 @media (max-width: 639px) {
-  .travel-buttons {
-    flex-wrap: wrap; /* Allow wrapping on mobile */
+  .travel-buttons-row {
+    flex-wrap: wrap;
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
@@ -1154,7 +1155,7 @@ h4 {
     width: 100%;
     justify-content: center;
     text-align: center;
-    white-space: normal; /* Allow text to wrap instead of overflowing */
+    white-space: normal;
     padding-left: 1rem;
     padding-right: 1rem;
   }
@@ -1164,11 +1165,9 @@ h4 {
   }
 }
 
-/* Container for the dropdown content */
+/* Travel section */
 .travel-section {
   position: relative;
-  overflow: visible;
-  z-index: 10; /* Above RSVP section */
 }
 
 .travel-section .section-inner {
@@ -1202,85 +1201,51 @@ h4 {
   transform: translateY(-2px);
 }
 
-.travel-details {
-  display: inline-flex;
-  flex-shrink: 0;
-  position: relative; /* Positioning context for dropdown on desktop */
-  z-index: 100; /* Ensure dropdown shows above other sections */
+/* Places button styling */
+.travel-btn-places {
+  @apply cursor-pointer;
 }
 
-.travel-details .travel-btn-places {
-  @apply cursor-pointer list-none;
-}
-
-.travel-details .travel-btn-places::-webkit-details-marker {
-  display: none;
-}
-
-/* Desktop: keep button stable */
-@media (min-width: 640px) {
-  .travel-details .travel-btn-places:hover {
-    transform: translateY(-2px);
-  }
+.travel-btn-places.is-open {
+  background: rgba(90, 118, 110, 0.12);
+  border-color: rgba(90, 118, 110, 0.8);
 }
 
 .travel-chevron {
-  @apply h-4 w-4 shrink-0 transition-transform;
+  @apply h-4 w-4 shrink-0 transition-transform duration-300;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23455a54' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") center/contain no-repeat;
 }
-.travel-details[open] .travel-chevron {
+.travel-chevron.is-open {
   transform: rotate(180deg);
+}
+
+/* Expandable content container - uses Framer Motion for height animation */
+.travel-places-content {
+  @apply w-full overflow-hidden;
+  margin-top: 1.5rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .travel-places-inner {
   @apply space-y-6;
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  background: rgba(245, 239, 231, 0.98);
+  background: rgba(245, 239, 231, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 1rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  padding: 0;
-  margin-top: 0;
-  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
-              opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-              padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-              margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-  display: block;
-  /* Desktop: absolute positioning */
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100vw - 3rem);
-  max-width: 1200px;
-  z-index: 9999; /* Very high to be above everything */
-}
-
-/* Mobile: relative positioning to push content */
-@media (max-width: 639px) {
-  .travel-places-inner {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    width: 100%;
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-.travel-details[open] .travel-places-inner {
-  max-height: 5000px; /* Large enough for content */
-  opacity: 1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   padding: 1.5rem;
-  margin-top: 1rem;
-  pointer-events: auto;
-  overflow-y: visible;
-  overflow-x: hidden;
+}
+
+@media (max-width: 639px) {
+  .travel-places-content {
+    margin-top: 1rem;
+  }
+  
+  .travel-places-inner {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
 }
 
 .travel-subsection {
@@ -1371,7 +1336,6 @@ h4 {
     0 10px 40px rgba(0, 0, 0, 0.25),
     inset 0 0 60px rgba(0, 0, 0, 0.15);
   position: relative;
-  z-index: 1; /* Below travel section dropdown */
 }
 
 .rsvp-title {
