@@ -654,15 +654,28 @@ const appleMusicIcon = (
   </svg>
 )
 
-// Detect browser language
+// Detect browser language and region
 function detectLanguage(): Language {
   if (typeof window === 'undefined') return 'es'
   
-  // Check navigator.languages first (more accurate)
+  // Check navigator.languages with full locale (e.g. en-US, es-PR)
   const languages = navigator.languages || [navigator.language]
   
-  for (const lang of languages) {
-    const langCode = lang.toLowerCase().split('-')[0]
+  for (const locale of languages) {
+    const [langCode, region] = locale.toLowerCase().split('-')
+    
+    // Explicit region-based detection
+    // US, Canada (English), UK, Australia, etc. → English
+    if (region && ['us', 'ca', 'gb', 'au', 'nz'].includes(region)) {
+      return 'en'
+    }
+    
+    // Puerto Rico and Latin America → Spanish
+    if (region && ['pr', 'mx', 'es', 'ar', 'co', 've', 'cl', 'pe', 'ec', 'do', 'cr', 'cu', 'pa', 'uy', 'gt', 'bo', 'hn', 'ni', 'py', 'sv'].includes(region)) {
+      return 'es'
+    }
+    
+    // Fallback to language code if no region match
     if (langCode === 'en') {
       return 'en'
     }
@@ -671,13 +684,13 @@ function detectLanguage(): Language {
     }
   }
   
-  // Fallback to navigator.language
+  // Final fallback to navigator.language
   const browserLang = navigator.language?.toLowerCase().split('-')[0]
   if (browserLang === 'en') {
     return 'en'
   }
   
-  // Default to Spanish
+  // Default to Spanish (wedding is in Puerto Rico)
   return 'es'
 }
 
