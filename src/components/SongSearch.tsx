@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface MusicTrack {
@@ -240,12 +241,12 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
         )}
       </AnimatePresence>
 
-      {/* Search results - Modal on mobile, dropdown on desktop */}
+      {/* Search results - Modal on mobile (via Portal), dropdown on desktop */}
       <AnimatePresence>
         {showResults && results.length > 0 && (
           <>
-            {/* Mobile: Full-screen modal with overlay */}
-            {isMobile && (
+            {/* Mobile: Full-screen modal with overlay - rendered via Portal to document.body */}
+            {isMobile && typeof document !== 'undefined' && createPortal(
               <>
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -283,7 +284,11 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                     <button
                       type="button"
                       className="song-results-modal-close"
-                      onClick={() => setShowResults(false)}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setShowResults(false)
+                      }}
                       aria-label="Cerrar"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -320,7 +325,8 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                     ))}
                   </div>
                 </motion.div>
-              </>
+              </>,
+              document.body
             )}
             
             {/* Desktop: Dropup (opens ABOVE input to avoid buttons) */}
