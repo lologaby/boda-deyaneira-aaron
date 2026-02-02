@@ -277,6 +277,14 @@ h4 {
   @apply mt-2 grid grid-cols-2 gap-4 border-y border-boda-sage/20 py-6 sm:flex sm:flex-wrap sm:justify-center;
 }
 
+.hero-countdown .hero-kicker {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
 .hero-flower,
 .hero-leaf {
   @apply pointer-events-none absolute;
@@ -2067,7 +2075,7 @@ h4 {
   background: rgba(29, 185, 84, 0.3);
 }
 
-/* Search results dropdown */
+/* Search results dropdown (desktop only) */
 .song-results {
   @apply absolute z-20 w-full mt-2 rounded-xl overflow-hidden;
   background: #F5EFE7;
@@ -2076,31 +2084,80 @@ h4 {
   overflow-y: auto;
 }
 
-@media (max-width: 639px) {
-  .song-results {
-    max-height: 50vh; /* Better mobile viewport usage */
-    margin-top: 0.5rem;
-  }
+/* Mobile: Modal overlay and bottom sheet */
+.song-results-overlay {
+  @apply fixed inset-0 z-[100];
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.song-results-modal {
+  @apply fixed bottom-0 left-0 right-0 z-[101];
+  @apply rounded-t-3xl overflow-hidden;
+  background: #F5EFE7;
+  max-height: 70vh;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.song-results-modal-header {
+  @apply flex items-center justify-between px-5 py-4 border-b;
+  border-color: rgba(0, 0, 0, 0.1);
+  background: #F5EFE7;
+  flex-shrink: 0;
+}
+
+.song-results-modal-title {
+  @apply text-lg font-heading font-medium;
+  color: #2C4A3E;
+}
+
+.song-results-modal-close {
+  @apply w-10 h-10 rounded-full flex items-center justify-center transition;
+  background: rgba(0, 0, 0, 0.05);
+  color: #2C4A3E;
+}
+
+.song-results-modal-close:active {
+  background: rgba(0, 0, 0, 0.1);
+  transform: scale(0.95);
+}
+
+.song-results-modal-content {
+  @apply overflow-y-auto flex-1;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .song-result {
-  @apply w-full flex items-center gap-3 p-3 text-left transition;
+  @apply w-full flex items-center gap-3 text-left transition;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  min-height: 60px; /* Better touch target on mobile */
+  min-height: 64px; /* Better touch target on mobile */
+  padding: 1rem;
 }
 
-@media (max-width: 639px) {
+.song-result:active {
+  background: rgba(232, 156, 124, 0.15);
+}
+
+@media (min-width: 640px) {
   .song-result {
-    padding: 0.875rem; /* Slightly more padding on mobile */
+    padding: 0.75rem;
+    min-height: 60px;
   }
-}
-
-.song-result:hover {
-  background: rgba(232, 156, 124, 0.1);
+  
+  .song-result:hover {
+    background: rgba(232, 156, 124, 0.1);
+  }
 }
 
 .song-result:last-child {
   border-bottom: none;
+}
+
+.song-results-modal-content .song-result:first-child {
+  border-top: none;
 }
 
 .song-result-art {

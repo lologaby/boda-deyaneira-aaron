@@ -140,6 +140,16 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
     }
   }
 
+  // Detect if mobile
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   // Click outside to close results
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -151,6 +161,18 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+  
+  // Prevent body scroll when modal is open on mobile
+  useEffect(() => {
+    if (isMobile && showResults) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isMobile, showResults])
 
   // Cleanup audio on unmount
   useEffect(() => {
@@ -218,38 +240,104 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
         )}
       </AnimatePresence>
 
-      {/* Search results dropdown */}
+      {/* Search results - Modal on mobile, dropdown on desktop */}
       <AnimatePresence>
         {showResults && results.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="song-results"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {results.map((track) => (
-              <button
-                key={track.id}
-                type="button"
-                className="song-result"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleSelectTrack(track)
-                }}
+          <>
+            {/* Mobile: Full-screen modal with overlay */}
+            {isMobile && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="song-results-overlay"
+                  onClick={() => setShowResults(false)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: 100 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 100 }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                  className="song-results-modal"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="song-results-modal-header">
+                    <h3 className="song-results-modal-title">
+                      Selecciona una canción
+                    </h3>
+                    <button
+                      type="button"
+                      className="song-results-modal-close"
+                      onClick={() => setShowResults(false)}
+                      aria-label="Cerrar"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="song-results-modal-content">
+                    {results.map((track) => (
+                      <button
+                        key={track.id}
+                        type="button"
+                        className="song-result"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleSelectTrack(track)
+                        }}
+                      >
+                        <img src={track.albumArt} alt={track.album} className="song-result-art" />
+                        <div className="song-result-info">
+                          <p className="song-result-name">{track.name}</p>
+                          <p className="song-result-artist">{track.artist}</p>
+                        </div>
+                        {track.previewUrl && (
+                          <span className="song-result-preview">▶</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              </>
+            )}
+            
+            {/* Desktop: Dropdown */}
+            {!isMobile && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="song-results"
+                onClick={(e) => e.stopPropagation()}
               >
-                <img src={track.albumArt} alt={track.album} className="song-result-art" />
-                <div className="song-result-info">
-                  <p className="song-result-name">{track.name}</p>
-                  <p className="song-result-artist">{track.artist}</p>
-                </div>
-                {track.previewUrl && (
-                  <span className="song-result-preview">▶</span>
-                )}
-              </button>
-            ))}
-          </motion.div>
+                {results.map((track) => (
+                  <button
+                    key={track.id}
+                    type="button"
+                    className="song-result"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleSelectTrack(track)
+                    }}
+                  >
+                    <img src={track.albumArt} alt={track.album} className="song-result-art" />
+                    <div className="song-result-info">
+                      <p className="song-result-name">{track.name}</p>
+                      <p className="song-result-artist">{track.artist}</p>
+                    </div>
+                    {track.previewUrl && (
+                      <span className="song-result-preview">▶</span>
+                    )}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </>
         )}
       </AnimatePresence>
     </div>

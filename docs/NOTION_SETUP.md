@@ -1,8 +1,23 @@
 # Configuración de Notion para la Galería de Fotos
 
-Esta guía te explica cómo configurar Notion para que Deyaneira y Aaron puedan subir fotos y escribir mensajes personalizados sin necesidad de tocar código.
+Esta guía te explica cómo configurar Notion para que **los novios** puedan subir fotos y escribir mensajes personalizados **sin intervención tuya** y sin tocar código.
 
-## Resumen
+---
+
+## Resumen rápido (para ti, quien configura)
+
+| Quién | Qué hace |
+|-------|----------|
+| **Tú (una sola vez)** | Crear la integración en Notion, crear las 2 páginas del mensaje + la base de datos de fotos, conectar la integración a esas páginas, y poner las variables de entorno en Vercel (`NOTION_API_KEY`, `NOTION_PAGE_ID`, `NOTION_PAGE_ID_EN`, `NOTION_DATABASE_ID`). |
+| **Los novios (siempre)** | Editar el mensaje en las dos páginas y alimentar la galería (añadir/quitar/reordenar fotos) desde Notion. No tocan código ni te piden nada. |
+
+Después de la configuración inicial, **los frames y todo el diseño ya están en la web**; ellos solo “alimentan” mensaje y fotos desde Notion.
+
+**Para los novios:** Puedes compartirles la guía **docs/PARA_LOS_NOVIOS.md** (o su contenido). Ahí se explica solo cómo editar mensaje y fotos, sin pasos técnicos.
+
+---
+
+## Resumen de lo que tendrán los novios
 
 Los novios tendrán:
 1. **Dos páginas de Notion** - Una para el mensaje en español, otra para inglés
