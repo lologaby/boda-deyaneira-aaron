@@ -2080,7 +2080,7 @@ h4 {
   @apply absolute w-full rounded-xl overflow-hidden;
   bottom: calc(100% + 0.5rem); /* Position ABOVE the input */
   left: 0;
-  z-index: 50;
+  z-index: 100;
   background: #F5EFE7;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
   max-height: 280px;
@@ -2089,13 +2089,15 @@ h4 {
 
 /* Mobile: Modal overlay and bottom sheet */
 .song-results-overlay {
-  @apply fixed inset-0 z-[100];
+  @apply fixed inset-0;
+  z-index: 9998 !important; /* Very high to ensure it's above all buttons */
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
 }
 
 .song-results-modal {
-  @apply fixed bottom-0 left-0 right-0 z-[101];
+  @apply fixed bottom-0 left-0 right-0;
+  z-index: 9999 !important; /* Highest z-index to be on top of everything */
   @apply rounded-t-3xl overflow-hidden;
   background: #F5EFE7;
   max-height: 70vh;
