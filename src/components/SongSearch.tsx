@@ -264,9 +264,9 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                   }}
                 />
                 <motion.div
-                  initial={{ opacity: 0, y: 100 }}
+                  initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 100 }}
+                  exit={{ opacity: 0, y: 50 }}
                   transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                   className="song-results-modal"
                   onClick={(e) => {
