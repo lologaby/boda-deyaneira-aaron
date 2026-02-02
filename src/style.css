@@ -2075,12 +2075,15 @@ h4 {
   background: rgba(29, 185, 84, 0.3);
 }
 
-/* Search results dropdown (desktop only) */
+/* Search results dropdown (desktop only) - opens UPWARD to avoid buttons */
 .song-results {
-  @apply absolute z-20 w-full mt-2 rounded-xl overflow-hidden;
+  @apply absolute w-full rounded-xl overflow-hidden;
+  bottom: calc(100% + 0.5rem); /* Position ABOVE the input */
+  left: 0;
+  z-index: 50;
   background: #F5EFE7;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  max-height: 300px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+  max-height: 280px;
   overflow-y: auto;
 }
 

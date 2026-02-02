@@ -305,12 +305,12 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
               </>
             )}
             
-            {/* Desktop: Dropdown */}
+            {/* Desktop: Dropup (opens ABOVE input to avoid buttons) */}
             {!isMobile && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: 10 }}
                 className="song-results"
                 onClick={(e) => e.stopPropagation()}
               >
