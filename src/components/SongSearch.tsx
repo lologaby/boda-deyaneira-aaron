@@ -252,7 +252,15 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   className="song-results-overlay"
-                  onClick={() => setShowResults(false)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setShowResults(false)
+                  }}
+                  onTouchStart={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
                 />
                 <motion.div
                   initial={{ opacity: 0, y: 100 }}
@@ -260,7 +268,13 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                   exit={{ opacity: 0, y: 100 }}
                   transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                   className="song-results-modal"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
+                  onTouchStart={(e) => {
+                    e.stopPropagation()
+                  }}
                 >
                   <div className="song-results-modal-header">
                     <h3 className="song-results-modal-title">
@@ -288,6 +302,10 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                           e.preventDefault()
                           e.stopPropagation()
                           handleSelectTrack(track)
+                        }}
+                        onTouchEnd={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
                         }}
                       >
                         <img src={track.albumArt} alt={track.album} className="song-result-art" />
