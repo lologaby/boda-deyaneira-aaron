@@ -254,13 +254,8 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                   exit={{ opacity: 0 }}
                   className="song-results-overlay"
                   onClick={(e) => {
-                    e.preventDefault()
                     e.stopPropagation()
                     setShowResults(false)
-                  }}
-                  onTouchStart={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
                   }}
                 />
                 <motion.div
@@ -269,13 +264,7 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                   exit={{ opacity: 0, y: 50 }}
                   transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                   className="song-results-modal"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                  }}
-                  onTouchStart={(e) => {
-                    e.stopPropagation()
-                  }}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <div className="song-results-modal-header">
                     <h3 className="song-results-modal-title">
@@ -285,7 +274,6 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                       type="button"
                       className="song-results-modal-close"
                       onClick={(e) => {
-                        e.preventDefault()
                         e.stopPropagation()
                         setShowResults(false)
                       }}
@@ -304,13 +292,8 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                         type="button"
                         className="song-result"
                         onClick={(e) => {
-                          e.preventDefault()
                           e.stopPropagation()
                           handleSelectTrack(track)
-                        }}
-                        onTouchEnd={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
                         }}
                       >
                         <img src={track.albumArt} alt={track.album} className="song-result-art" />
