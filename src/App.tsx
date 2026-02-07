@@ -572,7 +572,7 @@ const easeCurve: [number, number, number, number] = [0.16, 1, 0.3, 1]
 const swatchColors = [
   'bg-boda-sky',
   'bg-boda-orange',
-  'bg-boda-cream',
+  'bg-[#F2E592]',
   'bg-boda-burgundy',
   'bg-boda-lime',
   'bg-boda-purple',
