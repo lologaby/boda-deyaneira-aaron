@@ -41,6 +41,25 @@ export const GuestRsvpForm = ({
   const handleConfirm = async () => {
     const totalGuests = guest.plusOneAllowed && bringingPlusOne ? 2 : 1
     const nameToSubmit = guest.plusOneAllowed && bringingPlusOne ? plusOneName.trim() : undefined
+    
+    // Add track to Spotify playlist if available
+    if (selectedTrack?.spotifyId || selectedTrack?.id) {
+      try {
+        await fetch('/api/spotify-add-track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            trackId: selectedTrack.spotifyId || selectedTrack.id,
+            guestName: guest.name,
+            song: `${selectedTrack.name} - ${selectedTrack.artist}`,
+          }),
+        })
+        // Don't block RSVP submission if Spotify fails - just log it
+      } catch (error) {
+        console.warn('Failed to add track to Spotify playlist:', error)
+      }
+    }
+    
     await onSubmit('yes', totalGuests, song, nameToSubmit)
   }
 

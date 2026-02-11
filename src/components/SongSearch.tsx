@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 interface MusicTrack {
   id: string
+  spotifyId?: string
   name: string
   artist: string
   album: string
