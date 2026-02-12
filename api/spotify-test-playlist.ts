@@ -48,19 +48,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       token: `${userToken.substring(0, 20)}...`,
     })
 
-    // Test 2: Get user profile (verify token works)
+    // Test 2: Get user profile (verify token works and check scopes)
     const profileRes = await fetch('https://api.spotify.com/v1/me', {
       headers: { Authorization: `Bearer ${userToken}` }
     })
     
     if (profileRes.ok) {
       const profile = await profileRes.json()
+      // Note: Spotify doesn't return scopes in /me endpoint, but we can infer from what works
       results.tests.push({
         name: 'Get User Profile',
         status: 'success',
         userId: profile.id,
         displayName: profile.display_name,
         email: profile.email,
+        note: 'Token is valid. Scopes cannot be verified directly, but will be tested when adding tracks.',
       })
     } else {
       const err = await profileRes.text()
@@ -197,13 +199,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const tokenUserId = results.tests.find((t: any) => t.name === 'Get User Profile')?.userId
       const playlistOwnerId = results.tests.find((t: any) => t.name === 'Get Playlist Info')?.ownerId
       
-          let solution = ''
-          if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
-            const playlistInfo = results.tests.find((t: any) => t.name === 'Get Playlist Info')
-            solution = `403 Forbidden: Spotify API only allows playlist OWNERS to add tracks via API, not collaborators. The token user (${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}) is not the playlist owner (${playlistInfo?.ownerDisplayName}). You must use the playlist owner's refresh token. See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for solutions.`
-          } else if (addRes.status === 403) {
-            solution = '403 Forbidden: The token does not have permission to edit this playlist. Only playlist owners can add tracks via Spotify API.'
-          }
+      let solution = ''
+      if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
+        const playlistInfo = results.tests.find((t: any) => t.name === 'Get Playlist Info')
+        solution = `403 Forbidden: Spotify API only allows playlist OWNERS to add tracks via API, not collaborators. The token user (${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}) is not the playlist owner (${playlistInfo?.ownerDisplayName}). You must use the playlist owner's refresh token. See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for solutions.`
+      } else if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId === playlistOwnerId) {
+        solution = `403 Forbidden: Even though you are the playlist owner, the token doesn't have permission. This usually means:
+1. The refresh token was generated with OLD credentials - regenerate it at /api/spotify-auth?setup=true with the NEW app credentials
+2. The token doesn't have the required scopes (playlist-modify-public or playlist-modify-private)
+3. The app needs users added to the user list in Spotify Dashboard
+
+Try regenerating the refresh token with the current app credentials.`
+      } else if (addRes.status === 403) {
+        solution = '403 Forbidden: The token does not have permission to edit this playlist. Only playlist owners can add tracks via Spotify API. Regenerate the refresh token at /api/spotify-auth?setup=true'
+      }
       
       results.tests.push({
         name: 'Add Track to Playlist',
