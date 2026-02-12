@@ -198,18 +198,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       const tokenUserId = results.tests.find((t: any) => t.name === 'Get User Profile')?.userId
       const playlistOwnerId = results.tests.find((t: any) => t.name === 'Get Playlist Info')?.ownerId
+      const playlistInfo = results.tests.find((t: any) => t.name === 'Get Playlist Info')
       
       let solution = ''
       if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
-        const playlistInfo = results.tests.find((t: any) => t.name === 'Get Playlist Info')
         solution = `403 Forbidden: Spotify API only allows playlist OWNERS to add tracks via API, not collaborators. The token user (${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}) is not the playlist owner (${playlistInfo?.ownerDisplayName}). You must use the playlist owner's refresh token. See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for solutions.`
       } else if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId === playlistOwnerId) {
-        solution = `403 Forbidden: Even though you are the playlist owner, the token doesn't have permission. This usually means:
-1. The refresh token was generated with OLD credentials - regenerate it at /api/spotify-auth?setup=true with the NEW app credentials
-2. The token doesn't have the required scopes (playlist-modify-public or playlist-modify-private)
-3. The app needs users added to the user list in Spotify Dashboard
+        solution = `403 Forbidden: Even though you are the playlist owner, the token doesn't have permission. 
 
-Try regenerating the refresh token with the current app credentials.`
+CRITICAL: In Development Mode, even the app owner must be added to the user list!
+
+Steps to fix:
+1. Go to https://developer.spotify.com/dashboard
+2. Click on your app (Client ID: ${CLIENT_ID.substring(0, 10)}...)
+3. Click "Edit Settings"
+4. Go to "Users Management" tab
+5. Click "Add new user"
+6. Add your Spotify account email: ${results.tests.find((t: any) => t.name === 'Get User Profile')?.email || 'your-email@example.com'}
+7. Enter your display name: ${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName || 'Dot0x'}
+8. Save and wait 1-2 minutes
+9. Try again
+
+Also verify:
+- Refresh token was generated with CURRENT app credentials (not old ones)
+- Token has scopes: playlist-modify-public, playlist-modify-private
+- You authorized the app with the correct account`
       } else if (addRes.status === 403) {
         solution = '403 Forbidden: The token does not have permission to edit this playlist. Only playlist owners can add tracks via Spotify API. Regenerate the refresh token at /api/spotify-auth?setup=true'
       }
