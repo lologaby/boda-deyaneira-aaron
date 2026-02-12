@@ -394,7 +394,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(`  ✓ Found: "${result.name}" by ${result.artist} → ${result.uri}`)
 
       const addRes = await fetch(
-        `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/tracks`,
+        `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/items`,
         {
           method: 'POST',
           headers: {

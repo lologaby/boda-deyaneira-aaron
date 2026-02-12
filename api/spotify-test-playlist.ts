@@ -192,7 +192,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Test 4: Try to add a test track (use a popular track that definitely exists)
     const testTrackUri = 'spotify:track:4uLU6hMCjMI75M1A2tKUQC5' // "Never Gonna Give You Up" by Rick Astley
     const addRes = await fetch(
-      `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/tracks`,
+      `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/items`,
       {
         method: 'POST',
         headers: {
@@ -209,13 +209,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         name: 'Add Track to Playlist',
         status: 'success',
         snapshotId: addData.snapshot_id,
-        message: 'Track added successfully!',
+        message: 'Track added successfully! (using new /items endpoint)',
       })
       
       // Remove it immediately to not clutter the playlist
       setTimeout(async () => {
         await fetch(
-          `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/tracks`,
+          `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/items`,
           {
             method: 'DELETE',
             headers: {

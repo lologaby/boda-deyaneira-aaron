@@ -182,7 +182,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 3. Add to playlist using user token (requires playlist-modify scope)
     const userToken = await getUserToken()
     const addRes = await fetch(
-      `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/tracks`,
+      `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/items`,
       {
         method: 'POST',
         headers: {
