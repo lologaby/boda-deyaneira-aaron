@@ -71,7 +71,23 @@ interface SearchResult {
 
 interface SearchDebug {
   queries: string[]
-  attempts: Array<{ query: string; status: number; total?: number; items?: number; error?: string }>
+  attempts: Array<{ 
+    query: string
+    status: number
+    total?: number
+    items?: number
+    error?: string
+    is403?: boolean
+    solution?: string
+    hasTracks?: boolean
+    tracksKeys?: string[]
+    firstResult?: { name: string; artist: string; uri: string; id: string } | null
+  }>
+  addError?: string
+  playlistId?: string
+  trackUri?: string
+  httpStatus?: number
+  errorJson?: any
 }
 
 async function searchTrack(
