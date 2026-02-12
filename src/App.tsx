@@ -594,7 +594,7 @@ const calendarLink = '/calendar.ics'
 const flightSearchUrl = 'https://www.google.com/travel/flights/flights-from-new-york-to-san-juan.html'
 
 // Playlist URLs - update with your actual playlists
-const SPOTIFY_PLAYLIST_URL = import.meta.env.VITE_SPOTIFY_PLAYLIST_URL || 'https://open.spotify.com/playlist/3v2Zl4aSJgAPMlkxv9FZzS?si=dgCbJjDYTWSc4ksSkUBIcQ&pi=x8wuisIsTqiND'
+const SPOTIFY_PLAYLIST_URL = import.meta.env.VITE_SPOTIFY_PLAYLIST_URL || 'https://open.spotify.com/playlist/3Nvj5752VBO0BXTpSm5hkH'
 const APPLE_MUSIC_PLAYLIST_URL = import.meta.env.VITE_APPLE_MUSIC_PLAYLIST_URL || ''
 
 const spotifyIcon = (

@@ -299,7 +299,7 @@ export default async function handler(
               <li><code>SPOTIFY_CLIENT_ID</code> = 63358438f35945c7b5cf05f1cd60aa9f</li>
               <li><code>SPOTIFY_CLIENT_SECRET</code> = 1d6606f97ba743fdaf12c2c5d8df63f4</li>
               <li><code>SPOTIFY_REFRESH_TOKEN</code> = ${data.refresh_token}</li>
-              <li><code>SPOTIFY_PLAYLIST_ID</code> = 3v2Zl4aSJgAPMlkxv9FZzS</li>
+              <li><code>SPOTIFY_PLAYLIST_ID</code> = 3Nvj5752VBO0BXTpSm5hkH</li>
             </ul>
 
             <p>After setting these variables, redeploy your app and the playlist integration will work!</p>

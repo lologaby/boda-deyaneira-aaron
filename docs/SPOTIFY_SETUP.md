@@ -14,7 +14,7 @@ Esta guía explica cómo configurar la integración automática de Spotify para 
 **Credenciales que ya tienes:**
 - Client ID: `63358438f35945c7b5cf05f1cd60aa9f`
 - Client Secret: `1d6606f97ba743fdaf12c2c5d8df63f4`
-- Playlist ID: `3v2Zl4aSJgAPMlkxv9FZzS`
+- Playlist ID: `3Nvj5752VBO0BXTpSm5hkH`
 
 ---
 
@@ -86,7 +86,7 @@ En tu proyecto de Vercel → Settings → Environment Variables, agrega:
 | `SPOTIFY_CLIENT_ID` | `63358438f35945c7b5cf05f1cd60aa9f` |
 | `SPOTIFY_CLIENT_SECRET` | `1d6606f97ba743fdaf12c2c5d8df63f4` |
 | `SPOTIFY_REFRESH_TOKEN` | El token largo que obtuviste en el paso anterior |
-| `SPOTIFY_PLAYLIST_ID` | `3v2Zl4aSJgAPMlkxv9FZzS` |
+| `SPOTIFY_PLAYLIST_ID` | `3Nvj5752VBO0BXTpSm5hkH` |
 | `SPOTIFY_REDIRECT_URI` | `https://bodaenelsunset.com/api/spotify-auth` |
 
 **Importante:** Asegúrate de agregar estas variables para **todos los entornos** (Production, Preview, Development) si quieres que funcione en todos lados.

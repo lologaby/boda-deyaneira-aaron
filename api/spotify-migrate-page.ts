@@ -255,7 +255,7 @@ export default async function handler(
                     html += '</div>';
                   }
 
-                  html += '<p style="margin-top: 15px; font-size: 14px; color: #666;">Check your <a href="https://open.spotify.com/playlist/3v2Zl4aSJgAPMlkxv9FZzS" target="_blank" style="color: #1DB954;">Spotify playlist</a> to see the added songs!</p>';
+                  html += '<p style="margin-top: 15px; font-size: 14px; color: #666;">Check your <a href="https://open.spotify.com/playlist/3Nvj5752VBO0BXTpSm5hkH" target="_blank" style="color: #1DB954;">Spotify playlist</a> to see the added songs!</p>';
                   
                   result.innerHTML = html;
                 } else {

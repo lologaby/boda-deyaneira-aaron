@@ -7,7 +7,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || ''
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || ''
 const REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN || ''
-const PLAYLIST_ID = process.env.SPOTIFY_PLAYLIST_ID || '3v2Zl4aSJgAPMlkxv9FZzS'
+const PLAYLIST_ID = process.env.SPOTIFY_PLAYLIST_ID || '3Nvj5752VBO0BXTpSm5hkH'
 
 async function getUserToken(): Promise<string> {
   const basic = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')
