@@ -95,14 +95,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       'https://api.spotify.com/v1/search?q=Mil+Mujeres+Rauw+Alejandro&type=track&limit=1',
       { headers: { Authorization: `Bearer ${refreshToken}` } }
     )
-    const searchData = await searchRes.json()
+    
+    let responseData: any
+    if (searchRes.ok) {
+      try {
+        responseData = await searchRes.json()
+        responseData = { total: responseData?.tracks?.total || 0, items: responseData?.tracks?.items?.length || 0 }
+      } catch (e) {
+        responseData = 'OK but failed to parse JSON'
+      }
+    } else {
+      // Spotify returns text/plain for errors, not JSON
+      responseData = await searchRes.text()
+    }
+    
     results.tests.push({
       name: 'Search with Refresh Token',
       status: searchRes.ok ? 'success' : 'failed',
       httpStatus: searchRes.status,
-      response: searchRes.ok 
-        ? { total: searchData?.tracks?.total || 0, items: searchData?.tracks?.items?.length || 0 }
-        : searchData,
+      response: responseData,
     })
   } catch (e: any) {
     results.tests.push({
