@@ -151,23 +151,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // 2. If we still have no URI, search by name
     if (!uri && songName && typeof songName === 'string') {
-      let searchToken: string
-      
-      // Try client credentials first, fall back to refresh token if 403
-      try {
-        searchToken = await getClientCredentialsToken()
-        // Test it
-        const testRes = await fetch('https://api.spotify.com/v1/search?q=test&type=track&limit=1', {
-          headers: { Authorization: `Bearer ${searchToken}` }
-        })
-        if (!testRes.ok && testRes.status === 403) {
-          throw new Error('Client credentials returned 403')
-        }
-      } catch (e: any) {
-        // Fall back to refresh token (works even in development mode)
-        console.log('Using refresh token for search (client credentials failed)')
-        searchToken = await getUserToken()
-      }
+      // Use refresh token for search (avoids 403 errors in development mode)
+      const searchToken = await getUserToken()
       
       const result = await searchTrack(searchToken, songName)
       if (result) {

@@ -278,42 +278,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 2 – Get Spotify tokens
-    // Use refresh token for BOTH search and playlist operations to avoid 403 errors
+    // SIMPLIFIED: Use refresh token for BOTH search and playlist to avoid 403 errors
+    // Client credentials requires app to be in production mode or users added
     console.log('Getting Spotify tokens...')
     let searchToken: string
     let userToken: string
 
-    // Get user token first (we'll use this for both search and playlist)
+    // Get user token (refresh token) - works even in development mode
     try {
       userToken = await getUserToken()
-      console.log('✓ Got user token for playlist operations')
+      console.log('✓ Got user token (refresh token)')
     } catch (e: any) {
       return res.status(500).json({ success: false, error: `User token failed: ${e.message}` })
     }
 
-    // Try client credentials for search, but use user token as fallback
-    try {
-      searchToken = await getClientCredentialsToken()
-      console.log('✓ Got client credentials token')
-      
-      // Test the token with a real search
-      const testUrl = 'https://api.spotify.com/v1/search?q=Mil+Mujeres+Rauw+Alejandro&type=track&limit=1'
-      const testRes = await fetch(testUrl, { headers: { Authorization: `Bearer ${searchToken}` } })
-      
-      if (!testRes.ok) {
-        const testErr = await testRes.text()
-        console.log(`⚠ Client credentials test failed (${testRes.status}): ${testErr.substring(0, 100)}`)
-        console.log('⚠ Falling back to refresh token for all searches')
-        searchToken = userToken // Use the same token for search
-      } else {
-        console.log('✓ Client credentials token works - using for searches')
-      }
-    } catch (e: any) {
-      console.log('⚠ Client credentials failed, using refresh token for search:', e.message)
-      searchToken = userToken // Use refresh token for search too
-    }
-    
-    console.log(`Final tokens - Search: ${searchToken.substring(0, 20)}..., User: ${userToken.substring(0, 20)}...`)
+    // Use the SAME token for both search and playlist operations
+    // This avoids 403 errors completely
+    searchToken = userToken
+    console.log('✓ Using refresh token for both search and playlist operations')
+    console.log(`Token: ${searchToken.substring(0, 20)}...`)
 
     // 3 – Search and add each song
     const added: { song: string; spotifyName: string; artist: string; uri: string }[] = []

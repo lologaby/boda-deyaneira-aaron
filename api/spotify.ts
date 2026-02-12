@@ -72,24 +72,18 @@ async function getSpotifyRefreshToken(): Promise<string> {
 async function searchSpotify(query: string, limit: number = 5): Promise<MusicTrack[]> {
   let accessToken: string
   
-  // Try client credentials first, fall back to refresh token if 403
-  try {
-    accessToken = await getSpotifyAccessToken()
-    // Test it with a simple search
-    const testRes = await fetch(`https://api.spotify.com/v1/search?q=test&type=track&limit=1`, {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
-    })
-    if (!testRes.ok && testRes.status === 403) {
-      throw new Error('Client credentials returned 403')
-    }
-  } catch (e: any) {
-    // Fall back to refresh token if client credentials fails
-    if (SPOTIFY_REFRESH_TOKEN) {
-      console.log('Using refresh token for search (client credentials failed)')
+  // Use refresh token if available (avoids 403 errors), otherwise try client credentials
+  if (SPOTIFY_REFRESH_TOKEN) {
+    try {
       accessToken = await getSpotifyRefreshToken()
-    } else {
-      throw e
+    } catch (e: any) {
+      // Fall back to client credentials if refresh token fails
+      console.log('Refresh token failed, trying client credentials')
+      accessToken = await getSpotifyAccessToken()
     }
+  } else {
+    // No refresh token configured, use client credentials
+    accessToken = await getSpotifyAccessToken()
   }
   
   const response = await fetch(
