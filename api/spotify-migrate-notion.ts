@@ -393,6 +393,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       console.log(`  ✓ Found: "${result.name}" by ${result.artist} → ${result.uri}`)
 
+      // Add delay between requests to avoid rate limiting
+      // Spotify rate limit is based on requests per 30 seconds
+      if (added.length > 0 || failed.length > 0) {
+        await new Promise(resolve => setTimeout(resolve, 500)) // 500ms delay between requests
+      }
+
       const addRes = await fetch(
         `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/items`,
         {
@@ -421,7 +427,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let reason = `Playlist add error: ${addRes.status}`
         let detailedError = errText.substring(0, 500)
         
-        if (addRes.status === 403) {
+        // Handle rate limiting
+        if (addRes.status === 429) {
+          const retryAfter = addRes.headers.get('retry-after')
+          const retryAfterSeconds = retryAfter ? parseInt(retryAfter) : 30
+          reason = `Rate limit exceeded (429). Wait ${retryAfterSeconds} seconds before retrying.`
+          detailedError = `Rate limit: ${errText.substring(0, 200)}. Retry after ${retryAfterSeconds}s`
+          
+          // If we hit rate limit, stop processing remaining songs
+          console.log(`  ⚠ Rate limit hit. Stopping migration. Processed ${added.length + failed.length} of ${notionSongs.length} songs.`)
+          console.log(`  Wait ${retryAfterSeconds} seconds and run migration again for remaining songs.`)
+        } else if (addRes.status === 403) {
           const errorMsg = errJson?.error?.message || errText
           
           // Check if token user doesn't match playlist owner
@@ -432,6 +448,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             reason = `403 Forbidden: ${errorMsg}. The refresh token may not have permission to edit this playlist. Only playlist owners can add tracks via Spotify API.`
             detailedError = `Full error: ${errText.substring(0, 500)}`
           }
+        } else if (addRes.status === 429) {
+          const retryAfter = addRes.headers.get('retry-after')
+          const retryAfterSeconds = retryAfter ? parseInt(retryAfter) : 30
+          reason = `Rate limit exceeded (429). Wait ${retryAfterSeconds} seconds before retrying.`
+          detailedError = `Rate limit: ${errText.substring(0, 200)}. Retry after ${retryAfterSeconds}s`
         } else if (addRes.status === 404) {
           reason = `404 Not Found: Playlist ID may be incorrect or playlist doesn't exist. Check PLAYLIST_ID=${PLAYLIST_ID}`
         }
@@ -461,11 +482,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       f.reason?.includes('403')
     )
     
+    // Check if we have 429 errors (rate limiting)
+    const has429Errors = failed.some(f => 
+      f.debug?.httpStatus === 429 ||
+      f.reason?.includes('429') ||
+      f.reason?.includes('Rate limit')
+    )
+    
     let message = 'Migration complete'
     let instructions: string[] | undefined
     
     // Check if 403 errors are from playlist add (different issue than search)
     const hasPlaylist403Errors = failed.some(f => f.reason?.includes('403 Forbidden'))
+    
+    // Handle rate limit errors
+    if (has429Errors && added.length === 0) {
+      message = 'Migration failed: Rate limit exceeded'
+      instructions = [
+        'Spotify API rate limit was exceeded while adding songs.',
+        'This happens when making too many requests in a short time.',
+        '',
+        'Solution:',
+        '1. Wait 30-60 seconds',
+        '2. Run the migration again',
+        '3. The migration will continue from where it stopped',
+        '',
+        `Processed: ${added.length + failed.length} of ${notionSongs.length} songs`,
+        `Successfully added: ${added.length}`,
+        `Failed due to rate limit: ${failed.filter(f => f.reason?.includes('429') || f.reason?.includes('Rate limit')).length}`,
+      ]
+    } else if (has429Errors && added.length > 0) {
+      message = 'Migration partially complete: Some songs failed due to rate limit'
+      instructions = [
+        `Successfully added ${added.length} song(s).`,
+        `${failed.filter(f => f.reason?.includes('429') || f.reason?.includes('Rate limit')).length} song(s) failed due to rate limit.`,
+        '',
+        'To add remaining songs:',
+        '1. Wait 30-60 seconds',
+        '2. Run the migration again',
+        '3. It will skip already-added songs and continue',
+      ]
+    }
     
     if (hasPlaylist403Errors && added.length === 0) {
       message = 'Migration failed: Cannot add songs to playlist (403 Forbidden)'
