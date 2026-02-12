@@ -375,12 +375,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(`⚠ Could not get playlist info: ${e}`)
     }
 
-    // 3 – Search and add each song
-    const added: { song: string; spotifyName: string; artist: string; uri: string }[] = []
+    // 3 – Search all songs first, collect URIs
+    const found: { song: string; guest: string; spotifyName: string; artist: string; uri: string; debug: SearchDebug }[] = []
     const failed: { song: string; guest: string; reason: string; debug?: SearchDebug }[] = []
 
     for (const { guestName, song } of notionSongs) {
-      console.log(`\nProcessing: "${song}" (guest: ${guestName})`)
+      console.log(`\nSearching: "${song}" (guest: ${guestName})`)
 
       const debug: SearchDebug = { queries: [], attempts: [] }
       const result = await searchTrack(searchToken, song, debug)
@@ -392,12 +392,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       console.log(`  ✓ Found: "${result.name}" by ${result.artist} → ${result.uri}`)
+      found.push({ song, guest: guestName, spotifyName: result.name, artist: result.artist, uri: result.uri, debug })
+    }
 
-      // Add delay between requests to avoid rate limiting
-      // Spotify rate limit is based on requests per 30 seconds
-      if (added.length > 0 || failed.length > 0) {
-        await new Promise(resolve => setTimeout(resolve, 500)) // 500ms delay between requests
-      }
+    console.log(`\nSearch complete: ${found.length} found, ${failed.length} not found`)
+
+    // 4 – Add ALL found tracks in ONE batch request (max 100 per Spotify API)
+    const added: { song: string; spotifyName: string; artist: string; uri: string }[] = []
+
+    if (found.length > 0) {
+      const allUris = found.map(f => f.uri)
+      console.log(`\nAdding ${allUris.length} tracks to playlist in a single batch request...`)
 
       const addRes = await fetch(
         `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/items`,
@@ -407,72 +412,61 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             Authorization: `Bearer ${userToken}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ uris: [result.uri], position: 0 }),
+          body: JSON.stringify({ uris: allUris }),
         },
       )
 
-      if (!addRes.ok) {
+      if (addRes.ok) {
+        console.log(`  ✓ All ${allUris.length} tracks added to playlist!`)
+        for (const f of found) {
+          added.push({ song: f.song, spotifyName: f.spotifyName, artist: f.artist, uri: f.uri })
+        }
+      } else {
         let errText = await addRes.text()
         let errJson: any = null
         try {
           errJson = JSON.parse(errText)
         } catch (e) {
-          // Not JSON, use as text
+          // Not JSON
         }
         
-        console.log(`  ✗ Failed to add: ${errText}`)
-        console.log(`  Playlist ID: ${PLAYLIST_ID}`)
-        console.log(`  Track URI: ${result.uri}`)
+        console.log(`  ✗ Batch add failed: ${addRes.status} - ${errText}`)
         
         let reason = `Playlist add error: ${addRes.status}`
         let detailedError = errText.substring(0, 500)
         
-        // Handle rate limiting
         if (addRes.status === 429) {
           const retryAfter = addRes.headers.get('retry-after')
           const retryAfterSeconds = retryAfter ? parseInt(retryAfter) : 30
-          reason = `Rate limit exceeded (429). Wait ${retryAfterSeconds} seconds before retrying.`
+          reason = `Rate limit exceeded (429). Retry after ${retryAfterSeconds}s`
           detailedError = `Rate limit: ${errText.substring(0, 200)}. Retry after ${retryAfterSeconds}s`
-          
-          // If we hit rate limit, stop processing remaining songs
-          console.log(`  ⚠ Rate limit hit. Stopping migration. Processed ${added.length + failed.length} of ${notionSongs.length} songs.`)
-          console.log(`  Wait ${retryAfterSeconds} seconds and run migration again for remaining songs.`)
         } else if (addRes.status === 403) {
           const errorMsg = errJson?.error?.message || errText
-          
-          // Check if token user doesn't match playlist owner
           if (tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
-            reason = `403 Forbidden: Spotify API only allows playlist OWNERS to add tracks, not collaborators. Token user (${tokenUserId}) is not the playlist owner (${playlistOwnerId}). You must use the playlist owner's refresh token. See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for solutions.`
-            detailedError = `Token user ID: ${tokenUserId}, Playlist owner ID: ${playlistOwnerId}. Spotify API limitation: only owners can add tracks via API, even if you are a collaborator.`
+            reason = `403 Forbidden: Token user (${tokenUserId}) is not the playlist owner (${playlistOwnerId}).`
           } else {
-            reason = `403 Forbidden: ${errorMsg}. The refresh token may not have permission to edit this playlist. Only playlist owners can add tracks via Spotify API.`
-            detailedError = `Full error: ${errText.substring(0, 500)}`
+            reason = `403 Forbidden: ${errorMsg}`
           }
-        } else if (addRes.status === 429) {
-          const retryAfter = addRes.headers.get('retry-after')
-          const retryAfterSeconds = retryAfter ? parseInt(retryAfter) : 30
-          reason = `Rate limit exceeded (429). Wait ${retryAfterSeconds} seconds before retrying.`
-          detailedError = `Rate limit: ${errText.substring(0, 200)}. Retry after ${retryAfterSeconds}s`
         } else if (addRes.status === 404) {
-          reason = `404 Not Found: Playlist ID may be incorrect or playlist doesn't exist. Check PLAYLIST_ID=${PLAYLIST_ID}`
+          reason = `404 Not Found: Playlist ID ${PLAYLIST_ID} not found`
         }
         
-        failed.push({ 
-          song, 
-          guest: guestName, 
-          reason, 
-          debug: { 
-            ...debug, 
-            addError: detailedError,
-            playlistId: PLAYLIST_ID,
-            trackUri: result.uri,
-            httpStatus: addRes.status,
-            errorJson: errJson,
-          } 
-        })
-      } else {
-        console.log(`  ✓ Added to playlist!`)
-        added.push({ song, spotifyName: result.name, artist: result.artist, uri: result.uri })
+        // Mark all found songs as failed
+        for (const f of found) {
+          failed.push({
+            song: f.song,
+            guest: f.guest,
+            reason,
+            debug: {
+              ...f.debug,
+              addError: detailedError,
+              playlistId: PLAYLIST_ID,
+              trackUri: f.uri,
+              httpStatus: addRes.status,
+              errorJson: errJson,
+            }
+          })
+        }
       }
     }
 
