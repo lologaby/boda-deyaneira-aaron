@@ -51,6 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     clientSecret: CLIENT_SECRET ? 'SET' : 'NOT SET',
     refreshToken: REFRESH_TOKEN ? `${REFRESH_TOKEN.substring(0, 20)}...` : 'NOT SET',
     tests: [],
+    recommendations: [],
   }
 
   // Test 1: Client Credentials Token
@@ -67,12 +68,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       'https://api.spotify.com/v1/search?q=Mil+Mujeres+Rauw+Alejandro&type=track&limit=1',
       { headers: { Authorization: `Bearer ${ccToken}` } }
     )
+    const ccSearchStatus = searchRes.ok ? 'success' : 'failed'
+    const ccSearchResponse = searchRes.ok ? 'OK' : await searchRes.text()
+    
     results.tests.push({
       name: 'Search with Client Credentials',
-      status: searchRes.ok ? 'success' : 'failed',
+      status: ccSearchStatus,
       httpStatus: searchRes.status,
-      response: searchRes.ok ? 'OK' : await searchRes.text(),
+      response: ccSearchResponse,
     })
+    
+    // Add recommendation if Client Credentials fails
+    if (!searchRes.ok && searchRes.status === 403) {
+      results.recommendations.push({
+        priority: 'HIGH',
+        issue: 'Client Credentials search returns 403',
+        solution: 'The app owner MUST have Spotify Premium for development mode apps to work. Verify Premium status at https://www.spotify.com/account/subscription/',
+        documentation: 'https://developer.spotify.com/documentation/web-api/concepts/quota-modes#development-mode',
+      })
+    }
   } catch (e: any) {
     results.tests.push({
       name: 'Client Credentials Token',
@@ -109,18 +123,53 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       responseData = await searchRes.text()
     }
     
+    const rtSearchStatus = searchRes.ok ? 'success' : 'failed'
+    
     results.tests.push({
       name: 'Search with Refresh Token',
-      status: searchRes.ok ? 'success' : 'failed',
+      status: rtSearchStatus,
       httpStatus: searchRes.status,
       response: responseData,
     })
+    
+    // Add recommendation if Refresh Token search fails
+    if (!searchRes.ok && searchRes.status === 403) {
+      results.recommendations.push({
+        priority: 'MEDIUM',
+        issue: 'Refresh Token search returns 403',
+        solution: 'The user associated with the refresh token must be added to the app\'s user list. Go to Dashboard → Your App → Settings → Users Management → Add new user. Use the EXACT name and email from their Spotify profile. Wait 10 minutes after adding.',
+        documentation: 'https://developer.spotify.com/documentation/web-api/concepts/quota-modes#adding-a-user-to-your-apps-allowlist',
+      })
+    }
   } catch (e: any) {
     results.tests.push({
       name: 'Refresh Token',
       status: 'failed',
       error: e.message,
     })
+  }
+
+  // Add summary recommendation
+  const ccWorks = results.tests.find((t: any) => t.name === 'Search with Client Credentials')?.status === 'success'
+  const rtWorks = results.tests.find((t: any) => t.name === 'Search with Refresh Token')?.status === 'success'
+  
+  if (ccWorks && !rtWorks) {
+    results.summary = {
+      status: 'PARTIAL',
+      message: 'Client Credentials works! Use it for searches. Refresh Token needs user added to app.',
+      action: 'Add the refresh token user to Users Management in Dashboard',
+    }
+  } else if (!ccWorks && !rtWorks) {
+    results.summary = {
+      status: 'FAILED',
+      message: 'Both tokens fail. Most likely cause: App owner does not have Spotify Premium.',
+      action: 'Verify Premium status and activate if needed',
+    }
+  } else if (ccWorks && rtWorks) {
+    results.summary = {
+      status: 'SUCCESS',
+      message: 'Both tokens work! Everything is configured correctly.',
+    }
   }
 
   return res.status(200).json(results)
