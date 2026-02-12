@@ -53,7 +53,7 @@ export default async function handler(
           <style>
             body {
               font-family: system-ui, -apple-system, sans-serif;
-              max-width: 600px;
+              max-width: 700px;
               margin: 50px auto;
               padding: 20px;
               line-height: 1.6;
@@ -74,16 +74,67 @@ export default async function handler(
               border-radius: 3px;
               font-size: 14px;
             }
+            .warning-box {
+              background: #fff3cd;
+              border-left: 4px solid #ffc107;
+              padding: 15px;
+              margin: 20px 0;
+            }
+            .uri-box {
+              background: #e7f3ff;
+              border-left: 4px solid #2196F3;
+              padding: 15px;
+              margin: 15px 0;
+              word-break: break-all;
+              font-family: monospace;
+              font-size: 13px;
+            }
+            .steps {
+              background: #f8f9fa;
+              padding: 15px;
+              border-radius: 5px;
+              margin: 15px 0;
+            }
+            .steps ol {
+              margin: 10px 0;
+              padding-left: 20px;
+            }
+            .steps li {
+              margin: 8px 0;
+            }
           </style>
         </head>
         <body>
           <h1>🎵 Spotify Playlist Setup</h1>
-          <p>Click the button below to authorize access to your Spotify playlist:</p>
+          
+          <div class="warning-box">
+            <strong>⚠️ IMPORTANT:</strong> Before clicking "Authorize Spotify", you MUST add this redirect URI to your Spotify app settings:
+          </div>
+          
+          <div class="uri-box">
+            ${REDIRECT_URI}
+          </div>
+          
+          <div class="steps">
+            <h3>Steps to fix "INVALID_CLIENT: Invalid redirect URI":</h3>
+            <ol>
+              <li>Go to <a href="https://developer.spotify.com/dashboard" target="_blank">Spotify Developer Dashboard</a></li>
+              <li>Click on your app (Client ID: <code>${SPOTIFY_CLIENT_ID}</code>)</li>
+              <li>Click <strong>"Edit Settings"</strong></li>
+              <li>Scroll to <strong>"Redirect URIs"</strong></li>
+              <li>Click <strong>"Add URI"</strong></li>
+              <li>Paste exactly: <code>${REDIRECT_URI}</code></li>
+              <li>Click <strong>"Add"</strong> and then <strong>"Save"</strong></li>
+              <li>Come back here and click the button below</li>
+            </ol>
+          </div>
+          
+          <p>Once you've added the redirect URI above, click the button below:</p>
           <a href="${authUrl}" class="btn">Authorize Spotify</a>
+          
           <p><strong>After authorizing:</strong></p>
           <ol>
             <li>You'll be redirected back here with a code in the URL</li>
-            <li>Copy the entire URL</li>
             <li>The refresh token will be displayed - save it to <code>SPOTIFY_REFRESH_TOKEN</code> in Vercel environment variables</li>
           </ol>
         </body>
@@ -110,14 +161,89 @@ export default async function handler(
       })
 
       if (!response.ok) {
-        const error = await response.text()
+        const errorText = await response.text()
+        let errorMessage = errorText
+        let isRedirectError = false
+        
+        try {
+          const errorJson = JSON.parse(errorText)
+          errorMessage = errorJson.error_description || errorJson.error || errorText
+          isRedirectError = errorMessage.includes('redirect_uri') || errorMessage.includes('INVALID_CLIENT')
+        } catch {
+          // Not JSON, use as-is
+          isRedirectError = errorText.includes('redirect_uri') || errorText.includes('INVALID_CLIENT')
+        }
+
         return res.status(500).send(`
           <!DOCTYPE html>
           <html>
-            <body style="font-family: system-ui; padding: 20px; max-width: 600px; margin: 0 auto;">
+            <head>
+              <style>
+                body {
+                  font-family: system-ui, -apple-system, sans-serif;
+                  max-width: 700px;
+                  margin: 50px auto;
+                  padding: 20px;
+                  line-height: 1.6;
+                }
+                .error-box {
+                  background: #fee;
+                  border-left: 4px solid #f00;
+                  padding: 15px;
+                  margin: 15px 0;
+                }
+                .uri-box {
+                  background: #e7f3ff;
+                  border-left: 4px solid #2196F3;
+                  padding: 15px;
+                  margin: 15px 0;
+                  word-break: break-all;
+                  font-family: monospace;
+                  font-size: 13px;
+                }
+                .steps {
+                  background: #f8f9fa;
+                  padding: 15px;
+                  border-radius: 5px;
+                  margin: 15px 0;
+                }
+                code {
+                  background: #f4f4f4;
+                  padding: 2px 6px;
+                  border-radius: 3px;
+                  font-size: 14px;
+                }
+              </style>
+            </head>
+            <body>
               <h1>❌ Error</h1>
-              <p>Failed to get tokens from Spotify:</p>
-              <pre style="background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto;">${error}</pre>
+              <div class="error-box">
+                <strong>Error from Spotify:</strong><br>
+                ${errorMessage}
+              </div>
+              
+              ${isRedirectError ? `
+                <h2>🔧 How to Fix Redirect URI Error:</h2>
+                <div class="uri-box">
+                  <strong>Add this exact URI to your Spotify app:</strong><br>
+                  ${REDIRECT_URI}
+                </div>
+                <div class="steps">
+                  <ol>
+                    <li>Go to <a href="https://developer.spotify.com/dashboard" target="_blank">Spotify Developer Dashboard</a></li>
+                    <li>Click on your app (Client ID: <code>${SPOTIFY_CLIENT_ID}</code>)</li>
+                    <li>Click <strong>"Edit Settings"</strong></li>
+                    <li>Scroll to <strong>"Redirect URIs"</strong></li>
+                    <li>Click <strong>"Add URI"</strong></li>
+                    <li>Paste exactly: <code>${REDIRECT_URI}</code></li>
+                    <li>Click <strong>"Add"</strong> and then <strong>"Save"</strong></li>
+                    <li>Try again: <a href="?setup=true">Start Setup Again</a></li>
+                  </ol>
+                </div>
+              ` : `
+                <p>Full error details:</p>
+                <pre style="background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto;">${errorText}</pre>
+              `}
             </body>
           </html>
         `)
