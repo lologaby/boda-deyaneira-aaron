@@ -211,12 +211,24 @@ export default async function handler(
                     html += '</div>';
                   }
 
+                  if (data.addedSongs && data.addedSongs.length > 0) {
+                    html += '<div class="failed-songs" style="background:#d4edda;border-color:#c3e6cb">';
+                    html += '<h3 style="color:#155724">Added to playlist:</h3>';
+                    html += '<ul>';
+                    data.addedSongs.forEach(function(s) {
+                      html += '<li style="color:#155724">✓ ' + s.spotifyName + ' - ' + s.artist + ' <small style="color:#888">(from: ' + s.song + ')</small></li>';
+                    });
+                    html += '</ul>';
+                    html += '</div>';
+                  }
+
                   if (data.failedSongs && data.failedSongs.length > 0) {
                     html += '<div class="failed-songs">';
-                    html += '<h3>Songs that could not be found:</h3>';
+                    html += '<h3>Could not find:</h3>';
                     html += '<ul>';
-                    data.failedSongs.forEach(song => {
-                      html += '<li>• ' + song + '</li>';
+                    data.failedSongs.forEach(function(s) {
+                      var label = typeof s === 'string' ? s : (s.song + ' (guest: ' + s.guest + ') - ' + s.reason);
+                      html += '<li>✗ ' + label + '</li>';
                     });
                     html += '</ul>';
                     html += '</div>';

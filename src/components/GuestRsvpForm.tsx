@@ -42,20 +42,26 @@ export const GuestRsvpForm = ({
     const totalGuests = guest.plusOneAllowed && bringingPlusOne ? 2 : 1
     const nameToSubmit = guest.plusOneAllowed && bringingPlusOne ? plusOneName.trim() : undefined
     
-    // Add track to Spotify playlist if available
-    if (selectedTrack?.spotifyId || selectedTrack?.id) {
+    // Add track to Spotify playlist
+    // Send spotifyUri if available (fast path), otherwise songName for search fallback
+    if (song.trim()) {
       try {
+        const payload: Record<string, string> = { songName: song.trim() }
+        
+        // If user selected a track from Spotify results, send the direct URI
+        if (selectedTrack?.spotifyId) {
+          payload.spotifyUri = `spotify:track:${selectedTrack.spotifyId}`
+        } else if (selectedTrack?.id) {
+          payload.trackId = selectedTrack.id
+        }
+        
         await fetch('/api/spotify-add-track', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            trackId: selectedTrack.spotifyId || selectedTrack.id,
-            guestName: guest.name,
-            song: `${selectedTrack.name} - ${selectedTrack.artist}`,
-          }),
+          body: JSON.stringify(payload),
         })
-        // Don't block RSVP submission if Spotify fails - just log it
       } catch (error) {
+        // Don't block RSVP submission if Spotify fails
         console.warn('Failed to add track to Spotify playlist:', error)
       }
     }

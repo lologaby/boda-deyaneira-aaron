@@ -1,304 +1,277 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 /**
- * Migrate songs from Notion database to Spotify playlist
- * ONE-TIME MIGRATION: Reads RSVP songs from Notion and adds them to Spotify playlist
+ * Migrate songs from Notion RSVP database → Spotify playlist.
+ *
+ * Reads all confirmed guests, extracts their song requests,
+ * searches Spotify, and adds found tracks to the playlist.
+ *
+ * Uses the EXACT same token + search logic as spotify-add-track.ts
  */
 
 const NOTION_API_KEY = process.env.NOTION_API_KEY || ''
-const NOTION_DATABASE_ID = process.env.NOTION_GUESTS_DATABASE_ID || ''
-const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || ''
-const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || ''
-const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN || ''
-const SPOTIFY_PLAYLIST_ID = process.env.SPOTIFY_PLAYLIST_ID || '3v2Zl4aSJgAPMlkxv9FZzS'
+const NOTION_DB_ID = process.env.NOTION_GUESTS_DATABASE_ID || ''
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || ''
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || ''
+const REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN || ''
+const PLAYLIST_ID = process.env.SPOTIFY_PLAYLIST_ID || '3v2Zl4aSJgAPMlkxv9FZzS'
 
-interface SpotifyTokenResponse {
-  access_token: string
-}
+// ── Spotify helpers (same as spotify-add-track.ts) ───────────────────
 
-// Get Spotify access token
-async function getSpotifyAccessToken(useRefreshToken: boolean = true): Promise<string> {
-  const basic = Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')
-  
-  const body = useRefreshToken
-    ? new URLSearchParams({
-        grant_type: 'refresh_token',
-        refresh_token: SPOTIFY_REFRESH_TOKEN,
-      })
-    : 'grant_type=client_credentials'
-
-  const response = await fetch('https://accounts.spotify.com/api/token', {
+async function getClientCredentialsToken(): Promise<string> {
+  const basic = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')
+  const r = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: {
-      'Authorization': `Basic ${basic}`,
+      Authorization: `Basic ${basic}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body,
+    body: 'grant_type=client_credentials',
   })
-
-  if (!response.ok) {
-    throw new Error('Failed to get Spotify access token')
+  if (!r.ok) {
+    const t = await r.text()
+    throw new Error(`Client credentials failed ${r.status}: ${t}`)
   }
-
-  const data: SpotifyTokenResponse = await response.json()
-  return data.access_token
+  return ((await r.json()) as any).access_token
 }
 
-// Search Spotify for a track with multiple strategies
-async function searchSpotifyTrack(accessToken: string, query: string): Promise<string | null> {
-  console.log(`Searching for: "${query}"`)
-  
-  // Strategy 1: If format is "Song - Artist", search with both together (most common format)
-  if (query.includes(' - ')) {
-    const parts = query.split(' - ')
-    if (parts.length === 2) {
-      const [track, artist] = parts
-      const searchQuery = `${track.trim()} ${artist.trim()}`
-      
-      console.log(`  Strategy 1: Simple search "${searchQuery}"`)
-      
-      // Try simple combined search (usually works best)
-      let response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=3`,
-        {
-          headers: { 'Authorization': `Bearer ${accessToken}` },
-        }
-      )
-      
-      if (response.ok) {
-        const data = await response.json()
-        if (data.tracks?.items?.length > 0) {
-          console.log(`  ✓ Found ${data.tracks.items.length} results`)
-          console.log(`  First result: "${data.tracks.items[0].name}" by ${data.tracks.items[0].artists[0].name}`)
-          return data.tracks.items[0].id
-        } else {
-          console.log(`  ✗ No results`)
-        }
-      } else {
-        console.log(`  ✗ API error: ${response.status}`)
-        const error = await response.text()
-        console.log(`  Error details: ${error}`)
-      }
+async function getUserToken(): Promise<string> {
+  const basic = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')
+  const r = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${basic}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: REFRESH_TOKEN }).toString(),
+  })
+  if (!r.ok) {
+    const t = await r.text()
+    throw new Error(`User token failed ${r.status}: ${t}`)
+  }
+  return ((await r.json()) as any).access_token
+}
 
-      // Strategy 2: Try structured search without quotes
-      const structuredQuery = `track:${track.trim()} artist:${artist.trim()}`
-      console.log(`  Strategy 2: Structured search "${structuredQuery}"`)
-      
-      response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(structuredQuery)}&type=track&limit=3`,
-        {
-          headers: { 'Authorization': `Bearer ${accessToken}` },
-        }
-      )
-      
-      if (response.ok) {
-        const data = await response.json()
-        if (data.tracks?.items?.length > 0) {
-          console.log(`  ✓ Found ${data.tracks.items.length} results`)
-          return data.tracks.items[0].id
-        } else {
-          console.log(`  ✗ No results`)
-        }
+function cleanQuery(raw: string): string {
+  return raw
+    .replace(/\(feat\.?[^)]*\)/gi, '')
+    .replace(/\[feat\.?[^\]]*\]/gi, '')
+    .replace(/\(ft\.?[^)]*\)/gi, '')
+    .replace(/\(with[^)]*\)/gi, '')
+    .replace(/\(prod\.?[^)]*\)/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
+interface SearchResult {
+  uri: string
+  name: string
+  artist: string
+}
+
+async function searchTrack(token: string, raw: string): Promise<SearchResult | null> {
+  const queries: string[] = []
+
+  if (raw.includes(' - ')) {
+    const [song, artist] = raw.split(' - ').map(s => s.trim())
+    queries.push(`${cleanQuery(song)} ${cleanQuery(artist)}`)
+    queries.push(`${song} ${artist}`)
+  }
+  queries.push(cleanQuery(raw))
+  queries.push(raw)
+
+  const seen = new Set<string>()
+  const unique = queries.filter(q => {
+    const k = q.toLowerCase()
+    if (seen.has(k)) return false
+    seen.add(k)
+    return true
+  })
+
+  for (const q of unique) {
+    const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=3&market=US`
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+
+    if (!r.ok) {
+      console.error(`  search fail "${q}": ${r.status} ${await r.text()}`)
+      continue
+    }
+
+    const data = await r.json()
+    const items = data?.tracks?.items
+    if (items && items.length > 0) {
+      return {
+        uri: items[0].uri,
+        name: items[0].name,
+        artist: items[0].artists?.[0]?.name || '',
       }
     }
   }
-  
-  // Strategy 3: Plain search as fallback
-  console.log(`  Strategy 3: Plain search "${query}"`)
-  const response = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=3`,
-    {
-      headers: { 'Authorization': `Bearer ${accessToken}` },
-    }
-  )
-  
-  if (response.ok) {
-    const data = await response.json()
-    if (data.tracks?.items?.length > 0) {
-      console.log(`  ✓ Found ${data.tracks.items.length} results`)
-      return data.tracks.items[0].id
-    } else {
-      console.log(`  ✗ No results from any strategy`)
-    }
-  } else {
-    console.log(`  ✗ API error: ${response.status}`)
-  }
-  
+
   return null
 }
 
-// Add tracks to Spotify playlist
-async function addTracksToPlaylist(accessToken: string, trackUris: string[]): Promise<void> {
-  // Spotify allows max 100 tracks per request
-  const chunks = []
-  for (let i = 0; i < trackUris.length; i += 100) {
-    chunks.push(trackUris.slice(i, i + 100))
-  }
+// ── Notion helpers ───────────────────────────────────────────────────
 
-  for (const chunk of chunks) {
-    const response = await fetch(
-      `https://api.spotify.com/v1/playlists/${SPOTIFY_PLAYLIST_ID}/tracks`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ uris: chunk }),
-      }
-    )
-
-    if (!response.ok) {
-      const error = await response.text()
-      console.error('Failed to add chunk:', error)
-    }
-  }
+interface NotionSong {
+  guestName: string
+  song: string
 }
 
-// Get songs from Notion
-async function getSongsFromNotion(): Promise<string[]> {
-  const response = await fetch(
-    `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`,
-    {
+async function getSongsFromNotion(): Promise<NotionSong[]> {
+  let allResults: any[] = []
+  let startCursor: string | undefined
+
+  // Paginate through all results
+  do {
+    const body: any = {}
+    if (startCursor) body.start_cursor = startCursor
+
+    const r = await fetch(`https://api.notion.com/v1/databases/${NOTION_DB_ID}/query`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${NOTION_API_KEY}`,
+        Authorization: `Bearer ${NOTION_API_KEY}`,
         'Notion-Version': '2022-06-28',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        filter: {
-          property: 'Attendance',
-          select: { equals: 'Yes' },
-        },
-      }),
+      body: JSON.stringify(body),
+    })
+
+    if (!r.ok) {
+      const t = await r.text()
+      throw new Error(`Notion query failed ${r.status}: ${t}`)
     }
-  )
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch from Notion')
-  }
+    const data = await r.json()
+    allResults = allResults.concat(data.results || [])
+    startCursor = data.has_more ? data.next_cursor : undefined
+  } while (startCursor)
 
-  const data = await response.json()
-  const songs: string[] = []
+  const songs: NotionSong[] = []
 
-  for (const page of data.results || []) {
-    const properties = page.properties || {}
-    
-    // Get song from "Song Request" property (rich_text or title)
-    const songProperty = properties['Song Request'] || properties['Song'] || properties['Cancion']
+  for (const page of allResults) {
+    const props = page.properties || {}
+
+    // Get guest name
+    let guestName = ''
+    const nameP = props.Name || props.Nombre || props.Guest
+    if (nameP?.title) guestName = nameP.title.map((t: any) => t.plain_text).join('')
+    else if (nameP?.rich_text) guestName = nameP.rich_text.map((t: any) => t.plain_text).join('')
+
+    // Get song text - try multiple property names
     let songText = ''
-    
-    if (songProperty?.rich_text) {
-      songText = songProperty.rich_text.map((t: any) => t.plain_text).join('')
-    } else if (songProperty?.title) {
-      songText = songProperty.title.map((t: any) => t.plain_text).join('')
-    }
+    const songP = props['Song Request'] || props['Song'] || props['Cancion'] || props['Canción'] || props['song'] || props['song_request']
+    if (songP?.rich_text) songText = songP.rich_text.map((t: any) => t.plain_text).join('')
+    else if (songP?.title) songText = songP.title.map((t: any) => t.plain_text).join('')
 
-    if (songText && songText.trim().length > 0) {
-      songs.push(songText.trim())
+    if (songText && songText.trim().length > 1) {
+      songs.push({ guestName: guestName.trim(), song: songText.trim() })
     }
   }
 
   return songs
 }
 
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
-  // CORS headers
+// ── handler ──────────────────────────────────────────────────────────
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   res.setHeader('Content-Type', 'application/json')
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end()
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end()
+  if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' })
 
-  // Only allow POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, error: 'Method not allowed' })
-  }
-
-  // Check configuration
-  const missingConfig: string[] = []
-  if (!NOTION_API_KEY) missingConfig.push('NOTION_API_KEY')
-  if (!NOTION_DATABASE_ID) missingConfig.push('NOTION_GUESTS_DATABASE_ID')
-  if (!SPOTIFY_CLIENT_ID) missingConfig.push('SPOTIFY_CLIENT_ID')
-  if (!SPOTIFY_CLIENT_SECRET) missingConfig.push('SPOTIFY_CLIENT_SECRET')
-  if (!SPOTIFY_REFRESH_TOKEN) missingConfig.push('SPOTIFY_REFRESH_TOKEN')
-
-  if (missingConfig.length > 0) {
-    return res.status(500).json({
-      success: false,
-      error: `Missing configuration: ${missingConfig.join(', ')}`,
-      missing: missingConfig,
-    })
-  }
+  // Check config
+  const missing: string[] = []
+  if (!NOTION_API_KEY) missing.push('NOTION_API_KEY')
+  if (!NOTION_DB_ID) missing.push('NOTION_GUESTS_DATABASE_ID')
+  if (!CLIENT_ID) missing.push('SPOTIFY_CLIENT_ID')
+  if (!CLIENT_SECRET) missing.push('SPOTIFY_CLIENT_SECRET')
+  if (!REFRESH_TOKEN) missing.push('SPOTIFY_REFRESH_TOKEN')
+  if (missing.length) return res.status(500).json({ success: false, error: `Missing: ${missing.join(', ')}`, missing })
 
   try {
-    // Get songs from Notion
+    // 1 – Get songs from Notion
     console.log('Fetching songs from Notion...')
-    const songs = await getSongsFromNotion()
-    console.log(`Found ${songs.length} songs in Notion`)
+    const notionSongs = await getSongsFromNotion()
+    console.log(`Found ${notionSongs.length} song(s) in Notion`)
 
-    if (songs.length === 0) {
-      return res.status(200).json({
-        success: true,
-        message: 'No songs found in Notion database',
-        added: 0,
-        failed: 0,
-      })
+    if (notionSongs.length === 0) {
+      return res.status(200).json({ success: true, message: 'No songs in Notion', total: 0, added: 0, failed: 0 })
     }
 
-    // Get Spotify access tokens
-    console.log('Getting Spotify access tokens...')
-    const searchAccessToken = await getSpotifyAccessToken(false) // Client credentials for search
-    console.log('Got search token:', searchAccessToken.substring(0, 20) + '...')
-    const playlistAccessToken = await getSpotifyAccessToken(true) // Refresh token for playlist modification
-    console.log('Got playlist token')
+    // 2 – Get Spotify tokens
+    console.log('Getting Spotify tokens...')
+    let searchToken: string
+    let userToken: string
 
-    // Search for each song and collect track IDs
-    const trackUris: string[] = []
-    const failed: string[] = []
+    try {
+      searchToken = await getClientCredentialsToken()
+      console.log('✓ Got search token')
+    } catch (e: any) {
+      return res.status(500).json({ success: false, error: `Search token failed: ${e.message}` })
+    }
 
-    console.log('\nStarting song search...')
-    for (const song of songs) {
-      try {
-        const trackId = await searchSpotifyTrack(searchAccessToken, song)
-        if (trackId) {
-          console.log(`✓ Found: ${song} (ID: ${trackId})`)
-          trackUris.push(`spotify:track:${trackId}`)
-        } else {
-          console.log(`✗ Not found: ${song}`)
-          failed.push(song)
-        }
-      } catch (error) {
-        console.error(`Failed to search for "${song}":`, error)
-        failed.push(song)
+    try {
+      userToken = await getUserToken()
+      console.log('✓ Got user token')
+    } catch (e: any) {
+      return res.status(500).json({ success: false, error: `User token failed: ${e.message}` })
+    }
+
+    // 3 – Search and add each song
+    const added: { song: string; spotifyName: string; artist: string; uri: string }[] = []
+    const failed: { song: string; guest: string; reason: string }[] = []
+
+    for (const { guestName, song } of notionSongs) {
+      console.log(`\nProcessing: "${song}" (guest: ${guestName})`)
+
+      const result = await searchTrack(searchToken, song)
+
+      if (!result) {
+        console.log(`  ✗ Not found on Spotify`)
+        failed.push({ song, guest: guestName, reason: 'Not found on Spotify' })
+        continue
       }
-    }
 
-    // Add all tracks to playlist
-    if (trackUris.length > 0) {
-      await addTracksToPlaylist(playlistAccessToken, trackUris)
+      console.log(`  ✓ Found: "${result.name}" by ${result.artist} → ${result.uri}`)
+
+      // Add to playlist
+      const addRes = await fetch(
+        `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/tracks`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ uris: [result.uri] }),
+        },
+      )
+
+      if (!addRes.ok) {
+        const err = await addRes.text()
+        console.log(`  ✗ Failed to add: ${err}`)
+        failed.push({ song, guest: guestName, reason: `Playlist add error: ${addRes.status}` })
+      } else {
+        console.log(`  ✓ Added to playlist!`)
+        added.push({ song, spotifyName: result.name, artist: result.artist, uri: result.uri })
+      }
     }
 
     return res.status(200).json({
       success: true,
       message: 'Migration complete',
-      total: songs.length,
-      added: trackUris.length,
+      total: notionSongs.length,
+      added: added.length,
       failed: failed.length,
+      addedSongs: added,
       failedSongs: failed,
     })
   } catch (error: any) {
     console.error('Migration error:', error)
-    return res.status(500).json({
-      success: false,
-      error: error.message || 'Migration failed',
-    })
+    return res.status(500).json({ success: false, error: error.message })
   }
 }
