@@ -61,7 +61,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         status: 'success',
         userId: profile.id,
         displayName: profile.display_name,
-        email: profile.email,
+        email: profile.email || 'Not provided by Spotify',
+        country: profile.country,
+        product: profile.product, // "premium" or "free"
         note: 'Token is valid. Scopes cannot be verified directly, but will be tested when adding tracks.',
       })
     } else {
@@ -150,6 +152,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     }
 
+    // Test 3.5: Try to modify playlist details (less restrictive than adding tracks)
+    try {
+      const modifyRes = await fetch(
+        `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ description: 'Test' }),
+        },
+      )
+      if (modifyRes.ok) {
+        results.tests.push({
+          name: 'Modify Playlist Details',
+          status: 'success',
+          message: 'Can modify playlist details - permissions seem OK',
+        })
+      } else {
+        const modifyErr = await modifyRes.text()
+        results.tests.push({
+          name: 'Modify Playlist Details',
+          status: 'failed',
+          httpStatus: modifyRes.status,
+          error: modifyErr,
+          note: 'Cannot modify playlist details - this confirms permission issue',
+        })
+      }
+    } catch (e: any) {
+      results.tests.push({
+        name: 'Modify Playlist Details',
+        status: 'failed',
+        error: e.message,
+      })
+    }
+
     // Test 4: Try to add a test track (use a popular track that definitely exists)
     const testTrackUri = 'spotify:track:4uLU6hMCjMI75M1A2tKUQC5' // "Never Gonna Give You Up" by Rick Astley
     const addRes = await fetch(
@@ -204,7 +243,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
         solution = `403 Forbidden: Spotify API only allows playlist OWNERS to add tracks via API, not collaborators. The token user (${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}) is not the playlist owner (${playlistInfo?.ownerDisplayName}). You must use the playlist owner's refresh token. See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for solutions.`
       } else if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId === playlistOwnerId) {
-        solution = `403 Forbidden: Even though you are the playlist owner, the token doesn't have permission. 
+        const userProfile = results.tests.find((t: any) => t.name === 'Get User Profile')
+        const userEmail = userProfile?.email || 'your-email@example.com'
+        const userName = userProfile?.displayName || 'Dot0x'
+        
+        solution = `403 Forbidden: Even though you are the playlist owner, the token doesn't have permission.
 
 CRITICAL: In Development Mode, even the app owner must be added to the user list!
 
@@ -214,15 +257,22 @@ Steps to fix:
 3. Click "Edit Settings"
 4. Go to "Users Management" tab
 5. Click "Add new user"
-6. Add your Spotify account email: ${results.tests.find((t: any) => t.name === 'Get User Profile')?.email || 'your-email@example.com'}
-7. Enter your display name: ${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName || 'Dot0x'}
-8. Save and wait 1-2 minutes
+6. Add your Spotify account email: ${userEmail}
+   ⚠️ IMPORTANT: Use the EXACT email from your Spotify account
+   ⚠️ If you logged in with Facebook/Google, use that email
+7. Enter your display name: ${userName}
+8. Save and wait 5-10 minutes (can take longer)
 9. Try again
 
-Also verify:
-- Refresh token was generated with CURRENT app credentials (not old ones)
-- Token has scopes: playlist-modify-public, playlist-modify-private
-- You authorized the app with the correct account`
+Troubleshooting:
+- Verify the email matches EXACTLY (case-sensitive)
+- If you logged in with Facebook, use your Facebook email
+- If you logged in with Google, use your Google email
+- Check that you're using the CORRECT app (not an old one)
+- Verify refresh token was generated AFTER adding yourself to user list
+- Try regenerating refresh token: /api/spotify-auth?setup=true
+
+Required scopes: playlist-modify-public, playlist-modify-private`
       } else if (addRes.status === 403) {
         solution = '403 Forbidden: The token does not have permission to edit this playlist. Only playlist owners can add tracks via Spotify API. Regenerate the refresh token at /api/spotify-auth?setup=true'
       }
