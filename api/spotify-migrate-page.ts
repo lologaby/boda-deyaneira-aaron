@@ -213,7 +213,7 @@ export default async function handler(
 
                   if (data.failedSongs && data.failedSongs.length > 0) {
                     html += '<div class="failed-songs">';
-                    html += '<h3>Songs that couldn\'t be found:</h3>';
+                    html += '<h3>Songs that could not be found:</h3>';
                     html += '<ul>';
                     data.failedSongs.forEach(song => {
                       html += '<li>• ' + song + '</li>';
