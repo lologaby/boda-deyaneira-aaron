@@ -69,7 +69,16 @@ interface SearchResult {
   artist: string
 }
 
-async function searchTrack(token: string, raw: string): Promise<SearchResult | null> {
+interface SearchDebug {
+  queries: string[]
+  attempts: Array<{ query: string; status: number; total?: number; items?: number; error?: string }>
+}
+
+async function searchTrack(
+  token: string,
+  raw: string,
+  debug?: SearchDebug
+): Promise<SearchResult | null> {
   const queries: string[] = []
 
   if (raw.includes(' - ')) {
@@ -88,22 +97,37 @@ async function searchTrack(token: string, raw: string): Promise<SearchResult | n
     return true
   })
 
+  if (debug) {
+    debug.queries = unique
+    debug.attempts = []
+  }
+
   for (const q of unique) {
     const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=3&market=US`
     console.log(`  Trying query: "${q}"`)
+    
     const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
 
     if (!r.ok) {
       const errorText = await r.text()
       console.error(`  ✗ Search failed "${q}": ${r.status} - ${errorText}`)
+      if (debug) {
+        debug.attempts.push({ query: q, status: r.status, error: errorText.substring(0, 200) })
+      }
       continue
     }
 
     const data = await r.json()
-    console.log(`  Response: total=${data?.tracks?.total || 0}, items=${data?.tracks?.items?.length || 0}`)
+    const total = data?.tracks?.total || 0
+    const items = data?.tracks?.items || []
     
-    const items = data?.tracks?.items
-    if (items && items.length > 0) {
+    console.log(`  Response: total=${total}, items=${items.length}`)
+    
+    if (debug) {
+      debug.attempts.push({ query: q, status: r.status, total, items: items.length })
+    }
+    
+    if (items.length > 0) {
       const first = items[0]
       console.log(`  ✓ Found: "${first.name}" by ${first.artists?.[0]?.name || 'Unknown'}`)
       return {
@@ -240,16 +264,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // 3 – Search and add each song
     const added: { song: string; spotifyName: string; artist: string; uri: string }[] = []
-    const failed: { song: string; guest: string; reason: string }[] = []
+    const failed: { song: string; guest: string; reason: string; debug?: SearchDebug }[] = []
 
     for (const { guestName, song } of notionSongs) {
       console.log(`\nProcessing: "${song}" (guest: ${guestName})`)
 
-      const result = await searchTrack(searchToken, song)
+      const debug: SearchDebug = { queries: [], attempts: [] }
+      const result = await searchTrack(searchToken, song, debug)
 
       if (!result) {
         console.log(`  ✗ Not found on Spotify`)
-        failed.push({ song, guest: guestName, reason: 'Not found on Spotify' })
+        failed.push({ song, guest: guestName, reason: 'Not found on Spotify', debug })
         continue
       }
 
@@ -271,7 +296,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!addRes.ok) {
         const err = await addRes.text()
         console.log(`  ✗ Failed to add: ${err}`)
-        failed.push({ song, guest: guestName, reason: `Playlist add error: ${addRes.status}` })
+        failed.push({ song, guest: guestName, reason: `Playlist add error: ${addRes.status}`, debug })
       } else {
         console.log(`  ✓ Added to playlist!`)
         added.push({ song, spotifyName: result.name, artist: result.artist, uri: result.uri })
@@ -286,6 +311,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       failed: failed.length,
       addedSongs: added,
       failedSongs: failed,
+      debug: {
+        tokenTest: 'passed',
+        searchTokenLength: searchToken.length,
+        userTokenLength: userToken.length,
+      },
     })
   } catch (error: any) {
     console.error('Migration error:', error)
