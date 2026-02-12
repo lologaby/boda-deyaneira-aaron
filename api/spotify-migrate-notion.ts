@@ -90,21 +90,29 @@ async function searchTrack(token: string, raw: string): Promise<SearchResult | n
 
   for (const q of unique) {
     const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=3&market=US`
+    console.log(`  Trying query: "${q}"`)
     const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
 
     if (!r.ok) {
-      console.error(`  search fail "${q}": ${r.status} ${await r.text()}`)
+      const errorText = await r.text()
+      console.error(`  ✗ Search failed "${q}": ${r.status} - ${errorText}`)
       continue
     }
 
     const data = await r.json()
+    console.log(`  Response: total=${data?.tracks?.total || 0}, items=${data?.tracks?.items?.length || 0}`)
+    
     const items = data?.tracks?.items
     if (items && items.length > 0) {
+      const first = items[0]
+      console.log(`  ✓ Found: "${first.name}" by ${first.artists?.[0]?.name || 'Unknown'}`)
       return {
-        uri: items[0].uri,
-        name: items[0].name,
-        artist: items[0].artists?.[0]?.name || '',
+        uri: first.uri,
+        name: first.name,
+        artist: first.artists?.[0]?.name || '',
       }
+    } else {
+      console.log(`  ✗ No items in response for "${q}"`)
     }
   }
 
@@ -209,14 +217,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
       searchToken = await getClientCredentialsToken()
-      console.log('✓ Got search token')
+      console.log('✓ Got search token:', searchToken.substring(0, 20) + '...')
+      
+      // Test the token with a simple search
+      const testUrl = 'https://api.spotify.com/v1/search?q=test&type=track&limit=1'
+      const testRes = await fetch(testUrl, { headers: { Authorization: `Bearer ${searchToken}` } })
+      if (!testRes.ok) {
+        const testErr = await testRes.text()
+        throw new Error(`Token test failed: ${testRes.status} - ${testErr}`)
+      }
+      console.log('✓ Token test passed')
     } catch (e: any) {
       return res.status(500).json({ success: false, error: `Search token failed: ${e.message}` })
     }
 
     try {
       userToken = await getUserToken()
-      console.log('✓ Got user token')
+      console.log('✓ Got user token:', userToken.substring(0, 20) + '...')
     } catch (e: any) {
       return res.status(500).json({ success: false, error: `User token failed: ${e.message}` })
     }
