@@ -183,17 +183,26 @@ export default async function handler(
 
               try {
                 console.log('Fetching /api/spotify-migrate-notion...');
+                
+                // Create AbortController for timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+                
                 const response = await fetch('/api/spotify-migrate-notion', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
                   },
+                  signal: controller.signal,
                 });
 
+                clearTimeout(timeoutId);
                 console.log('Response status:', response.status);
                 
                 if (!response.ok) {
-                  throw new Error('HTTP error! status: ' + response.status);
+                  const errorText = await response.text();
+                  console.error('Error response:', errorText);
+                  throw new Error('HTTP error! status: ' + response.status + ' - ' + errorText.substring(0, 200));
                 }
 
                 const data = await response.json();
@@ -244,7 +253,11 @@ export default async function handler(
               } catch (error) {
                 console.error('Migration error:', error);
                 result.className = 'result error show';
-                result.innerHTML = '<strong>❌ Error:</strong><br>' + error.message + '<br><br><small>Check browser console (F12) for details.</small>';
+                let errorMsg = error.message || 'Unknown error';
+                if (error.name === 'AbortError') {
+                  errorMsg = 'Request timed out after 2 minutes. The migration might still be running - check your Spotify playlist.';
+                }
+                result.innerHTML = '<strong>❌ Error:</strong><br>' + errorMsg + '<br><br><small>Check browser console (F12) for details.</small>';
               } finally {
                 btn.disabled = false;
                 btn.innerHTML = 'Start Migration';
