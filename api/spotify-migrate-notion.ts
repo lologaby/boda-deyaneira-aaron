@@ -46,40 +46,29 @@ async function getSpotifyAccessToken(useRefreshToken: boolean = true): Promise<s
 
 // Search Spotify for a track with multiple strategies
 async function searchSpotifyTrack(accessToken: string, query: string): Promise<string | null> {
-  // Strategy 1: Try to parse "Song - Artist" format and use structured search
-  let searchQuery = query
+  // Strategy 1: If format is "Song - Artist", search with both together (most common format)
   if (query.includes(' - ')) {
     const parts = query.split(' - ')
     if (parts.length === 2) {
       const [track, artist] = parts
-      // Use Spotify's advanced search syntax for better results
-      searchQuery = `track:"${track.trim()}" artist:"${artist.trim()}"`
-    }
-  }
-
-  // Try structured search first
-  let response = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=1`,
-    {
-      headers: { 'Authorization': `Bearer ${accessToken}` },
-    }
-  )
-
-  if (response.ok) {
-    const data = await response.json()
-    const trackId = data.tracks?.items?.[0]?.id
-    if (trackId) return trackId
-  }
-
-  // Strategy 2: If not found, try without quotes
-  if (query.includes(' - ') && searchQuery !== query) {
-    const parts = query.split(' - ')
-    if (parts.length === 2) {
-      const [track, artist] = parts
-      const simpleQuery = `${track.trim()} ${artist.trim()}`
       
+      // Try simple combined search (usually works best)
+      let response = await fetch(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(`${track.trim()} ${artist.trim()}`)}&type=track&limit=1`,
+        {
+          headers: { 'Authorization': `Bearer ${accessToken}` },
+        }
+      )
+      
+      if (response.ok) {
+        const data = await response.json()
+        const trackId = data.tracks?.items?.[0]?.id
+        if (trackId) return trackId
+      }
+
+      // Strategy 2: Try structured search without quotes
       response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(simpleQuery)}&type=track&limit=1`,
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(`track:${track.trim()} artist:${artist.trim()}`)}&type=track&limit=1`,
         {
           headers: { 'Authorization': `Bearer ${accessToken}` },
         }
@@ -93,19 +82,17 @@ async function searchSpotifyTrack(accessToken: string, query: string): Promise<s
     }
   }
   
-  // Strategy 3: Plain search as last fallback
-  if (searchQuery !== query) {
-    response = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=1`,
-      {
-        headers: { 'Authorization': `Bearer ${accessToken}` },
-      }
-    )
-    
-    if (response.ok) {
-      const data = await response.json()
-      return data.tracks?.items?.[0]?.id || null
+  // Strategy 3: Plain search as fallback
+  const response = await fetch(
+    `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=1`,
+    {
+      headers: { 'Authorization': `Bearer ${accessToken}` },
     }
+  )
+  
+  if (response.ok) {
+    const data = await response.json()
+    return data.tracks?.items?.[0]?.id || null
   }
   
   return null
