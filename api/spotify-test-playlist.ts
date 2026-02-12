@@ -86,6 +86,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const rateLimitRemaining = playlistRes.headers.get('x-ratelimit-remaining')
     const rateLimitLimit = playlistRes.headers.get('x-ratelimit-limit')
     const rateLimitReset = playlistRes.headers.get('x-ratelimit-reset')
+    const retryAfter = playlistRes.headers.get('retry-after') // Spotify's recommended header
     
     if (playlistRes.ok) {
       const playlist = await playlistRes.json()
@@ -157,13 +158,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       
       if (playlistRes.status === 429) {
+        const retryAfterSeconds = retryAfter ? parseInt(retryAfter) : null
+        const resetTime = retryAfterSeconds ? new Date(Date.now() + retryAfterSeconds * 1000).toISOString() : null
+        
         testResult.rateLimitInfo = {
           remaining: rateLimitRemaining,
           limit: rateLimitLimit,
-          reset: rateLimitReset ? new Date(parseInt(rateLimitReset) * 1000).toISOString() : null,
-          resetInSeconds: rateLimitReset ? Math.max(0, parseInt(rateLimitReset) - Math.floor(Date.now() / 1000)) : null,
+          reset: rateLimitReset ? new Date(parseInt(rateLimitReset) * 1000).toISOString() : resetTime,
+          resetInSeconds: retryAfterSeconds || (rateLimitReset ? Math.max(0, parseInt(rateLimitReset) - Math.floor(Date.now() / 1000)) : null),
+          retryAfter: retryAfterSeconds,
         }
-        testResult.solution = `Rate limit exceeded. Reset at: ${testResult.rateLimitInfo.reset || 'unknown'}. Wait ${testResult.rateLimitInfo.resetInSeconds || 'unknown'} seconds.`
+        testResult.solution = `Rate limit exceeded. Wait ${retryAfterSeconds || testResult.rateLimitInfo.resetInSeconds || '30-60'} seconds before trying again. Reset time: ${testResult.rateLimitInfo.reset || 'unknown'}.`
       }
       
       results.tests.push(testResult)
@@ -256,6 +261,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const addRateLimitRemaining = addRes.headers.get('x-ratelimit-remaining')
       const addRateLimitLimit = addRes.headers.get('x-ratelimit-limit')
       const addRateLimitReset = addRes.headers.get('x-ratelimit-reset')
+      const addRetryAfter = addRes.headers.get('retry-after') // Spotify's recommended header
       
       const tokenUserId = results.tests.find((t: any) => t.name === 'Get User Profile')?.userId
       const playlistOwnerId = results.tests.find((t: any) => t.name === 'Get Playlist Info')?.ownerId
@@ -272,13 +278,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       
       if (addRes.status === 429) {
+        const addRetryAfterSeconds = addRetryAfter ? parseInt(addRetryAfter) : null
+        const addResetTime = addRetryAfterSeconds ? new Date(Date.now() + addRetryAfterSeconds * 1000).toISOString() : null
+        
         testResult.rateLimitInfo = {
           remaining: addRateLimitRemaining,
           limit: addRateLimitLimit,
-          reset: addRateLimitReset ? new Date(parseInt(addRateLimitReset) * 1000).toISOString() : null,
-          resetInSeconds: addRateLimitReset ? Math.max(0, parseInt(addRateLimitReset) - Math.floor(Date.now() / 1000)) : null,
+          reset: addRateLimitReset ? new Date(parseInt(addRateLimitReset) * 1000).toISOString() : addResetTime,
+          resetInSeconds: addRetryAfterSeconds || (addRateLimitReset ? Math.max(0, parseInt(addRateLimitReset) - Math.floor(Date.now() / 1000)) : null),
+          retryAfter: addRetryAfterSeconds,
         }
-        solution = `Rate limit exceeded. Reset at: ${testResult.rateLimitInfo.reset || 'unknown'}. Wait ${testResult.rateLimitInfo.resetInSeconds || 'unknown'} seconds before trying again.`
+        solution = `Rate limit exceeded. Wait ${addRetryAfterSeconds || testResult.rateLimitInfo.resetInSeconds || '30-60'} seconds before trying again. Reset time: ${testResult.rateLimitInfo.reset || 'unknown'}.`
       }
       if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
         solution = `403 Forbidden: Spotify API only allows playlist OWNERS to add tracks via API, not collaborators. The token user (${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}) is not the playlist owner (${playlistInfo?.ownerDisplayName}). You must use the playlist owner's refresh token. See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for solutions.`
