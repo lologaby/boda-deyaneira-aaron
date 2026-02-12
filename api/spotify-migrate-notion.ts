@@ -111,8 +111,22 @@ async function searchTrack(
     if (!r.ok) {
       const errorText = await r.text()
       console.error(`  ✗ Search failed "${q}": ${r.status} - ${errorText}`)
+      
+      // If 403, this means app needs users added or Extended Quota Mode
+      if (r.status === 403) {
+        console.error(`  ⚠ 403 Error: Spotify app needs configuration`)
+        console.error(`  Solution: Add users at https://developer.spotify.com/dashboard`)
+        console.error(`  Or request Extended Quota Mode`)
+      }
+      
       if (debug) {
-        debug.attempts.push({ query: q, status: r.status, error: errorText.substring(0, 200) })
+        debug.attempts.push({ 
+          query: q, 
+          status: r.status, 
+          error: errorText.substring(0, 200),
+          is403: r.status === 403,
+          solution: r.status === 403 ? 'Add users to Spotify app or request Extended Quota Mode' : undefined,
+        })
       }
       continue
     }
@@ -339,18 +353,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Check if we have 403 errors
+    const has403Errors = failed.some(f => 
+      f.debug?.attempts?.some((a: any) => a.status === 403)
+    )
+    
+    let message = 'Migration complete'
+    let instructions: string[] | undefined
+    
+    if (has403Errors && added.length === 0) {
+      message = 'Migration failed: Spotify API returned 403 errors'
+      instructions = [
+        'Your Spotify app is in Development mode and needs users added.',
+        '1. Go to https://developer.spotify.com/dashboard',
+        '2. Select your app → Edit Settings',
+        '3. Add your Spotify account email to "Users and Access"',
+        '4. Wait 1-2 minutes and try again',
+        'See docs/SPOTIFY_403_SOLUTION.md for details',
+      ]
+    } else if (has403Errors) {
+      message = 'Migration partially complete: Some songs failed due to 403 errors'
+      instructions = [
+        'Some searches failed with 403. Add users to your Spotify app.',
+        'See docs/SPOTIFY_403_SOLUTION.md for details',
+      ]
+    }
+
     return res.status(200).json({
-      success: true,
-      message: 'Migration complete',
+      success: !has403Errors || added.length > 0,
+      message,
       total: notionSongs.length,
       added: added.length,
       failed: failed.length,
       addedSongs: added,
       failedSongs: failed,
+      instructions,
       debug: {
         tokenTest: 'passed',
         searchTokenLength: searchToken.length,
         userTokenLength: userToken.length,
+        has403Errors,
       },
     })
   } catch (error: any) {

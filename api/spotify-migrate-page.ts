@@ -243,12 +243,38 @@ export default async function handler(
                     html += '</div>';
                   }
 
+                  // Show 403 error instructions if present
+                  if (data.instructions && data.instructions.length > 0) {
+                    html += '<div class="failed-songs" style="background:#fff3cd;border-color:#ffc107;margin-top:20px;">';
+                    html += '<h3 style="color:#856404;">⚠️ Action Required:</h3>';
+                    html += '<ol style="margin-left:20px;color:#856404;">';
+                    data.instructions.forEach(function(instruction) {
+                      html += '<li style="margin:5px 0;">' + instruction + '</li>';
+                    });
+                    html += '</ol>';
+                    html += '</div>';
+                  }
+
                   html += '<p style="margin-top: 15px; font-size: 14px; color: #666;">Check your <a href="https://open.spotify.com/playlist/3v2Zl4aSJgAPMlkxv9FZzS" target="_blank" style="color: #1DB954;">Spotify playlist</a> to see the added songs!</p>';
                   
                   result.innerHTML = html;
                 } else {
                   result.className = 'result error show';
-                  result.innerHTML = '<strong>❌ Error:</strong><br>' + (data.error || 'Unknown error occurred');
+                  let errorHtml = '<strong>❌ Error:</strong><br>' + (data.error || 'Unknown error occurred');
+                  
+                  // Show 403 error instructions if present
+                  if (data.instructions && data.instructions.length > 0) {
+                    errorHtml += '<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:5px;padding:15px;margin-top:15px;">';
+                    errorHtml += '<h3 style="color:#856404;margin-top:0;">⚠️ Action Required:</h3>';
+                    errorHtml += '<ol style="margin-left:20px;color:#856404;">';
+                    data.instructions.forEach(function(instruction) {
+                      errorHtml += '<li style="margin:5px 0;">' + instruction + '</li>';
+                    });
+                    errorHtml += '</ol>';
+                    errorHtml += '</div>';
+                  }
+                  
+                  result.innerHTML = errorHtml;
                 }
               } catch (error) {
                 console.error('Migration error:', error);
