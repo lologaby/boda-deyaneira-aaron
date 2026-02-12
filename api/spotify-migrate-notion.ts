@@ -122,9 +122,22 @@ async function searchTrack(
     const items = data?.tracks?.items || []
     
     console.log(`  Response: total=${total}, items=${items.length}`)
+    if (items.length > 0) {
+      console.log(`  First result: "${items[0].name}" by ${items[0].artists?.[0]?.name || 'Unknown'}`)
+    }
     
     if (debug) {
-      debug.attempts.push({ query: q, status: r.status, total, items: items.length })
+      debug.attempts.push({ 
+        query: q, 
+        status: r.status, 
+        total, 
+        items: items.length,
+        firstResult: items.length > 0 ? {
+          name: items[0].name,
+          artist: items[0].artists?.[0]?.name,
+          uri: items[0].uri,
+        } : null,
+      })
     }
     
     if (items.length > 0) {
@@ -136,7 +149,7 @@ async function searchTrack(
         artist: first.artists?.[0]?.name || '',
       }
     } else {
-      console.log(`  ✗ No items in response for "${q}"`)
+      console.log(`  ✗ No items in response for "${q}" (but total=${total})`)
     }
   }
 
