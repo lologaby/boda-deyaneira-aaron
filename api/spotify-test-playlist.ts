@@ -82,6 +82,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       { headers: { Authorization: `Bearer ${userToken}` } }
     )
 
+    // Capture rate limit headers
+    const rateLimitRemaining = playlistRes.headers.get('x-ratelimit-remaining')
+    const rateLimitLimit = playlistRes.headers.get('x-ratelimit-limit')
+    const rateLimitReset = playlistRes.headers.get('x-ratelimit-reset')
+    
     if (playlistRes.ok) {
       const playlist = await playlistRes.json()
       const playlistInfo = {
@@ -144,12 +149,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       results.tests.push(playlistInfo)
     } else {
       const err = await playlistRes.text()
-      results.tests.push({
+      const testResult: any = {
         name: 'Get Playlist Info',
         status: 'failed',
         httpStatus: playlistRes.status,
         error: err,
-      })
+      }
+      
+      if (playlistRes.status === 429) {
+        testResult.rateLimitInfo = {
+          remaining: rateLimitRemaining,
+          limit: rateLimitLimit,
+          reset: rateLimitReset ? new Date(parseInt(rateLimitReset) * 1000).toISOString() : null,
+          resetInSeconds: rateLimitReset ? Math.max(0, parseInt(rateLimitReset) - Math.floor(Date.now() / 1000)) : null,
+        }
+        testResult.solution = `Rate limit exceeded. Reset at: ${testResult.rateLimitInfo.reset || 'unknown'}. Wait ${testResult.rateLimitInfo.resetInSeconds || 'unknown'} seconds.`
+      }
+      
+      results.tests.push(testResult)
     }
 
     // Test 3.5: Try to modify playlist details (less restrictive than adding tracks)
@@ -235,11 +252,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Not JSON
       }
       
+      // Capture rate limit headers for add request
+      const addRateLimitRemaining = addRes.headers.get('x-ratelimit-remaining')
+      const addRateLimitLimit = addRes.headers.get('x-ratelimit-limit')
+      const addRateLimitReset = addRes.headers.get('x-ratelimit-reset')
+      
       const tokenUserId = results.tests.find((t: any) => t.name === 'Get User Profile')?.userId
       const playlistOwnerId = results.tests.find((t: any) => t.name === 'Get Playlist Info')?.ownerId
       const playlistInfo = results.tests.find((t: any) => t.name === 'Get Playlist Info')
       
       let solution = ''
+      const testResult: any = {
+        name: 'Add Track to Playlist',
+        status: 'failed',
+        httpStatus: addRes.status,
+        error: errText,
+        errorJson: errJson,
+        trackUri: testTrackUri,
+      }
+      
+      if (addRes.status === 429) {
+        testResult.rateLimitInfo = {
+          remaining: addRateLimitRemaining,
+          limit: addRateLimitLimit,
+          reset: addRateLimitReset ? new Date(parseInt(addRateLimitReset) * 1000).toISOString() : null,
+          resetInSeconds: addRateLimitReset ? Math.max(0, parseInt(addRateLimitReset) - Math.floor(Date.now() / 1000)) : null,
+        }
+        solution = `Rate limit exceeded. Reset at: ${testResult.rateLimitInfo.reset || 'unknown'}. Wait ${testResult.rateLimitInfo.resetInSeconds || 'unknown'} seconds before trying again.`
+      }
       if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
         solution = `403 Forbidden: Spotify API only allows playlist OWNERS to add tracks via API, not collaborators. The token user (${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}) is not the playlist owner (${playlistInfo?.ownerDisplayName}). You must use the playlist owner's refresh token. See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for solutions.`
       } else if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId === playlistOwnerId) {
