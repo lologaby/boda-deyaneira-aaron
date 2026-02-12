@@ -7,6 +7,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || ''
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || ''
+const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN || ''
 
 interface MusicTrack {
   id: string
@@ -42,9 +43,54 @@ async function getSpotifyAccessToken(): Promise<string> {
   return data.access_token
 }
 
+// Get Spotify access token using Refresh Token (fallback for 403 errors)
+async function getSpotifyRefreshToken(): Promise<string> {
+  const basic = Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')
+  const params = new URLSearchParams({
+    grant_type: 'refresh_token',
+    refresh_token: SPOTIFY_REFRESH_TOKEN,
+  })
+  
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${basic}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: params.toString(),
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to get refresh token')
+  }
+
+  const data = await response.json()
+  return data.access_token
+}
+
 // Search using Spotify API
 async function searchSpotify(query: string, limit: number = 5): Promise<MusicTrack[]> {
-  const accessToken = await getSpotifyAccessToken()
+  let accessToken: string
+  
+  // Try client credentials first, fall back to refresh token if 403
+  try {
+    accessToken = await getSpotifyAccessToken()
+    // Test it with a simple search
+    const testRes = await fetch(`https://api.spotify.com/v1/search?q=test&type=track&limit=1`, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    })
+    if (!testRes.ok && testRes.status === 403) {
+      throw new Error('Client credentials returned 403')
+    }
+  } catch (e: any) {
+    // Fall back to refresh token if client credentials fails
+    if (SPOTIFY_REFRESH_TOKEN) {
+      console.log('Using refresh token for search (client credentials failed)')
+      accessToken = await getSpotifyRefreshToken()
+    } else {
+      throw e
+    }
+  }
   
   const response = await fetch(
     `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=${limit}`,
@@ -56,7 +102,7 @@ async function searchSpotify(query: string, limit: number = 5): Promise<MusicTra
   )
 
   if (!response.ok) {
-    throw new Error('Failed to search Spotify')
+    throw new Error(`Failed to search Spotify: ${response.status}`)
   }
 
   const data = await response.json()

@@ -249,29 +249,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 2 – Get Spotify tokens
+    // Use refresh token for BOTH search and playlist operations to avoid 403 errors
     console.log('Getting Spotify tokens...')
     let searchToken: string
     let userToken: string
 
     try {
-      searchToken = await getClientCredentialsToken()
-      console.log('✓ Got search token:', searchToken.substring(0, 20) + '...')
-      
-      // Test the token with a simple search
-      const testUrl = 'https://api.spotify.com/v1/search?q=test&type=track&limit=1'
-      const testRes = await fetch(testUrl, { headers: { Authorization: `Bearer ${searchToken}` } })
-      if (!testRes.ok) {
-        const testErr = await testRes.text()
-        throw new Error(`Token test failed: ${testRes.status} - ${testErr}`)
+      // Try client credentials first (faster, no rate limits on user account)
+      try {
+        searchToken = await getClientCredentialsToken()
+        console.log('✓ Got client credentials token')
+        
+        // Test the token
+        const testUrl = 'https://api.spotify.com/v1/search?q=test&type=track&limit=1'
+        const testRes = await fetch(testUrl, { headers: { Authorization: `Bearer ${searchToken}` } })
+        if (testRes.ok) {
+          console.log('✓ Client credentials token works')
+        } else {
+          // If 403, fall back to refresh token
+          throw new Error('Client credentials returned 403 - using refresh token instead')
+        }
+      } catch (e: any) {
+        console.log('⚠ Client credentials failed, using refresh token for search:', e.message)
+        // Fall back to refresh token (works even if app is in development mode)
+        searchToken = await getUserToken()
+        console.log('✓ Using refresh token for search')
       }
-      console.log('✓ Token test passed')
     } catch (e: any) {
       return res.status(500).json({ success: false, error: `Search token failed: ${e.message}` })
     }
 
     try {
       userToken = await getUserToken()
-      console.log('✓ Got user token:', userToken.substring(0, 20) + '...')
+      console.log('✓ Got user token for playlist operations')
     } catch (e: any) {
       return res.status(500).json({ success: false, error: `User token failed: ${e.message}` })
     }
