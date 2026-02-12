@@ -358,22 +358,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!addRes.ok) {
         const err = await addRes.text()
         console.log(`  ✗ Failed to add: ${err}`)
-        failed.push({ song, guest: guestName, reason: `Playlist add error: ${addRes.status}`, debug })
+        
+        let reason = `Playlist add error: ${addRes.status}`
+        if (addRes.status === 403) {
+          reason = `403 Forbidden: The refresh token may not have permission to edit this playlist, or it was generated with old credentials. Regenerate the refresh token at /api/spotify-auth?setup=true`
+        } else if (addRes.status === 404) {
+          reason = `404 Not Found: Playlist ID may be incorrect or playlist doesn't exist`
+        }
+        
+        failed.push({ song, guest: guestName, reason, debug: { ...debug, addError: err.substring(0, 200) } })
       } else {
         console.log(`  ✓ Added to playlist!`)
         added.push({ song, spotifyName: result.name, artist: result.artist, uri: result.uri })
       }
     }
 
-    // Check if we have 403 errors
+    // Check if we have 403 errors (from search or playlist add)
     const has403Errors = failed.some(f => 
-      f.debug?.attempts?.some((a: any) => a.status === 403)
+      f.debug?.attempts?.some((a: any) => a.status === 403) ||
+      f.reason?.includes('403')
     )
     
     let message = 'Migration complete'
     let instructions: string[] | undefined
     
-    if (has403Errors && added.length === 0) {
+    // Check if 403 errors are from playlist add (different issue than search)
+    const hasPlaylist403Errors = failed.some(f => f.reason?.includes('403 Forbidden'))
+    
+    if (hasPlaylist403Errors && added.length === 0) {
+      message = 'Migration failed: Cannot add songs to playlist (403 Forbidden)'
+      instructions = [
+        'The refresh token does not have permission to edit the playlist.',
+        'Possible causes:',
+        '1. Refresh token was generated with OLD credentials - regenerate it:',
+        '   → Go to /api/spotify-auth?setup=true',
+        '   → Authorize with the NEW app credentials',
+        '   → Copy the new refresh token',
+        '   → Update SPOTIFY_REFRESH_TOKEN in Vercel',
+        '2. The Spotify account does not have edit access to the playlist',
+        '   → Verify you own the playlist or are a collaborator',
+        '   → Check playlist permissions in Spotify app',
+        '3. The user is not added to the app\'s user list',
+        '   → Go to Dashboard → Your App → Settings → Users Management',
+        '   → Add your Spotify account email',
+      ]
+    } else if (has403Errors && added.length === 0) {
       message = 'Migration failed: Spotify API returned 403 errors'
       instructions = [
         'Your Spotify app is in Development mode and needs users added.',
@@ -383,10 +412,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         '4. Wait 1-2 minutes and try again',
         'See docs/SPOTIFY_403_SOLUTION.md for details',
       ]
-    } else if (has403Errors) {
+    } else if (has403Errors || hasPlaylist403Errors) {
       message = 'Migration partially complete: Some songs failed due to 403 errors'
       instructions = [
-        'Some searches failed with 403. Add users to your Spotify app.',
+        hasPlaylist403Errors 
+          ? 'Some songs could not be added to playlist. Regenerate refresh token with new credentials.'
+          : 'Some searches failed with 403. Add users to your Spotify app.',
         'See docs/SPOTIFY_403_SOLUTION.md for details',
       ]
     }
