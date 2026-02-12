@@ -151,8 +151,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // 2. If we still have no URI, search by name
     if (!uri && songName && typeof songName === 'string') {
-      // Use refresh token for search (avoids 403 errors in development mode)
-      const searchToken = await getUserToken()
+      // Try Client Credentials first (works when users are added to app)
+      // Fallback to Refresh Token if Client Credentials fails
+      let searchToken: string
+      try {
+        searchToken = await getClientCredentialsToken()
+        console.log('Using client credentials for search')
+      } catch (e) {
+        console.log('Client credentials failed, using refresh token for search')
+        searchToken = await getUserToken()
+      }
       
       const result = await searchTrack(searchToken, songName)
       if (result) {

@@ -72,18 +72,23 @@ async function getSpotifyRefreshToken(): Promise<string> {
 async function searchSpotify(query: string, limit: number = 5): Promise<MusicTrack[]> {
   let accessToken: string
   
-  // Use refresh token if available (avoids 403 errors), otherwise try client credentials
-  if (SPOTIFY_REFRESH_TOKEN) {
-    try {
-      accessToken = await getSpotifyRefreshToken()
-    } catch (e: any) {
-      // Fall back to client credentials if refresh token fails
-      console.log('Refresh token failed, trying client credentials')
-      accessToken = await getSpotifyAccessToken()
-    }
-  } else {
-    // No refresh token configured, use client credentials
+  // Try Client Credentials first (works when users are added to app)
+  // Fallback to Refresh Token if Client Credentials fails
+  try {
     accessToken = await getSpotifyAccessToken()
+    console.log('Using client credentials for search')
+  } catch (e: any) {
+    // Fall back to refresh token if client credentials fails
+    if (SPOTIFY_REFRESH_TOKEN) {
+      console.log('Client credentials failed, trying refresh token')
+      try {
+        accessToken = await getSpotifyRefreshToken()
+      } catch (e2: any) {
+        throw new Error(`Both tokens failed: ${e.message}, ${e2.message}`)
+      }
+    } else {
+      throw new Error(`Client credentials failed and no refresh token: ${e.message}`)
+    }
   }
   
   const response = await fetch(

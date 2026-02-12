@@ -292,25 +292,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 2 – Get Spotify tokens
-    // SIMPLIFIED: Use refresh token for BOTH search and playlist to avoid 403 errors
-    // Client credentials requires app to be in production mode or users added
+    // Strategy: Use Client Credentials for searches (works with users added)
+    // Use Refresh Token for playlist operations (needs user permissions)
     console.log('Getting Spotify tokens...')
     let searchToken: string
     let userToken: string
 
-    // Get user token (refresh token) - works even in development mode
+    // Try Client Credentials first for searches (works when users are added to app)
+    try {
+      searchToken = await getClientCredentialsToken()
+      console.log('✓ Got client credentials token for searches')
+    } catch (e: any) {
+      console.log('⚠ Client credentials failed, trying refresh token for searches')
+      // Fallback to refresh token if client credentials fails
+      try {
+        searchToken = await getUserToken()
+        console.log('✓ Using refresh token for searches (fallback)')
+      } catch (e2: any) {
+        return res.status(500).json({ success: false, error: `Both tokens failed for search: ${e.message}, ${e2.message}` })
+      }
+    }
+
+    // Get user token (refresh token) for playlist operations
     try {
       userToken = await getUserToken()
-      console.log('✓ Got user token (refresh token)')
+      console.log('✓ Got user token (refresh token) for playlist operations')
     } catch (e: any) {
       return res.status(500).json({ success: false, error: `User token failed: ${e.message}` })
     }
 
-    // Use the SAME token for both search and playlist operations
-    // This avoids 403 errors completely
-    searchToken = userToken
-    console.log('✓ Using refresh token for both search and playlist operations')
-    console.log(`Token: ${searchToken.substring(0, 20)}...`)
+    console.log(`Search token: ${searchToken.substring(0, 20)}...`)
+    console.log(`User token: ${userToken.substring(0, 20)}...`)
 
     // 3 – Search and add each song
     const added: { song: string; spotifyName: string; artist: string; uri: string }[] = []
