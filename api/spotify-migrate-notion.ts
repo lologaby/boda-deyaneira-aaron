@@ -340,6 +340,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log(`Search token: ${searchToken.substring(0, 20)}...`)
     console.log(`User token: ${userToken.substring(0, 20)}...`)
 
+    // 2.5 – Verify token user and playlist owner (once, before loop)
+    let tokenUserId: string | null = null
+    let playlistOwnerId: string | null = null
+    
+    try {
+      const profileRes = await fetch('https://api.spotify.com/v1/me', {
+        headers: { Authorization: `Bearer ${userToken}` }
+      })
+      if (profileRes.ok) {
+        const profile = await profileRes.json()
+        tokenUserId = profile.id
+        console.log(`Token user: ${profile.display_name || profile.id} (${profile.id})`)
+      }
+    } catch (e) {
+      console.log(`⚠ Could not verify token user: ${e}`)
+    }
+    
+    try {
+      const playlistRes = await fetch(
+        `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}`,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      )
+      if (playlistRes.ok) {
+        const playlist = await playlistRes.json()
+        playlistOwnerId = playlist.owner?.id || null
+        console.log(`Playlist owner: ${playlist.owner?.display_name || playlist.owner?.id} (${playlistOwnerId})`)
+        
+        if (tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
+          console.log(`⚠ WARNING: Token user (${tokenUserId}) is not playlist owner (${playlistOwnerId})`)
+        }
+      }
+    } catch (e) {
+      console.log(`⚠ Could not get playlist info: ${e}`)
+    }
+
     // 3 – Search and add each song
     const added: { song: string; spotifyName: string; artist: string; uri: string }[] = []
     const failed: { song: string; guest: string; reason: string; debug?: SearchDebug }[] = []
@@ -357,23 +392,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       console.log(`  ✓ Found: "${result.name}" by ${result.artist} → ${result.uri}`)
-
-      // Add to playlist
-      // First, verify token has correct scopes by checking user profile
-      let tokenScopes: string[] = []
-      try {
-        const profileRes = await fetch('https://api.spotify.com/v1/me', {
-          headers: { Authorization: `Bearer ${userToken}` }
-        })
-        if (profileRes.ok) {
-          const profile = await profileRes.json()
-          console.log(`  Token user: ${profile.display_name || profile.id}`)
-        } else {
-          console.log(`  ⚠ Could not verify token user: ${profileRes.status}`)
-        }
-      } catch (e) {
-        console.log(`  ⚠ Could not verify token: ${e}`)
-      }
 
       const addRes = await fetch(
         `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/tracks`,
@@ -405,8 +423,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         if (addRes.status === 403) {
           const errorMsg = errJson?.error?.message || errText
-          reason = `403 Forbidden: ${errorMsg}`
-          detailedError = `Full error: ${errText.substring(0, 500)}`
+          
+          // Check if token user doesn't match playlist owner
+          if (tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
+            reason = `403 Forbidden: Token user (${tokenUserId}) is not the playlist owner (${playlistOwnerId}). Generate a new refresh token using the playlist owner's account.`
+            detailedError = `Token user ID: ${tokenUserId}, Playlist owner ID: ${playlistOwnerId}. These must match for the token to have edit permissions.`
+          } else {
+            reason = `403 Forbidden: ${errorMsg}. The refresh token may not have permission to edit this playlist.`
+            detailedError = `Full error: ${errText.substring(0, 500)}`
+          }
         } else if (addRes.status === 404) {
           reason = `404 Not Found: Playlist ID may be incorrect or playlist doesn't exist. Check PLAYLIST_ID=${PLAYLIST_ID}`
         }

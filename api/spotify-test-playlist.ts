@@ -80,16 +80,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (playlistRes.ok) {
       const playlist = await playlistRes.json()
-      results.tests.push({
+      const playlistInfo = {
         name: 'Get Playlist Info',
-        status: 'success',
+        status: 'success' as const,
         playlistName: playlist.name,
         ownerId: playlist.owner?.id,
         ownerDisplayName: playlist.owner?.display_name,
         isPublic: playlist.public,
         collaborative: playlist.collaborative,
         tracksTotal: playlist.tracks?.total,
-      })
+      }
+      
+      // Check if token user matches playlist owner
+      const tokenUserId = results.tests.find((t: any) => t.name === 'Get User Profile')?.userId
+      if (tokenUserId && playlist.owner?.id && tokenUserId !== playlist.owner.id) {
+        playlistInfo.status = 'warning' as any
+        results.recommendation = {
+          issue: 'Token user does not own the playlist',
+          tokenUserId,
+          tokenUserName: results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName,
+          playlistOwnerId: playlist.owner.id,
+          playlistOwnerName: playlist.owner.display_name,
+          solution: `The refresh token was generated with account "${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}" but the playlist belongs to "${playlist.owner.display_name}". You must generate a new refresh token using the playlist owner's account (${playlist.owner.display_name}).`,
+        }
+      }
+      
+      results.tests.push(playlistInfo)
     } else {
       const err = await playlistRes.text()
       results.tests.push({
@@ -146,6 +162,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Not JSON
       }
       
+      const tokenUserId = results.tests.find((t: any) => t.name === 'Get User Profile')?.userId
+      const playlistOwnerId = results.tests.find((t: any) => t.name === 'Get Playlist Info')?.ownerId
+      
+      let solution = ''
+      if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
+        solution = `The token user (${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}) is not the playlist owner (${results.tests.find((t: any) => t.name === 'Get Playlist Info')?.ownerDisplayName}). Generate a new refresh token using the playlist owner's account.`
+      } else if (addRes.status === 403) {
+        solution = '403 Forbidden: The token does not have permission to edit this playlist. Make sure the playlist is collaborative or the token user owns the playlist.'
+      }
+      
       results.tests.push({
         name: 'Add Track to Playlist',
         status: 'failed',
@@ -153,6 +179,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         error: errText,
         errorJson: errJson,
         trackUri: testTrackUri,
+        solution,
       })
     }
 
