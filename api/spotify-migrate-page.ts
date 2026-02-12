@@ -173,6 +173,8 @@ export default async function handler(
               const btn = document.getElementById('migrateBtn');
               const result = document.getElementById('result');
               
+              console.log('Starting migration...');
+              
               // Disable button and show loading
               btn.disabled = true;
               btn.innerHTML = '<span class="spinner"></span> Migrating...';
@@ -180,6 +182,7 @@ export default async function handler(
               result.innerHTML = '<strong>⏳ Migrating songs...</strong><br>This may take a minute. Please wait.';
 
               try {
+                console.log('Fetching /api/spotify-migrate-notion...');
                 const response = await fetch('/api/spotify-migrate-notion', {
                   method: 'POST',
                   headers: {
@@ -187,7 +190,14 @@ export default async function handler(
                   },
                 });
 
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                  throw new Error('HTTP error! status: ' + response.status);
+                }
+
                 const data = await response.json();
+                console.log('Response data:', data);
 
                 if (data.success) {
                   result.className = 'result success show';
@@ -220,13 +230,21 @@ export default async function handler(
                   result.innerHTML = '<strong>❌ Error:</strong><br>' + (data.error || 'Unknown error occurred');
                 }
               } catch (error) {
+                console.error('Migration error:', error);
                 result.className = 'result error show';
-                result.innerHTML = '<strong>❌ Error:</strong><br>' + error.message;
+                result.innerHTML = '<strong>❌ Error:</strong><br>' + error.message + '<br><br><small>Check browser console (F12) for details.</small>';
               } finally {
                 btn.disabled = false;
                 btn.innerHTML = 'Start Migration';
               }
             }
+            
+            // Show any console errors in the page
+            window.addEventListener('error', function(e) {
+              const result = document.getElementById('result');
+              result.className = 'result error show';
+              result.innerHTML = '<strong>❌ JavaScript Error:</strong><br>' + e.message + '<br><br><small>Line: ' + e.lineno + '</small>';
+            });
           </script>
         </body>
       </html>
