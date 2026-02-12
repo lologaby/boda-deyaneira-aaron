@@ -9,8 +9,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
  * Step 4: Visit /api/spotify-auth?code=YOUR_CODE to exchange for refresh token
  */
 
-const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || 'e9f1bea3e7eb4e2fb8c6d153617f355f'
-const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || 'cb18e60a4a084916a14f5095ae0f74da'
+const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || '63358438f35945c7b5cf05f1cd60aa9f'
+const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || '1d6606f97ba743fdaf12c2c5d8df63f4'
 const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || 'https://bodaenelsunset.com/api/spotify-auth'
 
 const SCOPES = [
@@ -296,8 +296,8 @@ export default async function handler(
 
             <h3>Environment Variables to Set in Vercel:</h3>
             <ul>
-              <li><code>SPOTIFY_CLIENT_ID</code> = e9f1bea3e7eb4e2fb8c6d153617f355f</li>
-              <li><code>SPOTIFY_CLIENT_SECRET</code> = cb18e60a4a084916a14f5095ae0f74da</li>
+              <li><code>SPOTIFY_CLIENT_ID</code> = 63358438f35945c7b5cf05f1cd60aa9f</li>
+              <li><code>SPOTIFY_CLIENT_SECRET</code> = 1d6606f97ba743fdaf12c2c5d8df63f4</li>
               <li><code>SPOTIFY_REFRESH_TOKEN</code> = ${data.refresh_token}</li>
               <li><code>SPOTIFY_PLAYLIST_ID</code> = 3v2Zl4aSJgAPMlkxv9FZzS</li>
             </ul>

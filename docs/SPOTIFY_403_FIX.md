@@ -14,7 +14,7 @@ Esto significa que tu aplicación de Spotify está en modo **Development** y nec
 ### Opción 1: Agregar Usuarios a la App (Recomendado)
 
 1. Ve a https://developer.spotify.com/dashboard
-2. Click en tu app (Client ID: `e9f1bea3e7eb4e2fb8c6d153617f355f`)
+2. Click en tu app (Client ID: `63358438f35945c7b5cf05f1cd60aa9f`)
 3. Click en **"Edit Settings"**
 4. Scroll hasta **"Users"** o **"User Management"**
 5. Click en **"Add New User"**
