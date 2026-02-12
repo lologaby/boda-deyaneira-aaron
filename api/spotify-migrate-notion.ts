@@ -207,13 +207,27 @@ async function getSongsFromNotion(): Promise<NotionSong[]> {
 // ── handler ──────────────────────────────────────────────────────────
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Log immediately to confirm function is being called
+  console.log('=== SPOTIFY MIGRATE NOTION CALLED ===')
+  console.log('Method:', req.method)
+  console.log('Timestamp:', new Date().toISOString())
+  
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   res.setHeader('Content-Type', 'application/json')
 
-  if (req.method === 'OPTIONS') return res.status(200).end()
-  if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' })
+  if (req.method === 'OPTIONS') {
+    console.log('OPTIONS request - returning 200')
+    return res.status(200).end()
+  }
+  
+  if (req.method !== 'POST') {
+    console.log(`Wrong method: ${req.method} - returning 405`)
+    return res.status(405).json({ success: false, error: 'Method not allowed' })
+  }
+  
+  console.log('POST request received - starting migration')
 
   // Check config
   const missing: string[] = []
