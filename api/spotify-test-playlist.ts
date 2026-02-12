@@ -249,30 +249,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         solution = `403 Forbidden: Even though you are the playlist owner, the token doesn't have permission.
 
-CRITICAL: In Development Mode, even the app owner must be added to the user list!
+⚠️ KNOWN ISSUE: Refresh tokens sometimes don't preserve scopes correctly.
 
-Steps to fix:
-1. Go to https://developer.spotify.com/dashboard
-2. Click on your app (Client ID: ${CLIENT_ID.substring(0, 10)}...)
-3. Click "Edit Settings"
-4. Go to "Users Management" tab
-5. Click "Add new user"
-6. Add your Spotify account email: ${userEmail}
-   ⚠️ IMPORTANT: Use the EXACT email from your Spotify account
-   ⚠️ If you logged in with Facebook/Google, use that email
-7. Enter your display name: ${userName}
-8. Save and wait 5-10 minutes (can take longer)
-9. Try again
+CRITICAL STEPS (do ALL of these):
+1. Add yourself to user list (if not already):
+   → Dashboard → Your App → Edit Settings → Users Management
+   → Add your email: ${userEmail}
+   → Display name: ${userName}
+   → Save and wait 5 minutes
 
-Troubleshooting:
-- Verify the email matches EXACTLY (case-sensitive)
-- If you logged in with Facebook, use your Facebook email
-- If you logged in with Google, use your Google email
-- Check that you're using the CORRECT app (not an old one)
-- Verify refresh token was generated AFTER adding yourself to user list
-- Try regenerating refresh token: /api/spotify-auth?setup=true
+2. RE-AUTHORIZE the app (this is critical):
+   → Go to: /api/spotify-auth?setup=true
+   → When Spotify shows permission screen, ACCEPT ALL permissions
+   → You should see: "Modify your public playlists" and "Modify your private playlists"
+   → Copy the NEW refresh token
 
-Required scopes: playlist-modify-public, playlist-modify-private`
+3. Update token in Vercel:
+   → Settings → Environment Variables
+   → Update SPOTIFY_REFRESH_TOKEN
+   → Save and wait 2 minutes
+
+4. Try again
+
+Why this happens:
+- Refresh tokens sometimes lose scopes (known Spotify bug)
+- Re-authorization forces Spotify to re-apply all scopes
+- show_dialog=true ensures you see and accept permissions
+
+See docs/SPOTIFY_403_FINAL_FIX.md for detailed troubleshooting.`
       } else if (addRes.status === 403) {
         solution = '403 Forbidden: The token does not have permission to edit this playlist. Only playlist owners can add tracks via Spotify API. Regenerate the refresh token at /api/spotify-auth?setup=true'
       }
