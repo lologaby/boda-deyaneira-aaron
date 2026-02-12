@@ -46,15 +46,20 @@ async function getSpotifyAccessToken(useRefreshToken: boolean = true): Promise<s
 
 // Search Spotify for a track with multiple strategies
 async function searchSpotifyTrack(accessToken: string, query: string): Promise<string | null> {
+  console.log(`Searching for: "${query}"`)
+  
   // Strategy 1: If format is "Song - Artist", search with both together (most common format)
   if (query.includes(' - ')) {
     const parts = query.split(' - ')
     if (parts.length === 2) {
       const [track, artist] = parts
+      const searchQuery = `${track.trim()} ${artist.trim()}`
+      
+      console.log(`  Strategy 1: Simple search "${searchQuery}"`)
       
       // Try simple combined search (usually works best)
       let response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(`${track.trim()} ${artist.trim()}`)}&type=track&limit=1`,
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=3`,
         {
           headers: { 'Authorization': `Bearer ${accessToken}` },
         }
@@ -62,13 +67,25 @@ async function searchSpotifyTrack(accessToken: string, query: string): Promise<s
       
       if (response.ok) {
         const data = await response.json()
-        const trackId = data.tracks?.items?.[0]?.id
-        if (trackId) return trackId
+        if (data.tracks?.items?.length > 0) {
+          console.log(`  ✓ Found ${data.tracks.items.length} results`)
+          console.log(`  First result: "${data.tracks.items[0].name}" by ${data.tracks.items[0].artists[0].name}`)
+          return data.tracks.items[0].id
+        } else {
+          console.log(`  ✗ No results`)
+        }
+      } else {
+        console.log(`  ✗ API error: ${response.status}`)
+        const error = await response.text()
+        console.log(`  Error details: ${error}`)
       }
 
       // Strategy 2: Try structured search without quotes
+      const structuredQuery = `track:${track.trim()} artist:${artist.trim()}`
+      console.log(`  Strategy 2: Structured search "${structuredQuery}"`)
+      
       response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(`track:${track.trim()} artist:${artist.trim()}`)}&type=track&limit=1`,
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(structuredQuery)}&type=track&limit=3`,
         {
           headers: { 'Authorization': `Bearer ${accessToken}` },
         }
@@ -76,15 +93,20 @@ async function searchSpotifyTrack(accessToken: string, query: string): Promise<s
       
       if (response.ok) {
         const data = await response.json()
-        const trackId = data.tracks?.items?.[0]?.id
-        if (trackId) return trackId
+        if (data.tracks?.items?.length > 0) {
+          console.log(`  ✓ Found ${data.tracks.items.length} results`)
+          return data.tracks.items[0].id
+        } else {
+          console.log(`  ✗ No results`)
+        }
       }
     }
   }
   
   // Strategy 3: Plain search as fallback
+  console.log(`  Strategy 3: Plain search "${query}"`)
   const response = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=1`,
+    `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=3`,
     {
       headers: { 'Authorization': `Bearer ${accessToken}` },
     }
@@ -92,7 +114,14 @@ async function searchSpotifyTrack(accessToken: string, query: string): Promise<s
   
   if (response.ok) {
     const data = await response.json()
-    return data.tracks?.items?.[0]?.id || null
+    if (data.tracks?.items?.length > 0) {
+      console.log(`  ✓ Found ${data.tracks.items.length} results`)
+      return data.tracks.items[0].id
+    } else {
+      console.log(`  ✗ No results from any strategy`)
+    }
+  } else {
+    console.log(`  ✗ API error: ${response.status}`)
   }
   
   return null
@@ -211,7 +240,9 @@ export default async function handler(
 
   try {
     // Get songs from Notion
+    console.log('Fetching songs from Notion...')
     const songs = await getSongsFromNotion()
+    console.log(`Found ${songs.length} songs in Notion`)
 
     if (songs.length === 0) {
       return res.status(200).json({
@@ -223,19 +254,25 @@ export default async function handler(
     }
 
     // Get Spotify access tokens
+    console.log('Getting Spotify access tokens...')
     const searchAccessToken = await getSpotifyAccessToken(false) // Client credentials for search
+    console.log('Got search token:', searchAccessToken.substring(0, 20) + '...')
     const playlistAccessToken = await getSpotifyAccessToken(true) // Refresh token for playlist modification
+    console.log('Got playlist token')
 
     // Search for each song and collect track IDs
     const trackUris: string[] = []
     const failed: string[] = []
 
+    console.log('\nStarting song search...')
     for (const song of songs) {
       try {
         const trackId = await searchSpotifyTrack(searchAccessToken, song)
         if (trackId) {
+          console.log(`✓ Found: ${song} (ID: ${trackId})`)
           trackUris.push(`spotify:track:${trackId}`)
         } else {
+          console.log(`✗ Not found: ${song}`)
           failed.push(song)
         }
       } catch (error) {
