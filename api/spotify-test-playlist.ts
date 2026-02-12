@@ -101,7 +101,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           tokenUserName: results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName,
           playlistOwnerId: playlist.owner.id,
           playlistOwnerName: playlist.owner.display_name,
-          solution: `The refresh token was generated with account "${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}" but the playlist belongs to "${playlist.owner.display_name}". You must generate a new refresh token using the playlist owner's account (${playlist.owner.display_name}).`,
+          isCollaborative: playlist.collaborative,
+          important: 'Spotify API limitation: Only the playlist owner can add tracks via API, even if you are a collaborator.',
+          solutions: [
+            {
+              option: 1,
+              title: 'Use owner\'s refresh token (Recommended)',
+              steps: [
+                `Have "${playlist.owner.display_name}" generate a refresh token:`,
+                '1. Go to /api/spotify-auth?setup=true',
+                '2. Authorize with their account',
+                '3. Copy the refresh token',
+                '4. Update SPOTIFY_REFRESH_TOKEN in Vercel',
+              ],
+            },
+            {
+              option: 2,
+              title: 'Transfer playlist ownership',
+              steps: [
+                `"${playlist.owner.display_name}" transfers playlist to your account`,
+                'Then generate refresh token with your account',
+              ],
+            },
+            {
+              option: 3,
+              title: 'Create new playlist you own',
+              steps: [
+                'Create new playlist with your account',
+                'Update SPOTIFY_PLAYLIST_ID in Vercel',
+                'Generate refresh token with your account',
+              ],
+            },
+          ],
+          documentation: 'See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for details',
         }
       }
       
@@ -165,12 +197,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const tokenUserId = results.tests.find((t: any) => t.name === 'Get User Profile')?.userId
       const playlistOwnerId = results.tests.find((t: any) => t.name === 'Get Playlist Info')?.ownerId
       
-      let solution = ''
-      if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
-        solution = `The token user (${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}) is not the playlist owner (${results.tests.find((t: any) => t.name === 'Get Playlist Info')?.ownerDisplayName}). Generate a new refresh token using the playlist owner's account.`
-      } else if (addRes.status === 403) {
-        solution = '403 Forbidden: The token does not have permission to edit this playlist. Make sure the playlist is collaborative or the token user owns the playlist.'
-      }
+          let solution = ''
+          if (addRes.status === 403 && tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
+            const playlistInfo = results.tests.find((t: any) => t.name === 'Get Playlist Info')
+            solution = `403 Forbidden: Spotify API only allows playlist OWNERS to add tracks via API, not collaborators. The token user (${results.tests.find((t: any) => t.name === 'Get User Profile')?.displayName}) is not the playlist owner (${playlistInfo?.ownerDisplayName}). You must use the playlist owner's refresh token. See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for solutions.`
+          } else if (addRes.status === 403) {
+            solution = '403 Forbidden: The token does not have permission to edit this playlist. Only playlist owners can add tracks via Spotify API.'
+          }
       
       results.tests.push({
         name: 'Add Track to Playlist',

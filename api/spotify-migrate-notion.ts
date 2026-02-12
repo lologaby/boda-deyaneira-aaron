@@ -426,10 +426,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           
           // Check if token user doesn't match playlist owner
           if (tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId) {
-            reason = `403 Forbidden: Token user (${tokenUserId}) is not the playlist owner (${playlistOwnerId}). Generate a new refresh token using the playlist owner's account.`
-            detailedError = `Token user ID: ${tokenUserId}, Playlist owner ID: ${playlistOwnerId}. These must match for the token to have edit permissions.`
+            reason = `403 Forbidden: Spotify API only allows playlist OWNERS to add tracks, not collaborators. Token user (${tokenUserId}) is not the playlist owner (${playlistOwnerId}). You must use the playlist owner's refresh token. See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for solutions.`
+            detailedError = `Token user ID: ${tokenUserId}, Playlist owner ID: ${playlistOwnerId}. Spotify API limitation: only owners can add tracks via API, even if you are a collaborator.`
           } else {
-            reason = `403 Forbidden: ${errorMsg}. The refresh token may not have permission to edit this playlist.`
+            reason = `403 Forbidden: ${errorMsg}. The refresh token may not have permission to edit this playlist. Only playlist owners can add tracks via Spotify API.`
             detailedError = `Full error: ${errText.substring(0, 500)}`
           }
         } else if (addRes.status === 404) {
@@ -469,21 +469,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     if (hasPlaylist403Errors && added.length === 0) {
       message = 'Migration failed: Cannot add songs to playlist (403 Forbidden)'
-      instructions = [
-        'The refresh token does not have permission to edit the playlist.',
-        'Possible causes:',
-        '1. Refresh token was generated with OLD credentials - regenerate it:',
-        '   → Go to /api/spotify-auth?setup=true',
-        '   → Authorize with the NEW app credentials',
-        '   → Copy the new refresh token',
-        '   → Update SPOTIFY_REFRESH_TOKEN in Vercel',
-        '2. The Spotify account does not have edit access to the playlist',
-        '   → Verify you own the playlist or are a collaborator',
-        '   → Check playlist permissions in Spotify app',
-        '3. The user is not added to the app\'s user list',
-        '   → Go to Dashboard → Your App → Settings → Users Management',
-        '   → Add your Spotify account email',
-      ]
+      
+      // Check if it's a collaborator issue
+      const firstFailed = failed.find(f => f.reason?.includes('403'))
+      const isCollaboratorIssue = firstFailed?.debug?.trackUri && tokenUserId && playlistOwnerId && tokenUserId !== playlistOwnerId
+      
+      if (isCollaboratorIssue) {
+        instructions = [
+          '⚠️ Spotify API Limitation: Only playlist OWNERS can add tracks via API.',
+          'Even if you are a collaborator, you cannot add tracks programmatically.',
+          '',
+          'Solutions:',
+          '1. Use playlist owner\'s refresh token (Recommended):',
+          '   → Have the playlist owner go to /api/spotify-auth?setup=true',
+          '   → They authorize with their account',
+          '   → Copy their refresh token',
+          '   → Update SPOTIFY_REFRESH_TOKEN in Vercel',
+          '',
+          '2. Transfer playlist ownership to your account',
+          '',
+          '3. Create a new playlist that you own',
+          '',
+          'See docs/SPOTIFY_COLLABORATOR_SOLUTION.md for detailed instructions.',
+        ]
+      } else {
+        instructions = [
+          'The refresh token does not have permission to edit the playlist.',
+          'Possible causes:',
+          '1. Refresh token was generated with OLD credentials - regenerate it:',
+          '   → Go to /api/spotify-auth?setup=true',
+          '   → Authorize with the NEW app credentials',
+          '   → Copy the new refresh token',
+          '   → Update SPOTIFY_REFRESH_TOKEN in Vercel',
+          '2. The Spotify account does not own the playlist',
+          '   → Only playlist owners can add tracks via API',
+          '   → See docs/SPOTIFY_COLLABORATOR_SOLUTION.md if you are a collaborator',
+          '3. The user is not added to the app\'s user list',
+          '   → Go to Dashboard → Your App → Settings → Users Management',
+          '   → Add your Spotify account email',
+        ]
+      }
     } else if (has403Errors && added.length === 0) {
       message = 'Migration failed: Spotify API returned 403 errors'
       instructions = [
