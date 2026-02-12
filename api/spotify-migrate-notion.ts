@@ -118,12 +118,21 @@ async function searchTrack(
     }
 
     const data = await r.json()
+    
+    // Debug: log the full response structure
+    console.log(`  Full response keys:`, Object.keys(data))
+    console.log(`  Tracks structure:`, data?.tracks ? Object.keys(data.tracks) : 'no tracks')
+    
     const total = data?.tracks?.total || 0
     const items = data?.tracks?.items || []
     
     console.log(`  Response: total=${total}, items=${items.length}`)
     if (items.length > 0) {
-      console.log(`  First result: "${items[0].name}" by ${items[0].artists?.[0]?.name || 'Unknown'}`)
+      const first = items[0]
+      console.log(`  First result: "${first.name}" by ${first.artists?.[0]?.name || 'Unknown'}`)
+      console.log(`  First URI: ${first.uri}`)
+    } else if (total > 0) {
+      console.log(`  ⚠ WARNING: total=${total} but items.length=0 - this is unusual!`)
     }
     
     if (debug) {
@@ -132,16 +141,23 @@ async function searchTrack(
         status: r.status, 
         total, 
         items: items.length,
+        hasTracks: !!data?.tracks,
+        tracksKeys: data?.tracks ? Object.keys(data.tracks) : [],
         firstResult: items.length > 0 ? {
           name: items[0].name,
           artist: items[0].artists?.[0]?.name,
           uri: items[0].uri,
+          id: items[0].id,
         } : null,
       })
     }
     
-    if (items.length > 0) {
+    if (items && items.length > 0) {
       const first = items[0]
+      if (!first.uri) {
+        console.error(`  ⚠ First item has no URI!`, first)
+        continue
+      }
       console.log(`  ✓ Found: "${first.name}" by ${first.artists?.[0]?.name || 'Unknown'}`)
       return {
         uri: first.uri,
@@ -149,7 +165,7 @@ async function searchTrack(
         artist: first.artists?.[0]?.name || '',
       }
     } else {
-      console.log(`  ✗ No items in response for "${q}" (but total=${total})`)
+      console.log(`  ✗ No items in response for "${q}" (total=${total})`)
     }
   }
 
