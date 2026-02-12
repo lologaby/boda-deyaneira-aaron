@@ -139,23 +139,34 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Content-Type', 'application/json')
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end()
+  }
+
   // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' })
   }
 
   // Check configuration
-  if (!NOTION_API_KEY || !NOTION_DATABASE_ID) {
-    return res.status(500).json({
-      success: false,
-      error: 'Notion not configured',
-    })
-  }
+  const missingConfig: string[] = []
+  if (!NOTION_API_KEY) missingConfig.push('NOTION_API_KEY')
+  if (!NOTION_DATABASE_ID) missingConfig.push('NOTION_GUESTS_DATABASE_ID')
+  if (!SPOTIFY_CLIENT_ID) missingConfig.push('SPOTIFY_CLIENT_ID')
+  if (!SPOTIFY_CLIENT_SECRET) missingConfig.push('SPOTIFY_CLIENT_SECRET')
+  if (!SPOTIFY_REFRESH_TOKEN) missingConfig.push('SPOTIFY_REFRESH_TOKEN')
 
-  if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET || !SPOTIFY_REFRESH_TOKEN) {
+  if (missingConfig.length > 0) {
     return res.status(500).json({
       success: false,
-      error: 'Spotify not configured',
+      error: `Missing configuration: ${missingConfig.join(', ')}`,
+      missing: missingConfig,
     })
   }
 
