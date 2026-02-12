@@ -44,19 +44,71 @@ async function getSpotifyAccessToken(useRefreshToken: boolean = true): Promise<s
   return data.access_token
 }
 
-// Search Spotify for a track
+// Search Spotify for a track with multiple strategies
 async function searchSpotifyTrack(accessToken: string, query: string): Promise<string | null> {
-  const response = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=1`,
+  // Strategy 1: Try to parse "Song - Artist" format and use structured search
+  let searchQuery = query
+  if (query.includes(' - ')) {
+    const parts = query.split(' - ')
+    if (parts.length === 2) {
+      const [track, artist] = parts
+      // Use Spotify's advanced search syntax for better results
+      searchQuery = `track:"${track.trim()}" artist:"${artist.trim()}"`
+    }
+  }
+
+  // Try structured search first
+  let response = await fetch(
+    `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=1`,
     {
       headers: { 'Authorization': `Bearer ${accessToken}` },
     }
   )
 
-  if (!response.ok) return null
+  if (response.ok) {
+    const data = await response.json()
+    const trackId = data.tracks?.items?.[0]?.id
+    if (trackId) return trackId
+  }
 
-  const data = await response.json()
-  return data.tracks?.items?.[0]?.id || null
+  // Strategy 2: If not found, try without quotes
+  if (query.includes(' - ') && searchQuery !== query) {
+    const parts = query.split(' - ')
+    if (parts.length === 2) {
+      const [track, artist] = parts
+      const simpleQuery = `${track.trim()} ${artist.trim()}`
+      
+      response = await fetch(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(simpleQuery)}&type=track&limit=1`,
+        {
+          headers: { 'Authorization': `Bearer ${accessToken}` },
+        }
+      )
+      
+      if (response.ok) {
+        const data = await response.json()
+        const trackId = data.tracks?.items?.[0]?.id
+        if (trackId) return trackId
+      }
+    }
+  }
+  
+  // Strategy 3: Plain search as last fallback
+  if (searchQuery !== query) {
+    response = await fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=1`,
+      {
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+      }
+    )
+    
+    if (response.ok) {
+      const data = await response.json()
+      return data.tracks?.items?.[0]?.id || null
+    }
+  }
+  
+  return null
 }
 
 // Add tracks to Spotify playlist
