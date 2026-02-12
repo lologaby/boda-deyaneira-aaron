@@ -343,6 +343,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(`  ✓ Found: "${result.name}" by ${result.artist} → ${result.uri}`)
 
       // Add to playlist
+      // First, verify token has correct scopes by checking user profile
+      let tokenScopes: string[] = []
+      try {
+        const profileRes = await fetch('https://api.spotify.com/v1/me', {
+          headers: { Authorization: `Bearer ${userToken}` }
+        })
+        if (profileRes.ok) {
+          const profile = await profileRes.json()
+          console.log(`  Token user: ${profile.display_name || profile.id}`)
+        } else {
+          console.log(`  ⚠ Could not verify token user: ${profileRes.status}`)
+        }
+      } catch (e) {
+        console.log(`  ⚠ Could not verify token: ${e}`)
+      }
+
       const addRes = await fetch(
         `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/tracks`,
         {
@@ -351,22 +367,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             Authorization: `Bearer ${userToken}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ uris: [result.uri] }),
+          body: JSON.stringify({ uris: [result.uri], position: 0 }),
         },
       )
 
       if (!addRes.ok) {
-        const err = await addRes.text()
-        console.log(`  ✗ Failed to add: ${err}`)
-        
-        let reason = `Playlist add error: ${addRes.status}`
-        if (addRes.status === 403) {
-          reason = `403 Forbidden: The refresh token may not have permission to edit this playlist, or it was generated with old credentials. Regenerate the refresh token at /api/spotify-auth?setup=true`
-        } else if (addRes.status === 404) {
-          reason = `404 Not Found: Playlist ID may be incorrect or playlist doesn't exist`
+        let errText = await addRes.text()
+        let errJson: any = null
+        try {
+          errJson = JSON.parse(errText)
+        } catch (e) {
+          // Not JSON, use as text
         }
         
-        failed.push({ song, guest: guestName, reason, debug: { ...debug, addError: err.substring(0, 200) } })
+        console.log(`  ✗ Failed to add: ${errText}`)
+        console.log(`  Playlist ID: ${PLAYLIST_ID}`)
+        console.log(`  Track URI: ${result.uri}`)
+        
+        let reason = `Playlist add error: ${addRes.status}`
+        let detailedError = errText.substring(0, 500)
+        
+        if (addRes.status === 403) {
+          const errorMsg = errJson?.error?.message || errText
+          reason = `403 Forbidden: ${errorMsg}`
+          detailedError = `Full error: ${errText.substring(0, 500)}`
+        } else if (addRes.status === 404) {
+          reason = `404 Not Found: Playlist ID may be incorrect or playlist doesn't exist. Check PLAYLIST_ID=${PLAYLIST_ID}`
+        }
+        
+        failed.push({ 
+          song, 
+          guest: guestName, 
+          reason, 
+          debug: { 
+            ...debug, 
+            addError: detailedError,
+            playlistId: PLAYLIST_ID,
+            trackUri: result.uri,
+            httpStatus: addRes.status,
+            errorJson: errJson,
+          } 
+        })
       } else {
         console.log(`  ✓ Added to playlist!`)
         added.push({ song, spotifyName: result.name, artist: result.artist, uri: result.uri })
