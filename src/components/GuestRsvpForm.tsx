@@ -204,7 +204,16 @@ export const GuestRsvpForm = ({
           <button
             type="button"
             className="rsvp-confirm-btn"
-            onClick={handleConfirm}
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              handleConfirm()
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              handleConfirm()
+            }}
             disabled={isSubmitting || !song.trim() || (bringingPlusOne && !plusOneName.trim())}
           >
             {isSubmitting ? content.submitting : (content.confirmButton || '¡Confirmo mi asistencia!')}
@@ -212,7 +221,16 @@ export const GuestRsvpForm = ({
           <button
             type="button"
             className="rsvp-decline-btn"
-            onClick={handleDecline}
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              handleDecline()
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              handleDecline()
+            }}
             disabled={isSubmitting}
           >
             {content.declineButton || 'No podré asistir'}

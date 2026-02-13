@@ -154,14 +154,28 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
 
   // Click outside to close results
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setShowResults(false)
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node
+      // Check if click is outside the container AND not on RSVP buttons
+      if (containerRef.current && !containerRef.current.contains(target)) {
+        // Also check if click is on RSVP buttons - if so, close modal
+        const isRsvpButton = (target as Element)?.closest('.rsvp-confirm-btn, .rsvp-decline-btn')
+        if (isRsvpButton || !containerRef.current.contains(target)) {
+          setShowResults(false)
+        }
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    // Use both mousedown and click for better Chrome compatibility
+    document.addEventListener('mousedown', handleClickOutside, true)
+    document.addEventListener('click', handleClickOutside, true)
+    document.addEventListener('touchstart', handleClickOutside, true)
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside, true)
+      document.removeEventListener('click', handleClickOutside, true)
+      document.removeEventListener('touchstart', handleClickOutside, true)
+    }
   }, [])
   
   // Prevent body scroll when modal is open on mobile
@@ -255,6 +269,11 @@ export const SongSearch = ({ value, onChange, placeholder, disabled, content }: 
                   exit={{ opacity: 0 }}
                   className="song-results-overlay"
                   onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    setShowResults(false)
+                  }}
+                  onTouchStart={(e) => {
                     e.stopPropagation()
                     setShowResults(false)
                   }}
