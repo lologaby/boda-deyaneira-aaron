@@ -43,7 +43,6 @@ function extractText(richText: any[]): string {
   return richText.map((t: any) => t.plain_text || '').join('')
 }
 
-// Get first text from a Notion property (title or rich_text)
 function getPropText(prop: any): string {
   if (!prop) return ''
   if (prop.title && Array.isArray(prop.title)) return prop.title.map((t: any) => t.plain_text || '').join('').trim()
@@ -51,36 +50,35 @@ function getPropText(prop: any): string {
   return ''
 }
 
-// Parse guest data from Notion page — supports exact names (Name, Code) and fallback by type
-function parseGuest(page: any): GuestData | null {
+// Parse guest from Notion page. codeMatch = value we searched for (e.g. TEST123).
+function parseGuest(page: any, codeMatch: string): GuestData | null {
   try {
     const props = page.properties || {}
+    const codeMatchUpper = codeMatch.trim().toUpperCase()
 
-    let name = getPropText(props.Name) || getPropText(props.Nombre) || ''
-    let code = getPropText(props.Code) || getPropText(props.Código) || getPropText(props.codigo) || ''
+    let name = ''
+    let code = ''
 
-    if (!name || !code) {
-      for (const [key, val] of Object.entries(props)) {
-        const p = val as any
-        if (p?.title && !name) name = getPropText(p)
-        if (p?.rich_text && !code) code = getPropText(p)
-        if (name && code) break
-      }
+    for (const [_key, prop] of Object.entries(props)) {
+      const p = prop as any
+      const text = getPropText(p)
+      if (!text) continue
+      if (p.title && !name) name = text
+      if (p.rich_text && text.trim().toUpperCase() === codeMatchUpper) code = text.trim()
     }
-
     if (!name || !code) return null
 
     return {
       id: page.id,
       name,
       code: code.toUpperCase(),
-      plusOneAllowed: props.PlusOneAllowed?.checkbox === true,
-      plusOneName: getPropText(props.PlusOneName) || null,
-      hasConfirmed: props.HasConfirmed?.checkbox === true,
-      attendance: (props.Attendance?.select?.name || 'pending').toLowerCase(),
-      totalGuests: typeof props.TotalGuests?.number === 'number' ? props.TotalGuests.number : 1,
-      song: getPropText(props.Song) || null,
-      email: props.Email?.email || null,
+      plusOneAllowed: (props as any).PlusOneAllowed?.checkbox === true,
+      plusOneName: getPropText((props as any).PlusOneName) || null,
+      hasConfirmed: (props as any).HasConfirmed?.checkbox === true,
+      attendance: ((props as any).Attendance?.select?.name || 'pending').toLowerCase(),
+      totalGuests: typeof (props as any).TotalGuests?.number === 'number' ? (props as any).TotalGuests.number : 1,
+      song: getPropText((props as any).Song) || null,
+      email: (props as any).Email?.email || null,
     }
   } catch (error) {
     console.error('Error parsing guest:', error)
@@ -120,7 +118,7 @@ async function findGuestByCode(code: string): Promise<GuestData | null> {
 
       const data = JSON.parse(text)
       if (data.results && data.results.length > 0) {
-        const guest = parseGuest(data.results[0])
+        const guest = parseGuest(data.results[0], variant)
         if (guest) {
           console.log(`[guest] Found guest for variant "${variant}"`)
           return guest
