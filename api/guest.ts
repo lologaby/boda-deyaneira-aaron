@@ -43,27 +43,43 @@ function extractText(richText: any[]): string {
   return richText.map((t: any) => t.plain_text || '').join('')
 }
 
-// Parse guest data from Notion page
+// Get first text from a Notion property (title or rich_text)
+function getPropText(prop: any): string {
+  if (!prop) return ''
+  if (prop.title && Array.isArray(prop.title)) return prop.title.map((t: any) => t.plain_text || '').join('').trim()
+  if (prop.rich_text && Array.isArray(prop.rich_text)) return prop.rich_text.map((t: any) => t.plain_text || '').join('').trim()
+  return ''
+}
+
+// Parse guest data from Notion page — supports exact names (Name, Code) and fallback by type
 function parseGuest(page: any): GuestData | null {
   try {
-    const props = page.properties
+    const props = page.properties || {}
 
-    const name = extractText(props.Name?.title) || extractText(props.Nombre?.title) || ''
-    const codeProp = props.Code || props.Código || props.codigo
-    const code = codeProp?.rich_text ? extractText(codeProp.rich_text) : ''
-    
+    let name = getPropText(props.Name) || getPropText(props.Nombre) || ''
+    let code = getPropText(props.Code) || getPropText(props.Código) || getPropText(props.codigo) || ''
+
+    if (!name || !code) {
+      for (const [key, val] of Object.entries(props)) {
+        const p = val as any
+        if (p?.title && !name) name = getPropText(p)
+        if (p?.rich_text && !code) code = getPropText(p)
+        if (name && code) break
+      }
+    }
+
     if (!name || !code) return null
 
     return {
       id: page.id,
       name,
       code: code.toUpperCase(),
-      plusOneAllowed: props.PlusOneAllowed?.checkbox || false,
-      plusOneName: props.PlusOneName?.rich_text ? extractText(props.PlusOneName.rich_text) || null : null,
-      hasConfirmed: props.HasConfirmed?.checkbox || false,
-      attendance: props.Attendance?.select?.name?.toLowerCase() || 'pending',
-      totalGuests: props.TotalGuests?.number || 1,
-      song: props.Song?.rich_text ? extractText(props.Song.rich_text) || null : null,
+      plusOneAllowed: props.PlusOneAllowed?.checkbox === true,
+      plusOneName: getPropText(props.PlusOneName) || null,
+      hasConfirmed: props.HasConfirmed?.checkbox === true,
+      attendance: (props.Attendance?.select?.name || 'pending').toLowerCase(),
+      totalGuests: typeof props.TotalGuests?.number === 'number' ? props.TotalGuests.number : 1,
+      song: getPropText(props.Song) || null,
       email: props.Email?.email || null,
     }
   } catch (error) {
@@ -104,8 +120,12 @@ async function findGuestByCode(code: string): Promise<GuestData | null> {
 
       const data = JSON.parse(text)
       if (data.results && data.results.length > 0) {
-        console.log(`[guest] Found guest for variant "${variant}"`)
-        return parseGuest(data.results[0])
+        const guest = parseGuest(data.results[0])
+        if (guest) {
+          console.log(`[guest] Found guest for variant "${variant}"`)
+          return guest
+        }
+        console.log(`[guest] Parse failed for variant "${variant}" (check property names in Notion)`)
       }
       console.log(`[guest] No results for variant "${variant}"`)
     } catch (e: any) {
