@@ -1,8 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-const GUESTS_DATABASE_ID_RAW = (process.env.NOTION_GUESTS_DATABASE_ID || '').trim()
-// Notion accepts ID with or without hyphens; normalize to no hyphens for API path
-const GUESTS_DATABASE_ID = GUESTS_DATABASE_ID_RAW.replace(/-/g, '')
+const GUESTS_DATABASE_ID = process.env.NOTION_GUESTS_DATABASE_ID || ''
 const NOTION_API_KEY = process.env.NOTION_API_KEY || ''
 const NOTION_VERSION = '2022-06-28'
 
@@ -74,30 +72,43 @@ function parseGuest(page: any): GuestData | null {
   }
 }
 
-// Find guest by code. Property must be "Code" (rich text). Case-insensitive: we try trimmed, upper, lower.
+// Find guest by code
+// Notion's rich_text "equals" filter is case-sensitive; try multiple case variants.
+// Property name may be "Code" or "Código" depending on database language.
 async function findGuestByCode(code: string): Promise<GuestData | null> {
   const trimmed = code.trim()
-  if (!trimmed) return null
+  const variants = [trimmed, trimmed.toUpperCase(), trimmed.toLowerCase()].filter(
+    (v, i, a) => a.indexOf(v) === i
+  )
 
-  const variants = [...new Set([trimmed, trimmed.toUpperCase(), trimmed.toLowerCase()])]
+  const codePropertyNames = ['Code', 'Código']
 
-  for (const value of variants) {
-    const data = await notionFetch(`/databases/${GUESTS_DATABASE_ID}/query`, {
-      method: 'POST',
-      body: {
-        page_size: 10,
-        filter: {
-          property: 'Code',
-          rich_text: { equals: value },
-        },
-      },
-    })
-    const results = data.results || []
-    if (results.length > 0) {
-      const guest = parseGuest(results[0])
-      if (guest) return guest
+  for (const propName of codePropertyNames) {
+    for (const variant of variants) {
+      if (!variant) continue
+
+      for (const filterType of ['rich_text', 'title'] as const) {
+        try {
+          const data = await notionFetch(`/databases/${GUESTS_DATABASE_ID}/query`, {
+            method: 'POST',
+            body: {
+              filter: {
+                property: propName,
+                [filterType]: { equals: variant },
+              },
+            },
+          })
+
+          if (data.results && data.results.length > 0) {
+            return parseGuest(data.results[0])
+          }
+        } catch {
+          continue
+        }
+      }
     }
   }
+
   return null
 }
 
@@ -208,11 +219,7 @@ export default async function handler(
       const guest = await findGuestByCode(code)
 
       if (!guest) {
-        return res.status(404).json({
-          success: false,
-          error: 'Invalid code',
-          hint: 'Check /api/guest-check on this site to verify Notion connection.',
-        })
+        return res.status(404).json({ success: false, error: 'Invalid code' })
       }
 
       // Mark as "pending" if attendance is not yet set (first time entering code)
@@ -257,11 +264,7 @@ export default async function handler(
       const guest = await findGuestByCode(code)
 
       if (!guest) {
-        return res.status(404).json({
-          success: false,
-          error: 'Invalid code',
-          hint: 'Check /api/guest-check to verify Notion connection.',
-        })
+        return res.status(404).json({ success: false, error: 'Invalid code' })
       }
 
       // Update the guest
