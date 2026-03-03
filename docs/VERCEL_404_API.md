@@ -2,6 +2,11 @@
 
 La app está en Vercel y las variables (API keys) las editas ahí. Si aun así ves **404: NOT_FOUND** al validar el código o al abrir `/api/guest-check`, revisa esto en el dashboard de Vercel.
 
+## Por qué el build puede pasar y aun así dar 404 en /api
+
+El **build** (`npm run build`) solo genera el **frontend**: compila Vite y deja todo en `dist/`. Eso es lo que Vercel ejecuta cuando dice "Build completed".  
+La carpeta **`api/`** no la toca el build de Vite. Las rutas `/api/*` las despliega **Vercel por separado**, como Serverless Functions, leyendo los `.ts` de `api/` en el repo. Si algo hace que Vercel no tome esa carpeta (por ejemplo "Framework: Vite" tratando el proyecto como solo estático), el build sigue en verde pero las rutas `/api/*` no existen y devuelven 404.
+
 ## 1. Root Directory (lo más habitual)
 
 **Settings → General → Root Directory**
@@ -35,7 +40,10 @@ En **Deployments**, abre el último deployment y revisa la pestaña **Functions*
 - `/api/guest-check`
 - etc.
 
-Si esa lista está vacía o no sale `/api/guest`, las funciones no se han desplegado; suele ser por **Root Directory** (punto 1) o porque la carpeta `api/` no está en la raíz del código que se despliega.
+Si esa lista está **vacía**, las funciones no se han desplegado. En ese caso:
+- El **build** puede seguir en verde porque solo compila el frontend (`dist/`).
+- Vercel no está incluyendo la carpeta `api/` en el mismo deployment (por Root Directory, o porque el proyecto se detecta como "solo estático").
+- En `vercel.json` se quitó `"framework": "vite"` para que Vercel no use el preset que a veces ignora `api/`. Haz push de ese cambio y **Redeploy**.
 
 ## 5. Probar sin reescrituras
 
