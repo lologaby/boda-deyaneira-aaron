@@ -74,87 +74,30 @@ function parseGuest(page: any): GuestData | null {
   }
 }
 
-// Query Notion DB (used with different filter strategies)
-async function queryGuests(body: { filter?: any }): Promise<any[]> {
-  if (!GUESTS_DATABASE_ID) return []
-  const data = await notionFetch(`/databases/${GUESTS_DATABASE_ID}/query`, {
-    method: 'POST',
-    body: { ...body, page_size: 100 },
-  })
-  return data.results || []
-}
-
-// Case-insensitive code match
-function codesMatch(stored: string, input: string): boolean {
-  return stored.trim().toUpperCase() === input.trim().toUpperCase()
-}
-
-// Find guest by code
-// Notion's rich_text "equals" is case-sensitive; we try exact variants then "contains" fallback.
+// Find guest by code. Property must be "Code" (rich text). Case-insensitive: we try trimmed, upper, lower.
 async function findGuestByCode(code: string): Promise<GuestData | null> {
   const trimmed = code.trim()
   if (!trimmed) return null
 
-  const variants = [trimmed, trimmed.toUpperCase(), trimmed.toLowerCase(), trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase()].filter(
-    (v, i, a) => a.indexOf(v) === i
-  )
+  const variants = [...new Set([trimmed, trimmed.toUpperCase(), trimmed.toLowerCase()])]
 
-  const codePropertyNames = ['Code', 'Código']
-
-  // 1) Exact match (equals) for each property name and case variant
-  for (const propName of codePropertyNames) {
-    for (const variant of variants) {
-      for (const filterType of ['rich_text', 'title'] as const) {
-        try {
-          const results = await queryGuests({
-            filter: {
-              property: propName,
-              [filterType]: { equals: variant },
-            },
-          })
-          if (results.length > 0) {
-            const guest = parseGuest(results[0])
-            if (guest && codesMatch(guest.code, trimmed)) return guest
-          }
-        } catch {
-          continue
-        }
-      }
-    }
-  }
-
-  // 2) Fallback: "contains" (catches extra spaces or slight differences), then match by code
-  const searchTerm = trimmed.toLowerCase()
-  for (const propName of codePropertyNames) {
-    try {
-      const results = await queryGuests({
+  for (const value of variants) {
+    const data = await notionFetch(`/databases/${GUESTS_DATABASE_ID}/query`, {
+      method: 'POST',
+      body: {
+        page_size: 10,
         filter: {
-          property: propName,
-          rich_text: { contains: trimmed },
+          property: 'Code',
+          rich_text: { equals: value },
         },
-      })
-      for (const page of results) {
-        const guest = parseGuest(page)
-        if (guest && codesMatch(guest.code, trimmed)) return guest
-      }
-    } catch {
-      try {
-        const results = await queryGuests({
-          filter: {
-            property: propName,
-            rich_text: { contains: searchTerm },
-          },
-        })
-        for (const page of results) {
-          const guest = parseGuest(page)
-          if (guest && codesMatch(guest.code, trimmed)) return guest
-        }
-      } catch {
-        continue
-      }
+      },
+    })
+    const results = data.results || []
+    if (results.length > 0) {
+      const guest = parseGuest(results[0])
+      if (guest) return guest
     }
   }
-
   return null
 }
 
@@ -265,7 +208,11 @@ export default async function handler(
       const guest = await findGuestByCode(code)
 
       if (!guest) {
-        return res.status(404).json({ success: false, error: 'Invalid code' })
+        return res.status(404).json({
+          success: false,
+          error: 'Invalid code',
+          hint: 'Check /api/guest-check on this site to verify Notion connection.',
+        })
       }
 
       // Mark as "pending" if attendance is not yet set (first time entering code)
@@ -310,7 +257,11 @@ export default async function handler(
       const guest = await findGuestByCode(code)
 
       if (!guest) {
-        return res.status(404).json({ success: false, error: 'Invalid code' })
+        return res.status(404).json({
+          success: false,
+          error: 'Invalid code',
+          hint: 'Check /api/guest-check to verify Notion connection.',
+        })
       }
 
       // Update the guest
