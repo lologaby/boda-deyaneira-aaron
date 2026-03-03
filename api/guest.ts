@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-const GUESTS_DATABASE_ID = process.env.NOTION_GUESTS_DATABASE_ID || ''
+const GUESTS_DATABASE_ID = (process.env.NOTION_GUESTS_DATABASE_ID || '').trim().replace(/-/g, '')
 const NOTION_API_KEY = process.env.NOTION_API_KEY || ''
 const NOTION_VERSION = '2022-06-28'
 
