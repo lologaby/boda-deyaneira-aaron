@@ -48,8 +48,9 @@ function parseGuest(page: any): GuestData | null {
   try {
     const props = page.properties
 
-    const name = extractText(props.Name?.title) || ''
-    const code = props.Code?.rich_text ? extractText(props.Code.rich_text) : ''
+    const name = extractText(props.Name?.title) || extractText(props.Nombre?.title) || ''
+    const codeProp = props.Code || props.Código || props.codigo
+    const code = codeProp?.rich_text ? extractText(codeProp.rich_text) : ''
     
     if (!name || !code) return null
 
@@ -72,26 +73,43 @@ function parseGuest(page: any): GuestData | null {
 }
 
 // Find guest by code
+// Notion's rich_text "equals" filter is case-sensitive; try multiple case variants.
+// Property name may be "Code" or "Código" depending on database language.
 async function findGuestByCode(code: string): Promise<GuestData | null> {
-  const normalizedCode = code.toUpperCase().trim()
+  const trimmed = code.trim()
+  const variants = [trimmed, trimmed.toUpperCase(), trimmed.toLowerCase()].filter(
+    (v, i, a) => a.indexOf(v) === i
+  )
 
-  const data = await notionFetch(`/databases/${GUESTS_DATABASE_ID}/query`, {
-    method: 'POST',
-    body: {
-      filter: {
-        property: 'Code',
-        rich_text: {
-          equals: normalizedCode,
-        },
-      },
-    },
-  })
+  const codePropertyNames = ['Code', 'Código']
 
-  if (!data.results || data.results.length === 0) {
-    return null
+  for (const propName of codePropertyNames) {
+    for (const variant of variants) {
+      if (!variant) continue
+
+      for (const filterType of ['rich_text', 'title'] as const) {
+        try {
+          const data = await notionFetch(`/databases/${GUESTS_DATABASE_ID}/query`, {
+            method: 'POST',
+            body: {
+              filter: {
+                property: propName,
+                [filterType]: { equals: variant },
+              },
+            },
+          })
+
+          if (data.results && data.results.length > 0) {
+            return parseGuest(data.results[0])
+          }
+        } catch {
+          continue
+        }
+      }
+    }
   }
 
-  return parseGuest(data.results[0])
+  return null
 }
 
 // Update guest in Notion
@@ -193,13 +211,9 @@ export default async function handler(
         res.setHeader('Set-Cookie', 'guest_code=; Path=/; Max-Age=0; SameSite=Lax; HttpOnly')
       }
 
-      // If code provided, validate it
+      // If no code provided (e.g. initial load checking cookie), return 200 so client doesn't see a failed request
       if (!code || typeof code !== 'string') {
-        // No code and no valid cookie
-        if (!cookieCode) {
-          return res.status(400).json({ success: false, error: 'Code is required' })
-        }
-        return res.status(400).json({ success: false, error: 'Code is required' })
+        return res.status(200).json({ success: false, error: 'Code is required' })
       }
 
       const guest = await findGuestByCode(code)
