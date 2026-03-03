@@ -26,7 +26,7 @@ async function getUserToken(): Promise<string> {
   return ((await r.json()) as any).access_token
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(_req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Content-Type', 'application/json')
 
