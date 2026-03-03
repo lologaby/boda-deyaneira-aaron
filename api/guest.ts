@@ -72,43 +72,48 @@ function parseGuest(page: any): GuestData | null {
   }
 }
 
-// Find guest by code
-// Notion's rich_text "equals" filter is case-sensitive; try multiple case variants.
-// Property name may be "Code" or "Código" depending on database language.
+// Find guest by code — tries lowercase, uppercase and original
 async function findGuestByCode(code: string): Promise<GuestData | null> {
   const trimmed = code.trim()
-  const variants = [trimmed, trimmed.toUpperCase(), trimmed.toLowerCase()].filter(
-    (v, i, a) => a.indexOf(v) === i
-  )
+  const variants = [...new Set([trimmed, trimmed.toUpperCase(), trimmed.toLowerCase()])]
 
-  const codePropertyNames = ['Code', 'Código']
+  console.log(`[guest] findGuestByCode called with: "${trimmed}", variants: ${JSON.stringify(variants)}`)
+  console.log(`[guest] Using DB ID: "${GUESTS_DATABASE_ID}"`)
 
-  for (const propName of codePropertyNames) {
-    for (const variant of variants) {
-      if (!variant) continue
+  for (const variant of variants) {
+    try {
+      const response = await fetch(`https://api.notion.com/v1/databases/${GUESTS_DATABASE_ID}/query`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NOTION_API_KEY}`,
+          'Notion-Version': NOTION_VERSION,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filter: {
+            property: 'Code',
+            rich_text: { equals: variant },
+          },
+        }),
+      })
 
-      for (const filterType of ['rich_text', 'title'] as const) {
-        try {
-          const data = await notionFetch(`/databases/${GUESTS_DATABASE_ID}/query`, {
-            method: 'POST',
-            body: {
-              filter: {
-                property: propName,
-                [filterType]: { equals: variant },
-              },
-            },
-          })
+      const text = await response.text()
+      console.log(`[guest] Query variant="${variant}" → HTTP ${response.status}: ${text.slice(0, 300)}`)
 
-          if (data.results && data.results.length > 0) {
-            return parseGuest(data.results[0])
-          }
-        } catch {
-          continue
-        }
+      if (!response.ok) continue
+
+      const data = JSON.parse(text)
+      if (data.results && data.results.length > 0) {
+        console.log(`[guest] Found guest for variant "${variant}"`)
+        return parseGuest(data.results[0])
       }
+      console.log(`[guest] No results for variant "${variant}"`)
+    } catch (e: any) {
+      console.log(`[guest] Exception for variant "${variant}": ${e.message}`)
     }
   }
 
+  console.log(`[guest] No guest found for code "${trimmed}"`)
   return null
 }
 
