@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-const GUESTS_DATABASE_ID = process.env.NOTION_GUESTS_DATABASE_ID || ''
+const GUESTS_DATABASE_ID_RAW = (process.env.NOTION_GUESTS_DATABASE_ID || '').trim()
+// Notion accepts ID with or without hyphens; normalize to no hyphens for API path
+const GUESTS_DATABASE_ID = GUESTS_DATABASE_ID_RAW.replace(/-/g, '')
 const NOTION_API_KEY = process.env.NOTION_API_KEY || ''
 const NOTION_VERSION = '2022-06-28'
 
@@ -72,39 +74,83 @@ function parseGuest(page: any): GuestData | null {
   }
 }
 
+// Query Notion DB (used with different filter strategies)
+async function queryGuests(body: { filter?: any }): Promise<any[]> {
+  if (!GUESTS_DATABASE_ID) return []
+  const data = await notionFetch(`/databases/${GUESTS_DATABASE_ID}/query`, {
+    method: 'POST',
+    body: { ...body, page_size: 100 },
+  })
+  return data.results || []
+}
+
+// Case-insensitive code match
+function codesMatch(stored: string, input: string): boolean {
+  return stored.trim().toUpperCase() === input.trim().toUpperCase()
+}
+
 // Find guest by code
-// Notion's rich_text "equals" filter is case-sensitive; try multiple case variants.
-// Property name may be "Code" or "Código" depending on database language.
+// Notion's rich_text "equals" is case-sensitive; we try exact variants then "contains" fallback.
 async function findGuestByCode(code: string): Promise<GuestData | null> {
   const trimmed = code.trim()
-  const variants = [trimmed, trimmed.toUpperCase(), trimmed.toLowerCase()].filter(
+  if (!trimmed) return null
+
+  const variants = [trimmed, trimmed.toUpperCase(), trimmed.toLowerCase(), trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase()].filter(
     (v, i, a) => a.indexOf(v) === i
   )
 
   const codePropertyNames = ['Code', 'Código']
 
+  // 1) Exact match (equals) for each property name and case variant
   for (const propName of codePropertyNames) {
     for (const variant of variants) {
-      if (!variant) continue
-
       for (const filterType of ['rich_text', 'title'] as const) {
         try {
-          const data = await notionFetch(`/databases/${GUESTS_DATABASE_ID}/query`, {
-            method: 'POST',
-            body: {
-              filter: {
-                property: propName,
-                [filterType]: { equals: variant },
-              },
+          const results = await queryGuests({
+            filter: {
+              property: propName,
+              [filterType]: { equals: variant },
             },
           })
-
-          if (data.results && data.results.length > 0) {
-            return parseGuest(data.results[0])
+          if (results.length > 0) {
+            const guest = parseGuest(results[0])
+            if (guest && codesMatch(guest.code, trimmed)) return guest
           }
         } catch {
           continue
         }
+      }
+    }
+  }
+
+  // 2) Fallback: "contains" (catches extra spaces or slight differences), then match by code
+  const searchTerm = trimmed.toLowerCase()
+  for (const propName of codePropertyNames) {
+    try {
+      const results = await queryGuests({
+        filter: {
+          property: propName,
+          rich_text: { contains: trimmed },
+        },
+      })
+      for (const page of results) {
+        const guest = parseGuest(page)
+        if (guest && codesMatch(guest.code, trimmed)) return guest
+      }
+    } catch {
+      try {
+        const results = await queryGuests({
+          filter: {
+            property: propName,
+            rich_text: { contains: searchTerm },
+          },
+        })
+        for (const page of results) {
+          const guest = parseGuest(page)
+          if (guest && codesMatch(guest.code, trimmed)) return guest
+        }
+      } catch {
+        continue
       }
     }
   }
